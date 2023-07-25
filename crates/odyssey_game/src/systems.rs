@@ -9,11 +9,11 @@ use crate::actions::{
     Action, ActionResult, ActorQueue, Damage, Pause, PendingActions, SelectedAction
 };
 use crate::components::{
-    Actor, Card, Cooldown, Health, PlayerCharacter, Position, Projectile
+    Actor, Card, Cooldown, Health, PlayerCharacter, Position, Projectile, Proximity
 };
 use crate::wind::Wind;
 
-pub fn game_step(world: &mut World, manager: &GameManager) {
+pub fn game_step(world: &mut World, manager: &mut GameManager) {
     hit_projectiles(world);
     kill_units(world);
     if process_pending_action(world, manager) {
@@ -28,7 +28,7 @@ pub fn game_step(world: &mut World, manager: &GameManager) {
         // if we reached this point it should be safe to unwrap
         // on the actor queue
         world.get_resource_mut::<ActorQueue>().unwrap().0.pop_front();
-        // try_adjacency(actor, world);
+        process_proximity(actor, world);
     }
 }
 
@@ -37,7 +37,7 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
     queue.0.get(0).map(|&e| e)
 }
 
-fn process_actor(entity: Entity, world: &mut World, manager: &GameManager) -> bool {
+fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     let Some(selected) = get_new_action(entity, world) else { return false };
 
     if let Ok(_) = execute_action(selected.action, world, manager) {
@@ -78,7 +78,7 @@ fn get_new_action(entity: Entity, world: &mut World) -> Option<SelectedAction> {
     }
 }
 
-fn get_card_actions(
+pub fn get_card_actions(
     entity: Entity,
     card_entity: Entity,
     world: &World
@@ -94,7 +94,7 @@ fn get_card_actions(
 fn execute_action(
     mut action: Box<dyn Action>,
     world: &mut World,
-    manager: &GameManager
+    manager: &mut GameManager
 ) -> ActionResult {
     let mut side_effects = Vec::new();
     let type_id = action.type_id();
@@ -117,11 +117,12 @@ fn execute_action(
     let res = action.execute(world);
     if res.is_ok() {
         world.get_resource_mut::<PendingActions>().unwrap().0.extend(side_effects);
+        manager.action_events.publish(action.event());
     }
     res
 }
 
-fn process_pending_action(world: &mut World, manager: &GameManager) -> bool {
+fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool {
     let Some(pending) = world.get_resource_mut::<PendingActions>()
             .unwrap()
             .0
@@ -129,8 +130,15 @@ fn process_pending_action(world: &mut World, manager: &GameManager) -> bool {
         else {
             return false
         };
-    execute_action(pending, world, manager);
+    let _ = execute_action(pending, world, manager);
     true
+}
+
+fn process_proximity(entity: Entity, world: &World) {
+    let Some(proximity) = world.get_component::<Proximity>(entity) else { return };
+    let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
+
+    pending.0.extend(proximity.0.get_actions(entity, world));
 }
 
 fn hit_projectiles(world: &mut World) {

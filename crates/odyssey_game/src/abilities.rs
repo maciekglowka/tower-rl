@@ -41,6 +41,10 @@ impl Ability for Sailing {
                 output.insert(target, Box::new(Travel { entity, target }));
             }
         }
+        if output.len() == 0 {
+            // failsafe
+            output.insert(position.0, Box::new(Travel { entity, target: position.0 }));
+        }
         output
     }
 }

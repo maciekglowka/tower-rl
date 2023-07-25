@@ -3,13 +3,14 @@ use rogalik::{
     storage::{Entity, World}
 };
 use std::{
-    any::TypeId,
+    any::{Any, TypeId},
     collections::VecDeque
 };
 
 use crate::components::{
     Blocker, Health, Name, Player, PlayerCharacter, Position, Projectile
 };
+use crate::events::ActionEvent;
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
 pub struct ActorQueue(pub VecDeque<Entity>);
@@ -17,7 +18,9 @@ pub struct ActorQueue(pub VecDeque<Entity>);
 pub type ActionResult = Result<(), ()>;
 
 pub trait Action {
+    fn as_any(&self) -> &dyn Any;
     fn execute(&self, world: &mut World) -> ActionResult;
+    fn event(&self) -> ActionEvent { ActionEvent::Other }
     fn score(&self, world: &World) -> i32 { 0 }
     fn type_id(&self) -> TypeId where Self: 'static {
         TypeId::of::<Self>()
@@ -34,10 +37,14 @@ pub struct Travel {
     pub target: Vector2I
 }
 impl Action for Travel {
+    fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut position = world.get_component_mut::<Position>(self.entity).ok_or(())?;
         position.0 = self.target;
         Ok(())
+    }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Travel(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
         let Some(player_position) = world.query::<PlayerCharacter>().with::<Position>()
@@ -73,6 +80,7 @@ impl Shoot {
     }
 }
 impl Action for Shoot {
+    fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let target = self.get_target(world);
         let entity = world.spawn_entity();
@@ -103,6 +111,7 @@ pub struct PlaceBouy {
     pub health:  u32
 }
 impl Action for PlaceBouy {
+    fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let entity = world.spawn_entity();
         let _ = world.insert_component(entity, Name("Buoy".into()));
@@ -120,7 +129,33 @@ impl Action for PlaceBouy {
 
 pub struct Pause;
 impl Action for Pause {
+    fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult { Ok(()) }
+}
+
+pub struct MeleeHit {
+    // used in proximity effects
+    // dummy struct used for eg. firing the event
+    pub entity: Entity,
+    pub target: Entity,
+    pub value: u32
+}
+impl Action for MeleeHit {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let position = world.get_component::<Position>(self.entity).ok_or(())?;
+        let other = world.get_component::<Position>(self.target).ok_or(())?;
+        if position.0.manhattan(other.0) != 1 { return Err(()) }
+        let _ = world.get_component::<Health>(self.target).ok_or(())?;
+        Ok(())
+    }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Melee(self.entity, self.target, self.value)
+    }
+    fn score(&self, world: &World) -> i32 {
+        // not used atm
+        0
+    }
 }
 
 pub struct Damage {
@@ -128,6 +163,7 @@ pub struct Damage {
     pub value: u32
 }
 impl Action for Damage {
+    fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0 = health.0.saturating_sub(self.value);

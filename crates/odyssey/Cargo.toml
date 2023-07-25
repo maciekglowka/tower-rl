@@ -1,0 +1,15 @@
+[package]
+name = "odyssey"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+macroquad = "0.4" 
+rogalik = { path = "../../../rogalik" }
+
+macroquad_sprites = { path = "../macroquad_sprites" }
+odyssey_game = { path = "../odyssey_game" }
+odyssey_graphics = { path = "../odyssey_graphics" }
+
