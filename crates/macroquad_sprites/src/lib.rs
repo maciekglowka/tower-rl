@@ -2,7 +2,8 @@ use macroquad::prelude::*;
 use rogalik::math::vectors::Vector2F;
 use std::collections::HashMap;
 
-use odyssey_graphics::{GraphicsBackend, SpriteColor};
+use odyssey_data::SpriteColor;
+use odyssey_graphics::GraphicsBackend;
 
 mod assets;
 mod errors;

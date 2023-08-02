@@ -9,7 +9,7 @@ use crate::actions::{
     Action, ActionResult, ActorQueue, Damage, Pause, PendingActions, SelectedAction
 };
 use crate::components::{
-    Actor, Card, Cooldown, Health, PlayerCharacter, Position, Projectile, Proximity
+    Actor, Card, Cooldown, Health, PlayerCharacter, Position, Projectile
 };
 use crate::wind::Wind;
 
@@ -28,7 +28,7 @@ pub fn game_step(world: &mut World, manager: &mut GameManager) {
         // if we reached this point it should be safe to unwrap
         // on the actor queue
         world.get_resource_mut::<ActorQueue>().unwrap().0.pop_front();
-        process_proximity(actor, world);
+        // process_proximity(actor, world);
     }
 }
 
@@ -134,12 +134,12 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
     true
 }
 
-fn process_proximity(entity: Entity, world: &World) {
-    let Some(proximity) = world.get_component::<Proximity>(entity) else { return };
-    let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
+// fn process_proximity(entity: Entity, world: &World) {
+//     let Some(proximity) = world.get_component::<Proximity>(entity) else { return };
+//     let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
 
-    pending.0.extend(proximity.0.get_actions(entity, world));
-}
+//     pending.0.extend(proximity.0.get_actions(entity, world));
+// }
 
 fn hit_projectiles(world: &mut World) {
     // this should be called before actions are exectued

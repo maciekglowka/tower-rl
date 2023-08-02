@@ -10,6 +10,7 @@ macroquad = "0.4"
 rogalik = { path = "../../../rogalik" }
 
 macroquad_sprites = { path = "../macroquad_sprites" }
+odyssey_data = { path = "../odyssey_data" }
 odyssey_game = { path = "../odyssey_game" }
 odyssey_graphics = { path = "../odyssey_graphics" }
 

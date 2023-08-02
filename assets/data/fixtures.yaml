@@ -1,0 +1,17 @@
+Buoy:
+  sprite:
+    atlas_name: ascii
+    index: 9
+    color: [255, 255, 0, 255]
+  components:
+    Blocker:
+    Fixture:
+
+Rock:
+  sprite:
+    atlas_name: ascii
+    index: 9
+    color: [150, 128, 128, 255]
+  components:
+    Blocker:
+    Fixture:

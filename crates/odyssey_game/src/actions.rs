@@ -134,8 +134,6 @@ impl Action for Pause {
 }
 
 pub struct MeleeHit {
-    // used in proximity effects
-    // dummy struct used for eg. firing the event
     pub entity: Entity,
     pub target: Entity,
     pub value: u32
@@ -153,7 +151,7 @@ impl Action for MeleeHit {
         ActionEvent::Melee(self.entity, self.target, self.value)
     }
     fn score(&self, world: &World) -> i32 {
-        // not used atm
+        if world.get_component::<Player>(self.target).is_some() { return 200 };
         0
     }
 }

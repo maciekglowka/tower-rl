@@ -6,6 +6,7 @@ use rogalik::events::SubscriberHandle;
 use rogalik::storage::{World, WorldEvent};
 use rogalik::math::vectors::{Vector2F, Vector2I};
 
+use odyssey_data::SpriteColor;
 use odyssey_game::{ActionEvent, GameManager};
 
 use globals::TILE_SIZE;
@@ -61,8 +62,8 @@ pub trait GraphicsBackend {
     fn viewport_size(&self) -> Vector2F;
 }
 
-#[derive(Clone, Copy)]
-pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
+// #[derive(Clone, Copy)]
+// pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
 
 fn world_to_tile(
     v: Vector2F,

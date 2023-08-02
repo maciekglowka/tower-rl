@@ -1,0 +1,14 @@
+Player:
+  sprite:
+    atlas_name: ascii
+    index: 127
+    color: [255, 255, 255, 255]
+  components:
+    Blocker:
+    Health: 1
+  cards:
+    - kind: !Sailing
+    - kind: !Cannons [4, 2]
+      cooldown: 3
+    - kind: !Buoy 2
+      cooldown: 3

@@ -7,9 +7,10 @@ use rogalik::{
     storage::{Entity, World}
 };
 
-use crate::actions::{Action, PlaceBouy, Shoot, Travel};
+use crate::actions::{Action, MeleeHit, PlaceBouy, Shoot, Travel};
 use crate::board::Board;
 use crate::components::{Blocker, Position};
+use crate::utils::{are_hostile, get_entities_at_position};
 use crate::wind::Wind;
 
 pub trait Ability {
@@ -111,6 +112,39 @@ impl Ability for Buoy {
             }
         }
         output
+    }
+}
+
+pub struct Abordage {
+    pub damage: u32
+}
+impl Ability for Abordage {
+    fn description(&self) -> String {
+        "Abordage".into()
+    }
+    fn get_possible_actions(
+            &self,
+            entity: Entity,
+            world: &World
+        ) -> HashMap<Vector2I, Box<dyn Action>> {
+        let Some(position) = world.get_component::<Position>(entity) else { return HashMap::new() };
+    
+        let v = ORTHO_DIRECTIONS.iter()
+            .map(|d| position.0 + *d)
+            .map(|v| {
+                get_entities_at_position(world, v).iter()
+                    .filter_map(|e| if are_hostile(entity, *e, world) {
+                            Some((v, Box::new(
+                                MeleeHit { entity, target: *e, value: self.damage }
+                            ) as Box<dyn Action>))
+                        } else {
+                            None
+                        }
+                    )
+                    .collect::<Vec<_>>()
+            })
+            .flatten();
+        HashMap::from_iter(v)
     }
 }
 

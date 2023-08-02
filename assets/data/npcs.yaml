@@ -1,0 +1,12 @@
+Jellyfish:
+  sprite:
+    atlas_name: ascii
+    index: 15
+    color: [255, 0, 255, 255]
+  components:
+    Blocker:
+    Health: 1
+  cards:
+    - kind: !Swimming
+    - kind: !Abordage 1
+

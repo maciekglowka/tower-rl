@@ -5,6 +5,7 @@ use std::{
 use rogalik::math::vectors::Vector2F;
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 
+use odyssey_data::GameData;
 use odyssey_game::{
     ActionEvent,
     components::{Actor, Fixture, Name, Position, Projectile, Tile}
@@ -120,7 +121,8 @@ fn get_sprite_renderer(
     world: &World,
 ) -> SpriteRenderer {
     let mut z_index = 0;
-
+    
+    let game_data = world.get_resource::<GameData>().unwrap();
     let name = world.get_component::<Name>(entity).unwrap();
     let position = world.get_component::<Position>(entity).unwrap();
 
@@ -132,31 +134,35 @@ fn get_sprite_renderer(
         z_index = ACTOR_Z
     }
 
-    let index = match name.0.as_str() {
-        "Buoy" => 9,
-        "Player" => 127,
-        "Rock" => 9,
-        "Rowers" => 15,
-        "Tile" => 177,
-        _ => 0
-    };
-    let color = match name.0.as_str() {
-        "Buoy" => SpriteColor(255, 255, 0, 255),
-        "Player" => SpriteColor(255, 255, 255, 255),
-        "Rock" => SpriteColor(150, 128, 128, 255),
-        "Rowers" => SpriteColor(255, 0, 255, 255),
-        "Tile" => SpriteColor(50, 50, 200, 255),
-        _ => SpriteColor(0, 0, 0, 0) 
-    };
+    let data = game_data.entities.get(&name.0).expect(
+        &format!("No data found for {}", name.0)
+    );
+
+    // let index = match name.0.as_str() {
+    //     "Buoy" => 9,
+    //     "Player" => 127,
+    //     "Rock" => 9,
+    //     "Jellyfish" => 15,
+    //     "Tile" => 177,
+    //     _ => 0
+    // };
+    // let color = match name.0.as_str() {
+    //     "Buoy" => SpriteColor(255, 255, 0, 255),
+    //     "Player" => SpriteColor(255, 255, 255, 255),
+    //     "Rock" => SpriteColor(150, 128, 128, 255),
+    //     "Jellyfish" => SpriteColor(255, 0, 255, 255),
+    //     "Tile" => SpriteColor(50, 50, 200, 255),
+    //     _ => SpriteColor(0, 0, 0, 0) 
+    // };
 
     SpriteRenderer { 
         entity: entity,
         v: position.0.as_f32() * TILE_SIZE,
         path: VecDeque::new(),
         atlas_name: "ascii".into(),
-        index,
+        index: data.sprite.index,
         z_index,
-        color
+        color: data.sprite.color
     }
 }
 

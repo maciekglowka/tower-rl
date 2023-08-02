@@ -6,6 +6,7 @@ use::rogalik::storage::{Entity, World};
 
 use crate::components::{Blocker, Fixture, Name, Position, Tile};
 use crate::globals::BOARD_SIZE;
+use crate::utils::spawn_with_position;
 
 pub struct Board {
     pub tiles: HashMap<Vector2I, Entity>
@@ -17,19 +18,12 @@ impl Board {
     pub fn generate(&mut self, world: &mut World) {
         let layout = BoardLayout::generate();
         for v in layout.tiles {
-            let entity = world.spawn_entity();
-            let _ = world.insert_component::<Name>(entity, Name("Tile".into()));
-            let _ = world.insert_component::<Position>(entity, Position(v));
-            let _ = world.insert_component::<Tile>(entity, Tile);
+            let entity = spawn_with_position(world, "Tile", v).unwrap();
             self.tiles.insert(v, entity);
         }
 
         for v in layout.rocks {
-            let entity = world.spawn_entity();
-            let _ = world.insert_component(entity, Name("Rock".into()));
-            let _ = world.insert_component(entity, Position(v));
-            let _ = world.insert_component(entity, Fixture);
-            let _ = world.insert_component(entity, Blocker);
+            let _ = spawn_with_position(world, "Rock", v);
         }
     }
 }

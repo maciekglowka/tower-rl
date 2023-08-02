@@ -9,4 +9,5 @@ edition = "2021"
 macroquad = "0.4" 
 rogalik = { path = "../../../rogalik" }
 
+odyssey_data = { path = "../odyssey_data" }
 odyssey_graphics = { path = "../odyssey_graphics" }
