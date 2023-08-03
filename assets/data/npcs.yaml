@@ -7,7 +7,7 @@ Jellyfish:
     Blocker:
     Health: 1
   cards:
-    - kind: !Swimming
+    - kind: !Swimming 1
     - kind: !Abordage 1
 
 Shark:
@@ -17,7 +17,7 @@ Shark:
     color: [128, 128, 128, 255]
   components:
     Blocker:
-    Health: 2
+    Health: 1
   cards:
-    - kind: !Swimming
+    - kind: !Swimming 2
     - kind: !Abordage 1

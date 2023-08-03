@@ -25,6 +25,6 @@ fn get_ability_by_kind(kind: CardKind) -> Box<dyn abilities::Ability> {
         CardKind::Buoy(health) => Box::new(abilities::Buoy{ health }),
         CardKind::Cannons(dist, damage) => Box::new(abilities::Cannons { dist, damage }),
         CardKind::Sailing => Box::new(abilities::Sailing),
-        CardKind::Swimming => Box::new(abilities::Swimming),
+        CardKind::Swimming(dist) => Box::new(abilities::Swimming { dist }),
     }
 }

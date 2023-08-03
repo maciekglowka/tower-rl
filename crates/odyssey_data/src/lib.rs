@@ -56,5 +56,5 @@ pub enum CardKind {
     Buoy(u32),
     Cannons(u32, u32),
     Sailing,
-    Swimming
+    Swimming(u32)
 }

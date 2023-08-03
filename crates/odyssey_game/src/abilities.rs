@@ -50,7 +50,9 @@ impl Ability for Sailing {
     }
 }
 
-pub struct Swimming;
+pub struct Swimming {
+    pub dist: u32
+}
 impl Ability for Swimming {
     fn description(&self) -> String {
         "Swimming".into()
@@ -60,9 +62,10 @@ impl Ability for Swimming {
         let Some(position) = world.get_component::<Position>(entity) else { return output };
 
         for dir in ORTHO_DIRECTIONS {
-            let target = position.0 + dir;
-            if is_tile_traversible(target, world) {
-                output.insert(target, Box::new(Travel { entity, target }));
+            for dist in 0..=self.dist {
+                if let Some(target) = get_furthest_traversible(position.0, dir, dist, world) {
+                    output.insert(target, Box::new(Travel { entity, target }));
+                }
             }
         }
         output.insert(position.0, Box::new(Travel { entity, target: position.0 }));
