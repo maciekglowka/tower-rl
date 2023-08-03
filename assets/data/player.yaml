@@ -8,7 +8,7 @@ Player:
     Health: 1
   cards:
     - kind: !Sailing
-    - kind: !Cannons [4, 2]
+    - kind: !Cannons [4, 1]
       cooldown: 3
     - kind: !Buoy 2
       cooldown: 3

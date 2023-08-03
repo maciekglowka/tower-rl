@@ -26,7 +26,7 @@ mod wind;
 pub use board::Board;
 pub use events::ActionEvent;
 pub use wind::Wind;
-pub use systems::{game_step, get_card_actions};
+pub use systems::get_card_actions;
 
 use action_modifiers::ActionModifier;
 
@@ -44,31 +44,8 @@ impl GameManager {
 }
 
 pub fn init(world: &mut World, manager: &mut GameManager) {
-    let mut board = board::Board::new();
-    board.generate(world);
-    world.insert_resource(board);
-
-    let wind = wind::Wind::new();
-    world.insert_resource(wind);
-
-    let queue = actions::ActorQueue(VecDeque::new());
-    world.insert_resource(queue);
-
-    let pending = actions::PendingActions(VecDeque::new());
-    world.insert_resource(pending);
-
-    player::spawn_player(world);
-
-    let mut rng = thread_rng();
-    for _ in 0..3 {
-        let v = Vector2I::new(
-            rng.gen_range(4..8),
-            rng.gen_range(4..8),
-        );
-
-        let npc = utils::spawn_with_position(world, "Jellyfish", v);
-    }
     register_action_modifiers(manager);
+    systems::board_start(world);
 }
 
 fn register_action_modifiers(manager: &mut GameManager) {
@@ -79,4 +56,13 @@ fn register_action_modifiers(manager: &mut GameManager) {
             ].to_vec()
         )
     ]);
+}
+
+pub fn game_update(world: &mut World, manager: &mut GameManager) {
+    if systems::is_board_complete(world) {
+        systems::board_end(world);
+        systems::board_start(world);
+        return;
+    }
+    systems::turn_step(world, manager);
 }

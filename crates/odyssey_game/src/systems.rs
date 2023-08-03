@@ -2,18 +2,62 @@ use rogalik::{
     math::vectors::Vector2I,
     storage::{Entity, World}
 };
-use std::collections::HashMap;
+use rand::prelude::*;
+use std::collections::{HashMap, VecDeque};
 
+use crate::board::Board;
 use crate::GameManager;
 use crate::actions::{
     Action, ActionResult, ActorQueue, Damage, Pause, PendingActions, SelectedAction
 };
 use crate::components::{
-    Actor, Card, Cooldown, Health, PlayerCharacter, Position, Projectile
+    Actor, Card, Cooldown, Health, Player, PlayerCharacter, Position, Projectile
 };
+use crate::player;
+use crate::utils;
 use crate::wind::Wind;
 
-pub fn game_step(world: &mut World, manager: &mut GameManager) {
+pub fn board_start(world: &mut World) {
+    // replace board resource
+    let mut board = Board::new();
+    board.generate(world);
+    world.insert_resource(board);
+
+    // reset queues
+    let queue = ActorQueue(VecDeque::new());
+    world.insert_resource(queue);
+
+    let pending = PendingActions(VecDeque::new());
+    world.insert_resource(pending);
+
+    let wind = Wind::new();
+    world.insert_resource(wind);
+
+    player::spawn_player(world);
+    spawn_npcs(world);
+}
+
+pub fn board_end(world: &mut World) {
+    // despawn cards
+    let card_entities = world.query::<Actor>().iter()
+        .map(|i| i.get::<Actor>().unwrap().cards.iter().map(|&e| e).collect::<Vec<_>>())
+        .flatten()
+        .collect::<Vec<_>>();
+
+    for entity in card_entities {
+        world.despawn_entity(entity);
+    }
+
+    // despawn board objects
+    let objects = world.query::<Position>().iter()
+        .map(|i| i.entity)
+        .collect::<Vec<_>>();
+    for entity in objects {
+        world.despawn_entity(entity);
+    }
+}
+
+pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     hit_projectiles(world);
     kill_units(world);
     if process_pending_action(world, manager) {
@@ -202,4 +246,27 @@ fn turn_end(world: &mut World) {
     }
     reduce_cooldown(world);
     collect_actor_queue(world);
+    player::turn_end(world);
+}
+
+fn spawn_npcs(world: &mut World) {
+    let mut rng = thread_rng();
+    for _ in 0..3 {
+        let v = Vector2I::new(
+            rng.gen_range(4..8),
+            rng.gen_range(4..8),
+        );
+
+        let name = if rng.gen_bool(0.6) { "Jellyfish" } else { "Shark" };
+
+        let npc = utils::spawn_with_position(world, name, v);
+    }
+}
+
+pub fn is_board_complete(world: &World) -> bool {
+    for item in world.query::<Actor>().iter() {
+        // non-player actor left - do not finish
+        if item.get::<Player>().is_none() { return false }
+    }
+    true
 }

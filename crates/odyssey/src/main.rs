@@ -62,7 +62,7 @@ async fn main() {
         let frame_start = Instant::now();
 
         if graphics_ready {
-            odyssey_game::game_step(&mut world, &mut manager);
+            odyssey_game::game_update(&mut world, &mut manager);
         }
         clear_background(BLACK);
         set_camera(&main_camera);

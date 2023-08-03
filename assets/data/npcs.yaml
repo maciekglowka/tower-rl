@@ -10,3 +10,14 @@ Jellyfish:
     - kind: !Swimming
     - kind: !Abordage 1
 
+Shark:
+  sprite:
+    atlas_name: ascii
+    index: 30
+    color: [128, 128, 128, 255]
+  components:
+    Blocker:
+    Health: 2
+  cards:
+    - kind: !Swimming
+    - kind: !Abordage 1

@@ -14,3 +14,10 @@ pub fn spawn_player(world: &mut World) {
         active_card: 0
     });
 }
+
+pub fn turn_end(world: &mut World) {
+    if let Some(item) = world.query::<PlayerCharacter>().iter().next() {
+        world.get_component_mut::<PlayerCharacter>(item.entity)
+            .unwrap().active_card = 0;
+    }
+}
