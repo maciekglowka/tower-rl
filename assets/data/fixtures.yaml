@@ -6,3 +6,11 @@ Rock:
   components:
     Blocker:
     Fixture:
+Vortex:
+  sprite:
+    atlas_name: ascii
+    index: 9
+    color: [50, 50, 200, 255]
+  components:
+    Fixture:
+    Vortex:

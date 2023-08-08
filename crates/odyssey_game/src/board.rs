@@ -25,6 +25,9 @@ impl Board {
         for v in layout.rocks {
             let _ = spawn_with_position(world, "Rock", v);
         }
+        let _ = spawn_with_position(
+            world, "Vortex", Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
+        );
     }
 }
 
@@ -44,8 +47,8 @@ impl BoardLayout {
 
         let mut rng = thread_rng();
         let rocks = (0..3).map(|_| Vector2I::new(
-                rng.gen_range(0..BOARD_SIZE) as i32,
-                rng.gen_range(0..BOARD_SIZE) as i32
+                rng.gen_range(1..BOARD_SIZE-1) as i32,
+                rng.gen_range(1..BOARD_SIZE-1) as i32
             ))
             .collect();
 

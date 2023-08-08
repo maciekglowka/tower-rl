@@ -30,6 +30,10 @@ impl Component for Health {}
 pub struct Tile;
 impl Component for Tile {}
 
+#[derive(Deserialize)]
+pub struct Vortex;
+impl Component for Vortex {}
+
 
 // context-dependet components
 
@@ -38,7 +42,6 @@ impl Component for Name {}
 
 // many can exist in the world
 // marks entities 'allied' or spawned by the player
-
 pub struct Player;
 impl Component for Player {}
 
@@ -60,7 +63,6 @@ pub struct Projectile{
 }
 impl Component for Projectile {}
 
-
 pub fn insert_data_components(
     entity: Entity,
     world: &mut World,
@@ -75,6 +77,7 @@ pub fn insert_data_components(
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
+            "Vortex" => insert_single::<Vortex>(entity, world, component_data),
             a => panic!("Unknown component {a}")
         };
     }

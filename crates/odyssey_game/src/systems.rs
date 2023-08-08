@@ -12,7 +12,7 @@ use crate::actions::{
     Action, ActorQueue, Damage, Pause, PendingActions
 };
 use crate::components::{
-    Actor, Health, Player, PlayerCharacter, Position, Projectile
+    Actor, Health, Player, PlayerCharacter, Position, Projectile, Vortex
 };
 use crate::player;
 use crate::utils;
@@ -31,7 +31,7 @@ pub fn board_start(world: &mut World) {
     world.insert_resource(pending);
 
     player::spawn_player(world);
-    spawn_npcs(world);
+    // spawn_npcs(world);
 }
 
 pub fn board_end(world: &mut World) {
@@ -229,9 +229,12 @@ fn spawn_npcs(world: &mut World) {
 }
 
 pub fn is_board_complete(world: &World) -> bool {
-    for item in world.query::<Actor>().iter() {
-        // non-player actor left - do not finish
-        if item.get::<Player>().is_none() { return false }
+    if let Some(player) = world.query::<PlayerCharacter>().iter().next() {
+        if let Some(position) = player.get::<Position>() {
+            if utils::get_entities_at_position(world, position.0).iter().any(
+                |e| world.get_component::<Vortex>(*e).is_some()
+            ) { return true }
+        }
     }
-    true
+    false
 }
