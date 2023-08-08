@@ -4,9 +4,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS};
 use::rogalik::storage::{Entity, World};
 
-use crate::components::{Blocker, Fixture, Name, Position, Tile};
+use crate::components::{Blocker, Fixture, Name, Position, Tile, Spawner};
 use crate::globals::BOARD_SIZE;
-use crate::utils::spawn_with_position;
+use crate::utils::{get_entities_at_position, spawn_with_position};
 
 pub struct Board {
     pub tiles: HashMap<Vector2I, Entity>
@@ -53,5 +53,30 @@ impl BoardLayout {
             .collect();
 
         BoardLayout { tiles, rocks }
+    }
+}
+
+pub fn create_spawner(world: &mut World) {
+    let position = get_free_tile(world);
+    let Some(entity) = spawn_with_position(world, "Spawner", position) else { return };
+    let mut rng = thread_rng();
+    let _ = world.insert_component(entity, Spawner {
+        target: if rng.gen_bool(0.6) { "Jellyfish".into() } else { "Shark".into() },
+        countdown: 2
+    });
+}
+
+fn get_free_tile(world: &World) -> Vector2I {
+    let mut rng = thread_rng();
+    loop {
+        let v = Vector2I::new(
+            rng.gen_range(1..BOARD_SIZE-1) as i32,
+            rng.gen_range(1..BOARD_SIZE-1) as i32
+        );
+        if !get_entities_at_position(world, v).iter().any(
+                |&e| world.get_component::<Blocker>(e).is_some()
+        ) {
+            break v
+        }
     }
 }

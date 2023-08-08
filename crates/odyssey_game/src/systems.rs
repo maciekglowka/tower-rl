@@ -5,15 +5,15 @@ use rogalik::{
 use rand::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
-use crate::abilities::{get_possible_actions, Ability};
-use crate::board::Board;
-use crate::GameManager;
 use crate::actions::{
     Action, ActorQueue, Damage, Pause, PendingActions
 };
+use crate::abilities::{get_possible_actions, Ability};
+use crate::board::{Board, create_spawner};
 use crate::components::{
-    Actor, Health, Player, PlayerCharacter, Position, Projectile, Vortex
+    Actor, Health, Player, PlayerCharacter, Position, Projectile, Spawner, Vortex
 };
+use crate::GameManager;
 use crate::player;
 use crate::utils;
 
@@ -213,19 +213,31 @@ fn turn_end(world: &mut World) {
     reduce_cooldown(world);
     collect_actor_queue(world);
     player::turn_end(world);
+    spawn_npcs(world);
 }
 
 fn spawn_npcs(world: &mut World) {
-    let mut rng = thread_rng();
-    for _ in 0..3 {
-        let v = Vector2I::new(
-            rng.gen_range(4..8),
-            rng.gen_range(4..8),
-        );
+    // process spawners
+    let mut new = Vec::new();
+    for item in world.query::<Spawner>().with::<Position>().iter() {
+        let mut spawner = item.get_mut::<Spawner>().unwrap();
+        spawner.countdown = spawner.countdown.saturating_sub(1);
 
-        let name = if rng.gen_bool(0.6) { "Jellyfish" } else { "Shark" };
-        let npc = utils::spawn_with_position(world, name, v);
+        if spawner.countdown == 0 {
+            let position = item.get::<Position>().unwrap();
+            new.push((item.entity, spawner.target.clone(), position.0));
+        }
     }
+
+    for item in new {
+        utils::spawn_with_position(world, &item.1, item.2);
+        world.despawn_entity(item.0);
+    }
+
+    // add new spawners
+    let mut rng = thread_rng();
+    if rng.gen_bool(0.5) { return };
+    create_spawner(world);
 }
 
 pub fn is_board_complete(world: &World) -> bool {

@@ -56,12 +56,18 @@ impl Component for PlayerCharacter {}
 pub struct Position(pub Vector2I);
 impl Component for Position {}
 
-pub struct Projectile{
+pub struct Projectile {
     pub damage: u32,
     pub source: Vector2I,
     pub target: Vector2I
 }
 impl Component for Projectile {}
+
+pub struct Spawner {
+    pub target: String,
+    pub countdown: u32
+}
+impl Component for Spawner {}
 
 pub fn insert_data_components(
     entity: Entity,
