@@ -4,11 +4,12 @@ Jellyfish:
     index: 15
     color: [255, 0, 255, 255]
   components:
+    Actor:
+      abilities:
+        - kind: !Swim
+        - kind: !Melee
     Blocker:
     Health: 1
-  cards:
-    - kind: !Swimming 1
-    - kind: !Abordage 1
 
 Shark:
   sprite:
@@ -16,8 +17,10 @@ Shark:
     index: 30
     color: [128, 128, 128, 255]
   components:
+    Actor:
+      abilities:
+        - kind: !Swim
+          value: 2
+        - kind: !Melee
     Blocker:
     Health: 1
-  cards:
-    - kind: !Swimming 2
-    - kind: !Abordage 1

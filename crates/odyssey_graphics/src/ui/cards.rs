@@ -1,6 +1,6 @@
 use rogalik::storage::{Component, World};
 
-use odyssey_game::components::{Actor, Card, Cooldown, PlayerCharacter};
+use odyssey_game::components::{Actor, PlayerCharacter};
 
 use super::{InputState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
@@ -8,27 +8,17 @@ use super::buttons::Button;
 pub fn draw_cards(world: &World, backend: &dyn GraphicsBackend, state: &InputState) -> Option<usize> {
     let query = world.query::<PlayerCharacter>().with::<Actor>();
     let item = query.iter().next()?;
-    let cards = &item.get::<Actor>().unwrap().cards;
-    let active = item.get::<PlayerCharacter>()?.active_card;
+    let abilities = &item.get::<Actor>().unwrap().abilities;
+    let active = item.get::<PlayerCharacter>()?.active_ability;
 
     let viewport_size = backend.viewport_size();
 
     let mut clicked = None;
-    for (i, entity) in cards.iter().enumerate() {
-        // let desc = world.get_entity_components(*card)
-        //     .iter()
-        //     .map(|c| c.as_str())
-        //     .collect::<Vec<_>>();
-        let mut desc = if let Some(card) = world.get_component::<Card>(*entity) {
-            card.as_str()
-        } else {
-            String::new()
-        };
-        if let Some(cooldown) = world.get_component::<Cooldown>(*entity) {
+    for (i, ability) in abilities.iter().enumerate() {
+        let mut desc = ability.as_str().to_owned();
+        if let Some(cooldown) = ability.cooldown {
             desc += &format!(" ({})", cooldown.current);
         }
-
-        // let desc = desc.join(", ");
         let color = if i == active {
             SpriteColor(255, 255, 255, 255)
         } else {
@@ -56,5 +46,5 @@ pub fn click_card(index: usize, world: &World) {
         .unwrap()
         .get_mut::<PlayerCharacter>()
         .unwrap()
-        .active_card = index;
+        .active_ability = index;
 }

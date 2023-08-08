@@ -2,12 +2,15 @@ use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2I;
 use serde::Deserialize;
 
+use crate::actions::Action;
 use crate::abilities::Ability;
-use crate::actions::SelectedAction;
-// use crate::proximity::ProximityEffect;
-
 
 // dynamicly deserialized components
+#[derive(Deserialize)]
+pub struct Actor {
+    pub abilities: Vec<Ability>,
+}
+impl Component for Actor {}
 
 #[derive(Deserialize)]
 // actor cannot travel to a blocked tile
@@ -27,37 +30,8 @@ impl Component for Health {}
 pub struct Tile;
 impl Component for Tile {}
 
-// automatic close-distance ability (like melee)
-// pub struct Proximity(pub Box<dyn ProximityEffect>);
-// impl Component for Proximity {}
-
 
 // context-dependet components
-
-pub struct Actor {
-    pub cards: Vec<Entity>,
-    pub action: Option<SelectedAction>
-}
-impl Component for Actor {}
-
-
-pub struct Card(pub Box<dyn Ability>);
-impl Component for Card {
-    fn as_str(&self) -> String {
-        self.0.description()
-    }
-}
-
-#[derive(Deserialize)]
-pub struct Cooldown {
-    pub base: u32,
-    pub current: u32
-}
-impl Component for Cooldown {
-    fn as_str(&self) -> String {
-        format!("Cooldown ({})", self.current)
-    }
-}
 
 pub struct Name (pub String);
 impl Component for Name {}
@@ -71,7 +45,8 @@ impl Component for Player {}
 // only one in the game world
 // the actual player
 pub struct PlayerCharacter {
-    pub active_card: usize
+    pub active_ability: usize,
+    pub selected_action: Option<Box<dyn Action>>
 }
 impl Component for PlayerCharacter {}
 
@@ -95,6 +70,7 @@ pub fn insert_data_components(
     for (name, component_data) in data.iter() {
         let Some(name) = name.as_str() else { continue };
         match name {
+            "Actor" => insert_single::<Actor>(entity, world, component_data),
             "Blocker" => insert_single::<Blocker>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),

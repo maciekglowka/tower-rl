@@ -3,8 +3,8 @@ use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 
 use odyssey_game::{
     actions::ActorQueue,
-    components::{Actor, Card, PlayerCharacter, Position},
-    get_card_actions
+    components::{Actor, PlayerCharacter, Position},
+    get_ability_actions
 };
 
 use crate::SpriteColor;
@@ -23,7 +23,7 @@ pub fn draw_cursor(
     let Some(actor) = item.get::<Actor>() else { return };
     let player = item.get::<PlayerCharacter>().unwrap();
 
-    for action in get_card_actions(item.entity, actor.cards[player.active_card], world) {
+    for action in get_ability_actions(item.entity, &actor.abilities[player.active_ability], world) {
         backend.draw_world_sprite(
             "ascii",
             249,

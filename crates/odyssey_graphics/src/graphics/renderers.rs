@@ -73,10 +73,8 @@ pub fn handle_action_events(
         match ev {
             ActionEvent::Melee(entity, target, _) => {
                 if let Some(sprite) = get_entity_sprite(*entity, state) {
-                    if let Some(position) = world.get_component::<Position>(*target) {
-                        sprite.path.push_back(position.0.as_f32() * TILE_SIZE);
-                        sprite.path.push_back(sprite.v);
-                    }
+                    sprite.path.push_back(target.as_f32() * TILE_SIZE);
+                    sprite.path.push_back(sprite.v);
                 }
             },
             ActionEvent::Travel(entity, target) => {
@@ -137,23 +135,6 @@ fn get_sprite_renderer(
     let data = game_data.entities.get(&name.0).expect(
         &format!("No data found for {}", name.0)
     );
-
-    // let index = match name.0.as_str() {
-    //     "Buoy" => 9,
-    //     "Player" => 127,
-    //     "Rock" => 9,
-    //     "Jellyfish" => 15,
-    //     "Tile" => 177,
-    //     _ => 0
-    // };
-    // let color = match name.0.as_str() {
-    //     "Buoy" => SpriteColor(255, 255, 0, 255),
-    //     "Player" => SpriteColor(255, 255, 255, 255),
-    //     "Rock" => SpriteColor(150, 128, 128, 255),
-    //     "Jellyfish" => SpriteColor(255, 0, 255, 255),
-    //     "Tile" => SpriteColor(50, 50, 200, 255),
-    //     _ => SpriteColor(0, 0, 0, 0) 
-    // };
 
     SpriteRenderer { 
         entity: entity,

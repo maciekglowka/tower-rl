@@ -5,7 +5,6 @@ use rogalik::{
 
 use odyssey_data::GameData;
 
-use crate::cards::spawn_card;
 use crate::components::{Actor, Name, Player, Position, insert_data_components};
 
 pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
@@ -35,16 +34,6 @@ pub fn spawn_with_position(
     let data = world.get_resource::<GameData>()?
         .entities.get(name).expect(&format!("Could not spawn: {} - no data found!", name)).clone();
     insert_data_components(entity, world, &data.components);
-
-    if let Some(cards) = data.cards {
-        let entities = cards.iter()
-            .map(|c| spawn_card(world, c))
-            .collect::<Vec<_>>();
-        let _ = world.insert_component(entity, Actor {
-            cards: entities,
-            action: None
-        });
-    }
 
     Some(entity)
 }

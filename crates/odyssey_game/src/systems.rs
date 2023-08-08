@@ -5,17 +5,17 @@ use rogalik::{
 use rand::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
+use crate::abilities::{get_possible_actions, Ability};
 use crate::board::Board;
 use crate::GameManager;
 use crate::actions::{
-    Action, ActionResult, ActorQueue, Damage, Pause, PendingActions, SelectedAction
+    Action, ActorQueue, Damage, Pause, PendingActions
 };
 use crate::components::{
-    Actor, Card, Cooldown, Health, Player, PlayerCharacter, Position, Projectile
+    Actor, Health, Player, PlayerCharacter, Position, Projectile
 };
 use crate::player;
 use crate::utils;
-use crate::wind::Wind;
 
 pub fn board_start(world: &mut World) {
     // replace board resource
@@ -30,24 +30,11 @@ pub fn board_start(world: &mut World) {
     let pending = PendingActions(VecDeque::new());
     world.insert_resource(pending);
 
-    let wind = Wind::new();
-    world.insert_resource(wind);
-
     player::spawn_player(world);
     spawn_npcs(world);
 }
 
 pub fn board_end(world: &mut World) {
-    // despawn cards
-    let card_entities = world.query::<Actor>().iter()
-        .map(|i| i.get::<Actor>().unwrap().cards.iter().map(|&e| e).collect::<Vec<_>>())
-        .flatten()
-        .collect::<Vec<_>>();
-
-    for entity in card_entities {
-        world.despawn_entity(entity);
-    }
-
     // despawn board objects
     let objects = world.query::<Position>().iter()
         .map(|i| i.entity)
@@ -84,86 +71,71 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     let Some(selected) = get_new_action(entity, world) else { return false };
 
-    if let Ok(_) = execute_action(selected.action, world, manager) {
-        if let Some(card) = selected.card {
-            if let Some(mut cooldown) = world.get_component_mut::<Cooldown>(card) {
-                cooldown.current = cooldown.base;
+    if let Ok(_) = execute_action(selected, world, manager) {
+        if let Some(player) = world.get_component::<PlayerCharacter>(entity) { 
+            if let Some(mut actor) = world.get_component_mut::<Actor>(entity) {
+                let ability = actor.abilities.get_mut(player.active_ability).unwrap();
+                if let Some(ref mut cooldown) = ability.cooldown {
+                    cooldown.current = cooldown.max;
+                }
             }
-        }
+        };
     }
     true
 }
 
-fn get_new_action(entity: Entity, world: &mut World) -> Option<SelectedAction> {
+fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
     let Some(mut actor) = world.get_component_mut::<Actor>(entity) else {
         // remove actor from the queue as it might have been killed or smth
         world.get_resource_mut::<ActorQueue>()?.0.retain(|a| *a != entity);
         return None;
     };
-    if let Some(action) = actor.action.take() { return Some(action) };
 
     // if it's player's turn and no action is selected -> return (to wait for input)
-    if world.get_component::<PlayerCharacter>(entity).is_some() { return None };
+    if let Some(mut player) = world.get_component_mut::<PlayerCharacter>(entity) { 
+        return player.selected_action.take();
+    };
 
     // otherwise choose npcs actions
-    let mut possible_actions = actor.cards.iter()
-        .map(|e| get_card_actions(entity, *e, world)
+    let mut possible_actions = actor.abilities.iter()
+        .map(|ability| get_ability_actions(entity, ability, world)
             .drain()
-            .map(|a| (a.1, e))
+            .map(|a| a.1)
             .collect::<Vec<_>>()
         )
         .flatten()
         .collect::<Vec<_>>();
 
-    possible_actions.sort_by(|a, b| a.0.score(world).cmp(&b.0.score(world)));
+    possible_actions.sort_by(|a, b| a.score(world).cmp(&b.score(world)));
     match possible_actions.pop() {
-        Some(a) => Some(SelectedAction { action: a.0, card: Some(*a.1) }),
-        _ => Some(SelectedAction { action: Box::new(Pause), card: None })
+        Some(a) => Some(a),
+        _ => Some(Box::new(Pause))
     }
 }
 
-pub fn get_card_actions(
+pub fn get_ability_actions(
     entity: Entity,
-    card_entity: Entity,
+    ability: &Ability,
     world: &World
 ) -> HashMap<Vector2I, Box<dyn Action>> {
-    let Some(card) =  world.get_component::<Card>(card_entity)
-        else { return HashMap::new() };
-    if let Some(cooldown) = world.get_component::<Cooldown>(card_entity) {
+    if let Some(cooldown) = ability.cooldown {
         if cooldown.current > 0 { return HashMap::new()};
     }
-    card.0.get_possible_actions(entity, world)
+    get_possible_actions(entity, ability, world)
 }
 
 fn execute_action(
-    mut action: Box<dyn Action>,
+    action: Box<dyn Action>,
     world: &mut World,
     manager: &mut GameManager
-) -> ActionResult {
-    let mut side_effects = Vec::new();
-    let type_id = action.type_id();
-
-    for modifier in manager.action_modifiers.get(&type_id).iter().flat_map(|a| *a) {
-        let result = modifier(world, action);
-        if result.action.type_id() != type_id {
-            // the action has changed it's type
-            // start over and discard potential side-effects
-            world.get_resource_mut::<PendingActions>().unwrap().0.push_front(result.action);
-            // we treat the action as succesful
-            // so eg. card's cooldown gets applied
-            // TODO rethink this in the future
-            return Ok(());
-        }
-        action = result.action;
-        side_effects.extend(result.side_effects);
-    }
-
+) -> Result<(), ()> {
     let res = action.execute(world);
-    if res.is_ok() {
-        world.get_resource_mut::<PendingActions>().unwrap().0.extend(side_effects);
+    if let Ok(res) = res {
+        world.get_resource_mut::<PendingActions>().unwrap().0.extend(res);
         manager.action_events.publish(action.event());
+        return Ok(())
     }
-    res
+    Err(())
 }
 
 fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool {
@@ -177,13 +149,6 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
     let _ = execute_action(pending, world, manager);
     true
 }
-
-// fn process_proximity(entity: Entity, world: &World) {
-//     let Some(proximity) = world.get_component::<Proximity>(entity) else { return };
-//     let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
-
-//     pending.0.extend(proximity.0.get_actions(entity, world));
-// }
 
 fn hit_projectiles(world: &mut World) {
     // this should be called before actions are exectued
@@ -234,16 +199,17 @@ fn collect_actor_queue(world: &mut World) {
 }
 
 fn reduce_cooldown(world: &mut World) {
-    for item in world.query::<Cooldown>().iter() {
-        let mut cooldown = item.get_mut::<Cooldown>().unwrap();
-        cooldown.current = cooldown.current.saturating_sub(1);
+    for item in world.query::<Actor>().iter() {
+        let mut actor = item.get_mut::<Actor>().unwrap();
+        for abilitiy in actor.abilities.iter_mut() {
+            if let Some(ref mut cooldown) = abilitiy.cooldown {
+                cooldown.current = cooldown.current.saturating_sub(1);
+            }
+        }
     }
 }
 
 fn turn_end(world: &mut World) {
-    if let Some(mut wind) = world.get_resource_mut::<Wind>() {
-        wind.pop_wind();
-    }
     reduce_cooldown(world);
     collect_actor_queue(world);
     player::turn_end(world);
@@ -258,7 +224,6 @@ fn spawn_npcs(world: &mut World) {
         );
 
         let name = if rng.gen_bool(0.6) { "Jellyfish" } else { "Shark" };
-
         let npc = utils::spawn_with_position(world, name, v);
     }
 }

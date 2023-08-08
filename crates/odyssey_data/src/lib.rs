@@ -31,13 +31,6 @@ impl GameData {
 pub struct EntityData {
     pub sprite: SpriteData,
     pub components: serde_yaml::Value,
-    pub cards: Option<Vec<CardData>>
-}
-
-#[derive(Clone, Deserialize)]
-pub struct CardData {
-    pub kind: CardKind,
-    pub cooldown: Option<u32>
 }
 
 #[derive(Clone, Deserialize)]
@@ -49,12 +42,3 @@ pub struct SpriteData {
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
-
-#[derive(Clone, Copy, Deserialize)]
-pub enum CardKind {
-    Abordage(u32),
-    Buoy(u32),
-    Cannons(u32, u32),
-    Sailing,
-    Swimming(u32)
-}

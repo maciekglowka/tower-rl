@@ -11,13 +11,14 @@ pub fn spawn_player(world: &mut World) {
         .unwrap();
     let _ = world.insert_component(entity, Player);
     let _ = world.insert_component(entity, PlayerCharacter{
-        active_card: 0
+        active_ability: 0,
+        selected_action: None
     });
 }
 
 pub fn turn_end(world: &mut World) {
     if let Some(item) = world.query::<PlayerCharacter>().iter().next() {
         world.get_component_mut::<PlayerCharacter>(item.entity)
-            .unwrap().active_card = 0;
+            .unwrap().active_ability = 0;
     }
 }

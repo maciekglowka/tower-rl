@@ -1,4 +1,4 @@
-use odyssey_game::actions::SelectedAction;
+use odyssey_game::get_ability_actions;
 
 use crate::world_to_tile;
 use super::{ButtonState, InputState};
@@ -13,16 +13,15 @@ pub fn handle_tile_input(
     let Some(item) = query.iter().next() else { return };
     let tile = world_to_tile(state.mouse_world_position);
 
-    let Some(mut actor) = item.get_mut::<odyssey_game::components::Actor>() else { return };
-    let active = item.get::<odyssey_game::components::PlayerCharacter>().unwrap().active_card;
-    let card_entity = actor.cards[active];
-    let Some(card) = world.get_component::<odyssey_game::components::Card>(card_entity) else { return };
+    let Some(actor) = item.get::<odyssey_game::components::Actor>() else { return };
+    let Some(mut player) = item.get_mut::<odyssey_game::components::PlayerCharacter>() else { return };
+    let ability = actor.abilities[player.active_ability];
 
-    if let Some(cooldown) = world.get_component::<odyssey_game::components::Cooldown>(card_entity) {
+    if let Some(cooldown) = ability.cooldown {
         if cooldown.current > 0 { return }
     }
 
-    if let Some(action) = card.0.get_possible_actions(item.entity, world).remove(&tile) {
-        actor.action = Some(SelectedAction { action, card: Some(card_entity) });
+    if let Some(action) = get_ability_actions(item.entity, &ability, world).remove(&tile) {
+        player.selected_action = Some(action);
     }
 }
