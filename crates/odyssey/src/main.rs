@@ -6,8 +6,8 @@ mod input;
 fn window_conf() -> Conf {
     Conf { 
         window_title: "Micro Odyssey".into(),
-        window_width: 600,
-        window_height: 800,
+        window_width: 1200,
+        window_height: 900,
         ..Default::default()
     }
 }
@@ -19,12 +19,14 @@ async fn main() {
     let npc_data_str = load_string("data/npcs.yaml").await.expect("Could not load data!");
     let player_data_str = load_string("data/player.yaml").await.expect("Could not load data!");
     let tile_data_str = load_string("data/tiles.yaml").await.expect("Could not load data!");
+    let item_data_str = load_string("data/items.yaml").await.expect("Could not load data!");
 
     let mut game_data = odyssey_data::GameData::new();
     let fixtures = game_data.add_entities_from_str(fixture_data_str);
     let npcs = game_data.add_entities_from_str(npc_data_str);
     let player = game_data.add_entities_from_str(player_data_str);
     let tiles = game_data.add_entities_from_str(tile_data_str);
+    let items = game_data.add_entities_from_str(item_data_str);
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 
@@ -42,7 +44,7 @@ async fn main() {
 
     let main_camera = Camera2D {
         zoom: Vec2::new(2. / screen_width(), 2. / screen_height()),
-        target: 0.5 * odyssey_graphics::globals::TILE_SIZE * Vec2::splat(8.),
+        target: 0.5 * odyssey_graphics::globals::TILE_SIZE * Vec2::splat(10.),
         ..Default::default()
     };
 

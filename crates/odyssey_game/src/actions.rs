@@ -8,7 +8,7 @@ use std::{
 };
 
 use crate::components::{
-    Blocker, Health, Name, Player, PlayerCharacter, Position, Projectile
+    Obstacle, Health, Item, Name, Player, PlayerCharacter, Position, Projectile
 };
 use crate::events::ActionEvent;
 use crate::utils::{are_hostile, get_entities_at_position};
@@ -156,7 +156,7 @@ impl Action for MeleeHit {
         ) {
             200
         } else {
-            0
+            -50
         }
     }
 }
@@ -173,4 +173,27 @@ impl Action for Damage {
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action
+}
+
+pub struct PickItem {
+    pub entity: Entity
+}
+impl Action for PickItem {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let position = world.get_component_mut::<Position>(self.entity).ok_or(())?.0;
+        let items = get_entities_at_position(world, position).iter()
+            .filter(|e| world.get_component::<Item>(**e).is_some())
+            .map(|&e| e)
+            .collect::<Vec<_>>();
+        
+        for item in items {
+            world.despawn_entity(item);
+        }
+        Ok(Vec::new())
+    }
+    fn score(&self, world: &World) -> i32 {
+        // npc do not pick
+        0
+    }
 }

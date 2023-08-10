@@ -1,19 +1,20 @@
 use rand::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS};
+use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS, visible_tiles};
 use::rogalik::storage::{Entity, World};
 
-use crate::components::{Blocker, Fixture, Name, Position, Tile, Spawner};
-use crate::globals::BOARD_SIZE;
+use crate::components::{Obstacle, PlayerCharacter, Position, Tile, Spawner, ViewBlocker};
+use crate::globals::{BOARD_SIZE, VIEW_RANGE};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
 pub struct Board {
-    pub tiles: HashMap<Vector2I, Entity>
+    pub tiles: HashMap<Vector2I, Entity>,
+    pub visible: HashSet<Vector2I>
 }
 impl Board {
     pub fn new() -> Self {
-        Board { tiles: HashMap::new() }
+        Board { tiles: HashMap::new(), visible: HashSet::new() }
     }
     pub fn generate(&mut self, world: &mut World) {
         let layout = BoardLayout::generate();
@@ -28,6 +29,20 @@ impl Board {
         let _ = spawn_with_position(
             world, "Vortex", Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
         );
+
+        let mut rng = thread_rng();
+        for _ in 0..3{
+            let v = Vector2I::new(
+                rng.gen_range(1..BOARD_SIZE-1) as i32,
+                rng.gen_range(1..BOARD_SIZE-1) as i32
+            );
+            let name = if rng.gen_bool(0.5) {
+                "Debris"
+            } else {
+                "Survivor"
+            };
+            let _ = spawn_with_position(world, name, v);
+        }
     }
 }
 
@@ -46,13 +61,30 @@ impl BoardLayout {
         }
 
         let mut rng = thread_rng();
-        let rocks = (0..3).map(|_| Vector2I::new(
+        let rocks = (0..16).map(|_| Vector2I::new(
                 rng.gen_range(1..BOARD_SIZE-1) as i32,
                 rng.gen_range(1..BOARD_SIZE-1) as i32
             ))
             .collect();
 
         BoardLayout { tiles, rocks }
+    }
+}
+
+pub fn update_visibility(world: &mut World) {
+    if let Some(player) = world.query::<PlayerCharacter>().with::<Position>().iter().next() {
+        let Some(mut board) = world.get_resource_mut::<Board>() else { return };
+        let position = player.get::<Position>().unwrap().0;
+        let blockers = world.query::<Position>().with::<ViewBlocker>().iter()
+            .map(|i| i.get::<Position>().unwrap().0)
+            .collect();
+        let currently_visible = visible_tiles(
+            position,
+            &HashSet::from_iter(board.tiles.keys().map(|&v| v)),
+            &blockers,
+            VIEW_RANGE
+        );
+        board.visible.extend(currently_visible);
     }
 }
 
@@ -74,7 +106,7 @@ fn get_free_tile(world: &World) -> Vector2I {
             rng.gen_range(1..BOARD_SIZE-1) as i32
         );
         if !get_entities_at_position(world, v).iter().any(
-                |&e| world.get_component::<Blocker>(e).is_some()
+                |&e| world.get_component::<Obstacle>(e).is_some()
         ) {
             break v
         }

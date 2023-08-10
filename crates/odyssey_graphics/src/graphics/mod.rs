@@ -19,7 +19,7 @@ pub fn graphics_update(
     renderers::handle_action_events(world, state);
     let ready = renderers::update_sprites(state);
 
-    renderers::draw_sprites(state, backend);
+    renderers::draw_sprites(world, state, backend);
     cursor::draw_cursor(world, backend);
     ready
 }

@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::actions::Action;
 use crate::abilities::Ability;
+use crate::items::ItemKind;
 
 // dynamicly deserialized components
 #[derive(Deserialize)]
@@ -11,11 +12,6 @@ pub struct Actor {
     pub abilities: Vec<Ability>,
 }
 impl Component for Actor {}
-
-#[derive(Deserialize)]
-// actor cannot travel to a blocked tile
-pub struct Blocker;
-impl Component for Blocker {}
 
 #[derive(Deserialize)]
 // fixed tile furnishings
@@ -27,8 +23,21 @@ pub struct Health(pub u32);
 impl Component for Health {}
 
 #[derive(Deserialize)]
+pub struct Item(pub ItemKind);
+impl Component for Item {}
+
+#[derive(Deserialize)]
+// actor cannot travel to a blocked tile
+pub struct Obstacle;
+impl Component for Obstacle {}
+
+#[derive(Deserialize)]
 pub struct Tile;
 impl Component for Tile {}
+
+#[derive(Deserialize)]
+pub struct ViewBlocker;
+impl Component for ViewBlocker {}
 
 #[derive(Deserialize)]
 pub struct Vortex;
@@ -79,10 +88,12 @@ pub fn insert_data_components(
         let Some(name) = name.as_str() else { continue };
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
-            "Blocker" => insert_single::<Blocker>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
+            "Item" => insert_single::<Item>(entity, world, component_data),
+            "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
+            "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),
             "Vortex" => insert_single::<Vortex>(entity, world, component_data),
             a => panic!("Unknown component {a}")
         };

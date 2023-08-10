@@ -8,10 +8,11 @@ use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 use odyssey_data::GameData;
 use odyssey_game::{
     ActionEvent,
-    components::{Actor, Fixture, Name, Position, Projectile, Tile}
+    Board,
+    components::{Actor, Fixture, Item, Name, Position, Projectile, Tile}
 };
 
-use super::super::{GraphicsState, GraphicsBackend, SpriteColor};
+use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
 use super::utils::move_towards;
 use crate::globals::{TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED};
 
@@ -102,8 +103,12 @@ pub fn update_sprites(
     ready
 }
 
-pub fn draw_sprites(state: &GraphicsState, backend: &dyn GraphicsBackend) {
+pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn GraphicsBackend) {
+    let Some(board) = world.get_resource::<Board>() else { return };
     for sprite in state.sprites.iter() {
+        let tile = world_to_tile(sprite.v);
+        if !board.visible.contains(&tile) { continue; }
+
         backend.draw_world_sprite(
             &sprite.atlas_name,
             sprite.index,
@@ -124,7 +129,7 @@ fn get_sprite_renderer(
     let name = world.get_component::<Name>(entity).unwrap();
     let position = world.get_component::<Position>(entity).unwrap();
 
-    if world.get_component::<Fixture>(entity).is_some() {
+    if world.get_component::<Fixture>(entity).is_some() || world.get_component::<Item>(entity).is_some() {
         z_index = FIXTURE_Z
     } else if world.get_component::<Tile>(entity).is_some() {
         z_index = TILE_Z

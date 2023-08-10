@@ -8,13 +8,14 @@ use rogalik::{
 };
 use serde::Deserialize;
 
-use crate::actions::{Action, MeleeHit, Travel};
+use crate::actions::{Action, MeleeHit, PickItem, Travel};
 use crate::board::Board;
-use crate::components::{Blocker, Health, Position};
+use crate::components::{Obstacle, Health, Position};
 use crate::utils::{are_hostile, get_entities_at_position};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum AbilityKind {
+    Pick,
     Swim,
     Melee
 }
@@ -29,7 +30,8 @@ impl Ability {
     pub fn as_str(&self) -> &str {
         match self.kind {
             AbilityKind::Melee => "Melee",
-            AbilityKind::Swim => "Swim",
+            AbilityKind::Pick => "Pick",
+            AbilityKind::Swim => "Move",
         }
     }
 }
@@ -49,6 +51,7 @@ type ActionFactory = fn(Entity, &Ability, &World) -> HashMap<Vector2I, Box<dyn A
 fn get_action_factory(ability: &Ability) -> ActionFactory {
     match ability.kind {
         AbilityKind::Melee => melee_factory,
+        AbilityKind::Pick => pick_factory,
         AbilityKind::Swim => swim_factory,
     }
 }
@@ -82,6 +85,14 @@ fn swim_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
         }
     }
     output
+}
+
+fn pick_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
+    // let mut output = HashMap::new();
+    let Some(position) = world.get_component::<Position>(entity) else { return HashMap::new() };
+    HashMap::from_iter(
+        [(position.0, Box::new(PickItem { entity }) as Box<dyn Action>)]
+    )
 }
 
 // pub trait Ability {
@@ -232,7 +243,7 @@ fn swim_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
 // }
 
 fn get_furthest_traversible(source: Vector2I, dir: Vector2I, max_dist: u32, world: &World) -> Option<Vector2I> {
-    let blocker_positions = world.query::<Blocker>().with::<Position>()
+    let obstacle_positions = world.query::<Obstacle>().with::<Position>()
         .iter()
         .map(|i| i.get::<Position>().unwrap().0)
         .collect::<Vec<_>>();
@@ -244,7 +255,7 @@ fn get_furthest_traversible(source: Vector2I, dir: Vector2I, max_dist: u32, worl
     for _ in 1..=max_dist {
         let t = target + dir;
         if !board.tiles.contains_key(&t) { break };
-        if blocker_positions.contains(&t) { break };
+        if obstacle_positions.contains(&t) { break };
         target = t;
     }
     if target == source {

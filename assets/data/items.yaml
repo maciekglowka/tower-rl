@@ -1,0 +1,15 @@
+Debris:
+  sprite:
+    atlas_name: ascii
+    index: 247
+    color: [255, 255, 128, 255]
+  components:
+    Item: !Debris
+
+Survivor:
+  sprite:
+    atlas_name: ascii
+    index: 1
+    color: [255, 255, 128, 255]
+  components:
+    Item: !Survivor

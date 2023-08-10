@@ -8,8 +8,8 @@ Jellyfish:
       abilities:
         - kind: !Swim
         - kind: !Melee
-    Blocker:
     Health: 1
+    Obstacle:
 
 Shark:
   sprite:
@@ -22,5 +22,5 @@ Shark:
         - kind: !Swim
           value: 2
         - kind: !Melee
-    Blocker:
     Health: 1
+    Obstacle:

@@ -16,6 +16,7 @@ pub mod components;
 mod events;
 mod globals;
 mod player;
+mod items;
 mod systems;
 mod utils;
 

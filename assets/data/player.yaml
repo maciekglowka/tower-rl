@@ -11,5 +11,6 @@ Player:
           cooldown:
             max: 3
             current: 0
-    Blocker:
-    Health: 1
+        - kind: !Pick
+    Health: 3
+    Obstacle:

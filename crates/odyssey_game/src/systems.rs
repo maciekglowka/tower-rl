@@ -9,7 +9,7 @@ use crate::actions::{
     Action, ActorQueue, Damage, Pause, PendingActions
 };
 use crate::abilities::{get_possible_actions, Ability};
-use crate::board::{Board, create_spawner};
+use crate::board::{Board, create_spawner, update_visibility};
 use crate::components::{
     Actor, Health, Player, PlayerCharacter, Position, Projectile, Spawner, Vortex
 };
@@ -45,6 +45,7 @@ pub fn board_end(world: &mut World) {
 }
 
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {
+    update_visibility(world);
     hit_projectiles(world);
     kill_units(world);
     if process_pending_action(world, manager) {
@@ -236,8 +237,9 @@ fn spawn_npcs(world: &mut World) {
 
     // add new spawners
     let mut rng = thread_rng();
-    if rng.gen_bool(0.5) { return };
-    create_spawner(world);
+    if rng.gen_bool(0.25) { 
+        create_spawner(world);
+     };
 }
 
 pub fn is_board_complete(world: &World) -> bool {
