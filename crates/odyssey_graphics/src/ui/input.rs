@@ -14,14 +14,18 @@ pub fn handle_tile_input(
     let tile = world_to_tile(state.mouse_world_position);
 
     let Some(actor) = item.get::<odyssey_game::components::Actor>() else { return };
-    let Some(mut player) = item.get_mut::<odyssey_game::components::PlayerCharacter>() else { return };
-    let ability = actor.abilities[player.active_ability];
+
+    // do not borrow PC mutably yet, as it might interfere with ability actions
+    let ability = if let Some(player) = item.get::<odyssey_game::components::PlayerCharacter>() {
+        actor.abilities[player.active_ability]
+    } else { return };
 
     if let Some(cooldown) = ability.cooldown {
         if cooldown.current > 0 { return }
     }
 
     if let Some(action) = get_ability_actions(item.entity, &ability, world).remove(&tile) {
-        player.selected_action = Some(action);
+        item.get_mut::<odyssey_game::components::PlayerCharacter>()
+            .unwrap().selected_action = Some(action);
     }
 }

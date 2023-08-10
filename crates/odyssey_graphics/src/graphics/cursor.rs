@@ -26,10 +26,10 @@ pub fn draw_cursor(
     for action in get_ability_actions(item.entity, &actor.abilities[player.active_ability], world) {
         backend.draw_world_sprite(
             "ascii",
-            249,
+            176,
             action.0.as_f32() * TILE_SIZE,
             Vector2F::new(TILE_SIZE, TILE_SIZE),
-            SpriteColor(255, 255, 128, 255)
+            SpriteColor(255, 255, 255, 128)
         );
     }
 

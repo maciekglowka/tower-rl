@@ -10,12 +10,11 @@ use serde::Deserialize;
 
 use crate::actions::{Action, MeleeHit, PickItem, Travel};
 use crate::board::Board;
-use crate::components::{Obstacle, Health, Position};
+use crate::components::{Obstacle, Health, PlayerCharacter, Position};
 use crate::utils::{are_hostile, get_entities_at_position};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum AbilityKind {
-    Pick,
     Swim,
     Melee
 }
@@ -30,8 +29,7 @@ impl Ability {
     pub fn as_str(&self) -> &str {
         match self.kind {
             AbilityKind::Melee => "Melee",
-            AbilityKind::Pick => "Pick",
-            AbilityKind::Swim => "Move",
+            AbilityKind::Swim => "Sail",
         }
     }
 }
@@ -51,7 +49,6 @@ type ActionFactory = fn(Entity, &Ability, &World) -> HashMap<Vector2I, Box<dyn A
 fn get_action_factory(ability: &Ability) -> ActionFactory {
     match ability.kind {
         AbilityKind::Melee => melee_factory,
-        AbilityKind::Pick => pick_factory,
         AbilityKind::Swim => swim_factory,
     }
 }
@@ -70,6 +67,7 @@ fn melee_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Ve
             ))}
             else { None }
         });
+        
     HashMap::from_iter(v)
 }
 
@@ -84,15 +82,14 @@ fn swim_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
             }
         }
     }
-    output
-}
 
-fn pick_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
-    // let mut output = HashMap::new();
-    let Some(position) = world.get_component::<Position>(entity) else { return HashMap::new() };
-    HashMap::from_iter(
-        [(position.0, Box::new(PickItem { entity }) as Box<dyn Action>)]
-    )
+    if world.get_component::<PlayerCharacter>(entity).is_some() {
+        output.insert(
+            position.0, Box::new(PickItem { entity })
+        );
+    }
+
+    output
 }
 
 // pub trait Ability {
