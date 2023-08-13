@@ -9,7 +9,7 @@ Player:
         - kind: !Swim
         - kind: !Melee
           cooldown:
-            max: 3
+            max: 5
             current: 0
     Health: 3
     Obstacle:

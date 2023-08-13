@@ -10,6 +10,7 @@ use super::{GraphicsState, GraphicsBackend, SpriteColor};
 mod buttons;
 mod cards;
 mod input;
+mod status;
 
 #[derive(Default)]
 pub struct InputState {
@@ -32,6 +33,7 @@ pub fn ui_update(
     input_state: InputState,
     backend: &dyn GraphicsBackend
 ) {
+    status::draw_status(world, backend);
     if let Some(clicked_card) = cards::draw_cards(world, backend, &input_state) {
         cards::click_card(clicked_card, world);
     }

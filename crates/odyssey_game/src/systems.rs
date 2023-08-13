@@ -35,6 +35,8 @@ pub fn board_start(world: &mut World) {
 }
 
 pub fn board_end(world: &mut World) {
+    // unpin player
+    player::unpin_player(world);
     // despawn board objects
     let objects = world.query::<Position>().iter()
         .map(|i| i.entity)
