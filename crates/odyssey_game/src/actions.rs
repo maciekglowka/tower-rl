@@ -11,7 +11,7 @@ use crate::components::{
     Obstacle, Health, Item, Name, Player, PlayerCharacter, Position, Projectile
 };
 use crate::events::ActionEvent;
-use crate::utils::{are_hostile, get_entities_at_position};
+use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
 pub struct ActorQueue(pub VecDeque<Entity>);
@@ -102,26 +102,24 @@ impl Action for Travel {
 //     }
 // }
 
-// pub struct PlaceBouy {
-//     pub position: Vector2I,
-//     pub health:  u32
-// }
-// impl Action for PlaceBouy {
-//     fn as_any(&self) -> &dyn Any { self }
-//     fn execute(&self, world: &mut World) -> ActionResult {
-//         let entity = world.spawn_entity();
-//         let _ = world.insert_component(entity, Name("Buoy".into()));
-//         let _ = world.insert_component(entity, Blocker);
-//         let _ = world.insert_component(entity, Position(self.position));
-//         let _ = world.insert_component(entity, Player);
-//         let _ = world.insert_component(entity, Health(self.health));
-//         Ok(())
-//     }
-//     fn score(&self, world: &World) -> i32 {
-//         // atm whatever ;)
-//         25
-//     }
-// }
+pub struct PlaceBouy {
+    pub position: Vector2I,
+    pub health:  u32
+}
+impl Action for PlaceBouy {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let Some(entity) = spawn_with_position(world, "Buoy", self.position)
+            else { return Err(()) };
+        let _ = world.insert_component(entity, Player);
+        let _ = world.insert_component(entity, Health(self.health));
+        Ok(Vec::new()) 
+    }
+    fn score(&self, world: &World) -> i32 {
+        // atm whatever ;)
+        0
+    }
+}
 
 pub struct Pause;
 impl Action for Pause {

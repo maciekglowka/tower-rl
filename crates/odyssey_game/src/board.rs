@@ -18,30 +18,27 @@ impl Board {
     }
     pub fn generate(&mut self, world: &mut World) {
         let layout = BoardLayout::generate();
-        for v in layout.tiles {
-            let entity = spawn_with_position(world, "Tile", v).unwrap();
-            self.tiles.insert(v, entity);
+        for v in layout.tiles.iter() {
+            let entity = spawn_with_position(world, "Tile", *v).unwrap();
+            self.tiles.insert(*v, entity);
         }
 
-        for v in layout.rocks {
-            let _ = spawn_with_position(world, "Rock", v);
+        for v in layout.rocks.iter() {
+            let _ = spawn_with_position(world, "Rock", *v);
         }
         let _ = spawn_with_position(
             world, "Vortex", Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
         );
 
+        let mut pool = layout.tiles.iter().collect::<Vec<_>>();
+        pool.retain(|v| !layout.rocks.contains(v));
+        pool.retain(|v| v.x > 0 && v.y > 0 && v.x < BOARD_SIZE as i32 - 1 && v.y < BOARD_SIZE as i32 - 1);
+
+
         let mut rng = thread_rng();
         for _ in 0..3{
-            let v = Vector2I::new(
-                rng.gen_range(1..BOARD_SIZE-1) as i32,
-                rng.gen_range(1..BOARD_SIZE-1) as i32
-            );
-            let name = if rng.gen_bool(0.5) {
-                "Debris"
-            } else {
-                "Survivor"
-            };
-            let _ = spawn_with_position(world, name, v);
+            let v = pool.remove(rng.gen_range(0..pool.len()));
+            let _ = spawn_with_position(world, "Debris", *v);
         }
     }
 }
@@ -61,11 +58,28 @@ impl BoardLayout {
         }
 
         let mut rng = thread_rng();
-        let rocks = (0..16).map(|_| Vector2I::new(
-                rng.gen_range(1..BOARD_SIZE-1) as i32,
-                rng.gen_range(1..BOARD_SIZE-1) as i32
-            ))
-            .collect();
+
+        let mut rocks = HashSet::new();
+        let sectors = BOARD_SIZE / 3;
+        let chance = 0.5;
+
+        for x in 0..sectors {
+            for y in 0..sectors {
+                let vertical = (x + y) % 2 == 0;
+                let row = [
+                    rng.gen_bool(chance),
+                    rng.gen_bool(chance),
+                    rng.gen_bool(chance),
+                ];
+                let offset = if vertical { Vector2I::new(0, 1) } else { Vector2I::new(1, 0) };
+                let base = Vector2I::new(x as i32 * 3 + 1, y as i32 * 3 + 1) - offset;
+                for (i, r) in row.iter().enumerate() {
+                    if !r { continue; }
+                    rocks.insert(base + offset * i as i32);
+                }
+            }
+        }
+
 
         BoardLayout { tiles, rocks }
     }

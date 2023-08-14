@@ -11,5 +11,10 @@ Player:
           cooldown:
             max: 5
             current: 0
+        - kind: !Buoy
+          cooldown:
+            max: 3
+            current: 0
+          value: 2
     Health: 3
     Obstacle:

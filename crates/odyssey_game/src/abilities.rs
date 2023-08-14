@@ -8,15 +8,16 @@ use rogalik::{
 };
 use serde::Deserialize;
 
-use crate::actions::{Action, MeleeHit, PickItem, Travel};
+use crate::actions::{Action, MeleeHit, PickItem, PlaceBouy, Travel};
 use crate::board::Board;
 use crate::components::{Obstacle, Health, PlayerCharacter, Position};
 use crate::utils::{are_hostile, get_entities_at_position};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum AbilityKind {
+    Buoy,
+    Melee,
     Swim,
-    Melee
 }
 
 #[derive(Clone, Copy, Deserialize)]
@@ -28,6 +29,7 @@ pub struct Ability {
 impl Ability {
     pub fn as_str(&self) -> &str {
         match self.kind {
+            AbilityKind::Buoy => "Buoy",
             AbilityKind::Melee => "Melee",
             AbilityKind::Swim => "Sail",
         }
@@ -48,6 +50,7 @@ type ActionFactory = fn(Entity, &Ability, &World) -> HashMap<Vector2I, Box<dyn A
 
 fn get_action_factory(ability: &Ability) -> ActionFactory {
     match ability.kind {
+        AbilityKind::Buoy => buoy_factory,
         AbilityKind::Melee => melee_factory,
         AbilityKind::Swim => swim_factory,
     }
@@ -89,6 +92,20 @@ fn swim_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
         );
     }
 
+    output
+}
+
+fn buoy_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
+    let mut output = HashMap::new();
+    let Some(position) = world.get_component::<Position>(entity) else { return output };
+
+    for dir in ORTHO_DIRECTIONS {
+        if let Some(target) = get_furthest_traversible(position.0, dir, 1, world) {
+            output.insert(target, Box::new(PlaceBouy { 
+                position: target, health: ability.value.unwrap_or(1) 
+            }));
+        }
+    }
     output
 }
 

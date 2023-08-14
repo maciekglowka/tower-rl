@@ -1,3 +1,12 @@
+Buoy:
+  sprite:
+    atlas_name: ascii
+    index: 4
+    color: [255, 0, 0, 255]
+  components:
+    Fixture:
+    Obstacle:
+
 Rock:
   sprite:
     atlas_name: ascii
