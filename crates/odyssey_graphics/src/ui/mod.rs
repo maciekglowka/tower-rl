@@ -16,7 +16,19 @@ mod status;
 pub struct InputState {
     pub mouse_world_position: Vector2F,
     pub mouse_screen_position: Vector2F,
-    pub mouse_button_left: ButtonState
+    pub mouse_button_left: ButtonState,
+    pub direction: InputDirection
+}
+
+#[derive(Default, PartialEq)]
+pub enum InputDirection {
+    #[default]
+    None,
+    Up,
+    Down,
+    Left,
+    Right,
+    Still
 }
 
 #[derive(Default, PartialEq)]

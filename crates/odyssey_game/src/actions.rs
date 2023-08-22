@@ -8,7 +8,8 @@ use std::{
 };
 
 use crate::components::{
-    Obstacle, Health, Item, Name, Player, PlayerCharacter, Position, Projectile
+    Obstacle, Health, Item, Name, Player, PlayerCharacter,
+    Position, Projectile, Paralyzed
 };
 use crate::events::ActionEvent;
 use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
@@ -101,6 +102,35 @@ impl Action for Travel {
 //         }
 //     }
 // }
+pub struct Paralyze {
+    pub target: Entity,
+    pub value: u32
+}
+impl Action for Paralyze {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let _ = world.insert_component(
+            self.target,
+            Paralyzed(self.value)
+        );
+        Ok(Vec::new()) 
+    }
+}
+
+pub struct Pause {
+    pub entity: Entity
+}
+impl Action for Pause {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if world.get_component::<PlayerCharacter>(self.entity).is_some() {
+            Ok(vec![Box::new(PickItem { entity: self.entity })]) 
+        } else {
+            Ok(Vec::new())
+        }
+    }
+}
+
 
 pub struct PlaceBouy {
     pub position: Vector2I,
@@ -119,12 +149,6 @@ impl Action for PlaceBouy {
         // atm whatever ;)
         0
     }
-}
-
-pub struct Pause;
-impl Action for Pause {
-    fn as_any(&self) -> &dyn Any { self }
-    fn execute(&self, world: &mut World) -> ActionResult { Ok(Vec::new()) }
 }
 
 pub struct MeleeHit {
@@ -191,7 +215,7 @@ impl Action for PickItem {
         Ok(Vec::new())
     }
     fn score(&self, world: &World) -> i32 {
-        // npc do not pick
+        // npcs do not pick
         0
     }
 }

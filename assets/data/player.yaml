@@ -8,13 +8,11 @@ Player:
       abilities:
         - kind: !Swim
         - kind: !Melee
-          cooldown:
-            max: 5
-            current: 0
         - kind: !Buoy
-          cooldown:
-            max: 3
-            current: 0
           value: 2
+        - kind: !Paralyze
+          value: 3
+      ap:
+        max: 2
     Health: 3
     Obstacle:

@@ -8,38 +8,33 @@ use rogalik::{
 };
 use serde::Deserialize;
 
-use crate::actions::{Action, MeleeHit, PickItem, PlaceBouy, Travel};
+use crate::actions::{Action, MeleeHit, Paralyze, Pause, PlaceBouy, Travel};
 use crate::board::Board;
-use crate::components::{Obstacle, Health, PlayerCharacter, Position};
+use crate::components::{Actor, Obstacle, Health, PlayerCharacter, Position};
 use crate::utils::{are_hostile, get_entities_at_position};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum AbilityKind {
     Buoy,
     Melee,
+    Paralyze,
     Swim,
 }
 
 #[derive(Clone, Copy, Deserialize)]
 pub struct Ability {
     pub kind: AbilityKind,
-    pub value: Option<u32>,
-    pub cooldown: Option<Cooldown>
+    pub value: Option<u32>
 }
 impl Ability {
     pub fn as_str(&self) -> &str {
         match self.kind {
             AbilityKind::Buoy => "Buoy",
             AbilityKind::Melee => "Melee",
+            AbilityKind::Paralyze => "Paralyze",
             AbilityKind::Swim => "Sail",
         }
     }
-}
-
-#[derive(Clone, Copy, Deserialize)]
-pub struct Cooldown {
-    pub max: u32,
-    pub current: u32
 }
 
 pub fn get_possible_actions(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
@@ -52,6 +47,7 @@ fn get_action_factory(ability: &Ability) -> ActionFactory {
     match ability.kind {
         AbilityKind::Buoy => buoy_factory,
         AbilityKind::Melee => melee_factory,
+        AbilityKind::Paralyze => paralyze_factory,
         AbilityKind::Swim => swim_factory,
     }
 }
@@ -88,7 +84,7 @@ fn swim_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
 
     if world.get_component::<PlayerCharacter>(entity).is_some() {
         output.insert(
-            position.0, Box::new(PickItem { entity })
+            position.0, Box::new(Pause { entity })
         );
     }
 
@@ -107,6 +103,24 @@ fn buoy_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vec
         }
     }
     output
+}
+
+fn paralyze_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
+    let Some(position) = world.get_component::<Position>(entity) else { return HashMap::new() };
+
+    let v = ORTHO_DIRECTIONS.iter()
+        .map(|d| position.0 + *d)
+        .filter_map(|d| {
+            if let Some(e) = get_entities_at_position(world, d).iter().find(
+                |e| world.get_component::<Actor>(**e).is_some()
+            ) { Some((d, Box::new(
+                    Paralyze { target: *e, value: ability.value.unwrap_or(1) }
+                ) as Box<dyn Action>
+            ))}
+            else { None }
+        });
+        
+    HashMap::from_iter(v)
 }
 
 // pub trait Ability {

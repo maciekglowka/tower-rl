@@ -11,7 +11,8 @@ use crate::actions::{
 use crate::abilities::{get_possible_actions, Ability};
 use crate::board::{Board, create_spawner, update_visibility};
 use crate::components::{
-    Actor, Health, Player, PlayerCharacter, Position, Projectile, Spawner, Vortex
+    Actor, Health, Player, PlayerCharacter, Position, Projectile,
+    Paralyzed, Spawner, Vortex
 };
 use crate::GameManager;
 use crate::player;
@@ -72,23 +73,26 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 }
 
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
+    // returns true if the actor is done (eg. 0 AP)
+    if process_paralyzed(world, entity) { return true };
     let Some(selected) = get_new_action(entity, world) else { return false };
+    let is_pause = selected.as_any().downcast_ref::<Pause>().is_some();
 
     if let Ok(_) = execute_action(selected, world, manager) {
-        if let Some(player) = world.get_component::<PlayerCharacter>(entity) { 
-            if let Some(mut actor) = world.get_component_mut::<Actor>(entity) {
-                let ability = actor.abilities.get_mut(player.active_ability).unwrap();
-                if let Some(ref mut cooldown) = ability.cooldown {
-                    cooldown.current = cooldown.max;
-                }
-            }
-        };
+        if is_pause {
+            // on pause return and do not use AP
+            return true
+        }
+        if let Some(mut actor) = world.get_component_mut::<Actor>(entity) {
+            actor.ap.current -= 1;
+            if actor.ap.current == 0 { return true }
+        }
     }
-    true
+    false
 }
 
 fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
-    let Some(mut actor) = world.get_component_mut::<Actor>(entity) else {
+    let Some(actor) = world.get_component::<Actor>(entity) else {
         // remove actor from the queue as it might have been killed or smth
         world.get_resource_mut::<ActorQueue>()?.0.retain(|a| *a != entity);
         return None;
@@ -112,7 +116,7 @@ fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> 
     possible_actions.sort_by(|a, b| a.score(world).cmp(&b.score(world)));
     match possible_actions.pop() {
         Some(a) => Some(a),
-        _ => Some(Box::new(Pause))
+        _ => Some(Box::new(Pause { entity }))
     }
 }
 
@@ -121,9 +125,6 @@ pub fn get_ability_actions(
     ability: &Ability,
     world: &World
 ) -> HashMap<Vector2I, Box<dyn Action>> {
-    if let Some(cooldown) = ability.cooldown {
-        if cooldown.current > 0 { return HashMap::new()};
-    }
     get_possible_actions(entity, ability, world)
 }
 
@@ -201,20 +202,30 @@ fn collect_actor_queue(world: &mut World) {
     queue.0 = actors.into();
 }
 
-fn reduce_cooldown(world: &mut World) {
+fn increase_ap(world: &mut World) {
     for item in world.query::<Actor>().iter() {
         let mut actor = item.get_mut::<Actor>().unwrap();
-        for abilitiy in actor.abilities.iter_mut() {
-            if let Some(ref mut cooldown) = abilitiy.cooldown {
-                cooldown.current = cooldown.current.saturating_sub(1);
-            }
-        }
+        actor.ap.current = actor.ap.max.min(actor.ap.current + 1);
     }
 }
 
+fn process_paralyzed(world: &mut World, entity: Entity) -> bool {
+    // returns true if the actor is still paralayzded and cannot act
+    // decreases the paralyze counter
+    let Some(mut paralyzed) = world.get_component_mut::<Paralyzed>(entity)
+        else { return false };
+
+    paralyzed.0 = paralyzed.0.saturating_sub(1);
+    if paralyzed.0 > 0 { return true }
+
+    drop(paralyzed);
+    world.remove_component::<Paralyzed>(entity);
+    true
+}
+
 fn turn_end(world: &mut World) {
-    reduce_cooldown(world);
     collect_actor_queue(world);
+    increase_ap(world);
     player::turn_end(world);
     spawn_npcs(world);
 }

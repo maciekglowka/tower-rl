@@ -8,6 +8,8 @@ Jellyfish:
       abilities:
         - kind: !Swim
         - kind: !Melee
+      ap:
+        max: 1
     Health: 1
     Obstacle:
 
@@ -22,5 +24,7 @@ Shark:
         - kind: !Swim
           value: 2
         - kind: !Melee
-    Health: 1
+      ap:
+        max: 1
+    Health: 2
     Obstacle:

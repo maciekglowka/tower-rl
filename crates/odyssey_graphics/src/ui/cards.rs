@@ -16,9 +16,9 @@ pub fn draw_cards(world: &World, backend: &dyn GraphicsBackend, state: &InputSta
     let mut clicked = None;
     for (i, ability) in abilities.iter().enumerate() {
         let mut desc = ability.as_str().to_owned();
-        if let Some(cooldown) = ability.cooldown {
-            desc += &format!(" ({})", cooldown.current);
-        }
+        // if let Some(cooldown) = ability.cooldown {
+        //     desc += &format!(" ({})", cooldown.current);
+        // }
         let color = if i == active {
             SpriteColor(255, 255, 255, 255)
         } else {

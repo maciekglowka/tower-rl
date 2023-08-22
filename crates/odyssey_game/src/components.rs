@@ -6,10 +6,19 @@ use crate::actions::Action;
 use crate::abilities::Ability;
 use crate::items::ItemKind;
 
-// dynamicly deserialized components
+
+#[derive(Clone, Copy, Deserialize)]
+pub struct AP {
+    pub max: u32,
+    #[serde(default)]
+    pub current: u32
+}
+
+// deserialized components
 #[derive(Deserialize)]
 pub struct Actor {
     pub abilities: Vec<Ability>,
+    pub ap: AP
 }
 impl Component for Actor {}
 
@@ -62,8 +71,8 @@ pub struct PlayerCharacter {
 }
 impl Component for PlayerCharacter {}
 
-pub struct Position(pub Vector2I);
-impl Component for Position {}
+pub struct Paralyzed(pub u32);
+impl Component for Paralyzed {}
 
 pub struct Projectile {
     pub damage: u32,
@@ -71,6 +80,9 @@ pub struct Projectile {
     pub target: Vector2I
 }
 impl Component for Projectile {}
+
+pub struct Position(pub Vector2I);
+impl Component for Position {}
 
 pub struct Spawner {
     pub target: String,

@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use rogalik::math::vectors::Vector2F;
 
-use odyssey_graphics::ui::{ButtonState, InputState};
+use odyssey_graphics::ui::{ButtonState, InputState, InputDirection};
 
 fn get_mouse_screen_position() -> Vector2F {
     let v = mouse_position();
@@ -26,9 +26,18 @@ pub fn get_input_state(camera: &Camera2D) -> InputState {
     if is_mouse_button_pressed(MouseButton::Left) {
         left = ButtonState::Pressed
     }
+
+    let mut direction = InputDirection::None;
+    if is_key_pressed(KeyCode::W) { direction = InputDirection::Up }
+    if is_key_pressed(KeyCode::S) { direction = InputDirection::Down }
+    if is_key_pressed(KeyCode::A) { direction = InputDirection::Left }
+    if is_key_pressed(KeyCode::D) { direction = InputDirection::Right }
+    if is_key_pressed(KeyCode::Space) { direction = InputDirection::Still }
+
     InputState {
         mouse_screen_position: get_mouse_screen_position(),
         mouse_world_position: get_mouse_world_position(camera),
-        mouse_button_left: left
+        mouse_button_left: left,
+        direction
     }
 }
