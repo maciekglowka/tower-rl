@@ -54,54 +54,55 @@ impl Action for Travel {
     }
 }
 
-// pub struct Shoot {
-//     pub source: Vector2I,
-//     pub dir: Vector2I,
-//     pub dist: u32,
-//     pub damage:  u32
-// }
-// impl Shoot {
-//     fn get_target(&self, world: &World) -> Vector2I {
-//         let blocker_positions = world.query::<Blocker>().with::<Position>()
-//         .iter()
-//         .map(|i| i.get::<Position>().unwrap().0)
-//         .collect::<Vec<_>>();
+pub struct Shoot {
+    pub source: Vector2I,
+    pub dir: Vector2I,
+    pub dist: u32,
+    pub damage:  u32
+}
+impl Shoot {
+    fn get_target(&self, world: &World) -> Vector2I {
+        let obstacle_positions = world.query::<Obstacle>().with::<Position>()
+        .iter()
+        .map(|i| i.get::<Position>().unwrap().0)
+        .collect::<Vec<_>>();
 
-//         // find target - eg. the max dist or first blocker on the way
-//         let mut target = self.source;
-//         for _ in 1..=self.dist {
-//             target += self.dir;
-//             if blocker_positions.contains(&target) { break };
-//         }
-//         target
-//     }
-// }
-// impl Action for Shoot {
-//     fn as_any(&self) -> &dyn Any { self }
-//     fn execute(&self, world: &mut World) -> ActionResult {
-//         let target = self.get_target(world);
-//         let entity = world.spawn_entity();
-//         let _ = world.insert_component(entity, Projectile{
-//             damage: self.damage,
-//             target,
-//             source: self.source
-//         });
-//         Ok(())
-//     }
-//     fn score(&self, world: &World) -> i32 {
-//         let Some(player_position) = world.query::<PlayerCharacter>().with::<Position>()
-//             .iter()
-//             .map(|i| i.get::<Position>().unwrap().0)
-//             .next()
-//             else { return 0 };
-//         let target = self.get_target(world);
-//         if target == player_position {
-//             100
-//         } else {
-//             0
-//         }
-//     }
-// }
+        // find target - eg. the max dist or first obstacle on the way
+        let mut target = self.source;
+        for _ in 1..=self.dist {
+            target += self.dir;
+            if obstacle_positions.contains(&target) { break };
+        }
+        target
+    }
+}
+impl Action for Shoot {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let target = self.get_target(world);
+        let entity = world.spawn_entity();
+        let _ = world.insert_component(entity, Projectile{
+            damage: self.damage,
+            target,
+            source: self.source
+        });
+        Ok(Vec::new())
+    }
+    fn score(&self, world: &World) -> i32 {
+        let Some(player_position) = world.query::<PlayerCharacter>().with::<Position>()
+            .iter()
+            .map(|i| i.get::<Position>().unwrap().0)
+            .next()
+            else { return 0 };
+        let target = self.get_target(world);
+        if target == player_position {
+            100
+        } else {
+            0
+        }
+    }
+}
+
 pub struct Paralyze {
     pub target: Entity,
     pub value: u32

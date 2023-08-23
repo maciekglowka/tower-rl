@@ -1,6 +1,9 @@
 use serde::Deserialize;
 use serde_yaml;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    ops::Mul
+};
 
 pub struct GameData {
     // all entity data, by name
@@ -42,3 +45,15 @@ pub struct SpriteData {
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
+
+impl Mul<f32> for SpriteColor {
+    type Output = Self;
+    fn mul(self, rhs: f32) -> Self::Output {
+        return SpriteColor(
+            (self.0 as f32 * rhs) as u8,
+            (self.1 as f32 * rhs) as u8,
+            (self.2 as f32 * rhs) as u8,
+            (self.3 as f32 * rhs) as u8
+        )
+    }
+}

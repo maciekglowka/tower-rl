@@ -8,7 +8,7 @@ use rogalik::{
 };
 use serde::Deserialize;
 
-use crate::actions::{Action, MeleeHit, Paralyze, Pause, PlaceBouy, Travel};
+use crate::actions::{Action, MeleeHit, Paralyze, Pause, PlaceBouy, Shoot, Travel};
 use crate::board::Board;
 use crate::components::{Actor, Obstacle, Health, PlayerCharacter, Position};
 use crate::utils::{are_hostile, get_entities_at_position};
@@ -16,6 +16,7 @@ use crate::utils::{are_hostile, get_entities_at_position};
 #[derive(Clone, Copy, Deserialize)]
 pub enum AbilityKind {
     Buoy,
+    Cannons,
     Melee,
     Paralyze,
     Swim,
@@ -30,6 +31,7 @@ impl Ability {
     pub fn as_str(&self) -> &str {
         match self.kind {
             AbilityKind::Buoy => "Buoy",
+            AbilityKind::Cannons => "Cannons",
             AbilityKind::Melee => "Melee",
             AbilityKind::Paralyze => "Paralyze",
             AbilityKind::Swim => "Sail",
@@ -46,6 +48,7 @@ type ActionFactory = fn(Entity, &Ability, &World) -> HashMap<Vector2I, Box<dyn A
 fn get_action_factory(ability: &Ability) -> ActionFactory {
     match ability.kind {
         AbilityKind::Buoy => buoy_factory,
+        AbilityKind::Cannons => cannons_factory,
         AbilityKind::Melee => melee_factory,
         AbilityKind::Paralyze => paralyze_factory,
         AbilityKind::Swim => swim_factory,
@@ -121,6 +124,21 @@ fn paralyze_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap
         });
         
     HashMap::from_iter(v)
+}
+
+fn cannons_factory(entity: Entity, ability: &Ability, world: &World) -> HashMap<Vector2I, Box<dyn Action>> {
+    let mut output = HashMap::new();
+    let Some(position) = world.get_component::<Position>(entity) else { return output };
+
+    for dir in ORTHO_DIRECTIONS {
+        output.insert(position.0 + dir, Box::new(Shoot {
+            source: position.0,
+            dir,
+            dist: ability.value.unwrap_or(2),
+            damage: 1 
+        }));
+    }
+    output
 }
 
 // pub trait Ability {

@@ -10,6 +10,7 @@ Player:
         - kind: !Melee
         - kind: !Buoy
           value: 3
+        - kind: !Cannons
         - kind: !Paralyze
           value: 3
       ap:

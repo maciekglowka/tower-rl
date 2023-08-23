@@ -9,12 +9,12 @@ use odyssey_data::GameData;
 use odyssey_game::{
     ActionEvent,
     Board,
-    components::{Actor, Fixture, Item, Name, Position, Projectile, Tile}
+    components::{Actor, Fixture, Item, Name, Paralyzed, Position, Projectile, Tile}
 };
 
 use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
 use super::utils::move_towards;
-use crate::globals::{TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED};
+use crate::globals::{TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, PARALYZE_FADE};
 
 pub struct SpriteRenderer {
     pub entity: Entity,
@@ -23,7 +23,8 @@ pub struct SpriteRenderer {
     pub atlas_name: String,
     pub index: u32,
     pub z_index: u32,
-    pub color: SpriteColor
+    pub color: SpriteColor,
+    pub fade: f32
 }
 
 pub fn handle_world_events(
@@ -35,6 +36,9 @@ pub fn handle_world_events(
         match ev {
             WorldEvent::ComponentSpawned(entity, type_id) => {
                 match *type_id {
+                    a if a == TypeId::of::<Paralyzed>() => {
+                        fade_sprite(*entity, state, PARALYZE_FADE)
+                    },
                     a if a == TypeId::of::<Position>() => {
                         state.sprites.push(
                             get_sprite_renderer(*entity, world)
@@ -52,6 +56,9 @@ pub fn handle_world_events(
             },
             WorldEvent::ComponentRemoved(entity, type_id) => {
                 match *type_id {
+                    a if a == TypeId::of::<Paralyzed>() => {
+                        fade_sprite(*entity, state, 1.)
+                    },
                     a if a == TypeId::of::<Position>() || a == TypeId::of::<Projectile>() => {
                         state.sprites.retain(|a| a.entity != *entity);
                     },
@@ -114,9 +121,14 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn Graphics
             sprite.index,
             sprite.v,
             Vector2F::new(TILE_SIZE, TILE_SIZE),
-            sprite.color
+            sprite.color * sprite.fade
         );
     }
+}
+
+fn fade_sprite(entity: Entity, state: &mut GraphicsState, value: f32) {
+    let Some(sprite) = get_entity_sprite(entity, state) else { return };
+    sprite.fade = value;
 }
 
 fn get_sprite_renderer(
@@ -148,7 +160,8 @@ fn get_sprite_renderer(
         atlas_name: "ascii".into(),
         index: data.sprite.index,
         z_index,
-        color: data.sprite.color
+        color: data.sprite.color,
+        fade: 1.
     }
 }
 
@@ -167,7 +180,8 @@ fn get_projectile_renderer(
         atlas_name: "ascii".into(),
         index: 249,
         z_index: PROJECTILE_Z,
-        color: SpriteColor(255, 255, 255, 255)
+        color: SpriteColor(255, 255, 255, 255),
+        fade: 1.
     }
 }
 
