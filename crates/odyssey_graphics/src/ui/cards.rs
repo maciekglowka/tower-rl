@@ -2,7 +2,7 @@ use rogalik::storage::{Component, World};
 
 use odyssey_game::components::{Actor, PlayerCharacter};
 
-use super::{InputState, GraphicsBackend, SpriteColor};
+use super::{InputState, GraphicsBackend, SpriteColor, ButtonState};
 use super::buttons::Button;
 
 pub fn draw_cards(world: &World, backend: &dyn GraphicsBackend, state: &InputState) -> Option<usize> {
@@ -47,4 +47,14 @@ pub fn click_card(index: usize, world: &World) {
         .get_mut::<PlayerCharacter>()
         .unwrap()
         .active_ability = index;
+}
+
+pub fn handle_shift_input(world: &World, state: &InputState) {
+    if state.shift == ButtonState::Pressed {
+        let query = world.query::<PlayerCharacter>().with::<Actor>();
+        let Some(item) = query.iter().next() else { return };
+        let count = &item.get::<Actor>().unwrap().abilities.len();
+        let active = item.get::<PlayerCharacter>().unwrap().active_ability;
+        click_card((active + 1) % count, world);
+    }
 }

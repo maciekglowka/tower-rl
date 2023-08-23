@@ -27,6 +27,11 @@ pub fn get_input_state(camera: &Camera2D) -> InputState {
         left = ButtonState::Pressed
     }
 
+    let mut shift = ButtonState::Up;
+    if is_key_pressed(KeyCode::Enter) {
+        shift = ButtonState::Pressed
+    }
+
     let mut direction = InputDirection::None;
     if is_key_pressed(KeyCode::W) { direction = InputDirection::Up }
     if is_key_pressed(KeyCode::S) { direction = InputDirection::Down }
@@ -38,6 +43,7 @@ pub fn get_input_state(camera: &Camera2D) -> InputState {
         mouse_screen_position: get_mouse_screen_position(),
         mouse_world_position: get_mouse_world_position(camera),
         mouse_button_left: left,
-        direction
+        direction,
+        shift
     }
 }

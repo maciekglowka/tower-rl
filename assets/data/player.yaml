@@ -9,7 +9,7 @@ Player:
         - kind: !Swim
         - kind: !Melee
         - kind: !Buoy
-          value: 2
+          value: 3
         - kind: !Paralyze
           value: 3
       ap:

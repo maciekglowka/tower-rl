@@ -17,7 +17,8 @@ pub struct InputState {
     pub mouse_world_position: Vector2F,
     pub mouse_screen_position: Vector2F,
     pub mouse_button_left: ButtonState,
-    pub direction: InputDirection
+    pub direction: InputDirection,
+    pub shift: ButtonState,
 }
 
 #[derive(Default, PartialEq)]
@@ -51,5 +52,6 @@ pub fn ui_update(
     }
     else {
         input::handle_tile_input(world, &input_state);
+        cards::handle_shift_input(world, &input_state);
     }
 }
