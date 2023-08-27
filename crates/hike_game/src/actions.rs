@@ -32,7 +32,8 @@ pub fn get_action_at_dir(
     entity: Entity,
     world: &World,
     dir: Vector2I
-) -> Option<Box<dyn Action>> {
+) -> Option<(Box<dyn Action>, Option<Entity>)> {
+    // returns (Action, SourceItem)
     let position = world.get_component::<Position>(entity)?;
     let target = position.0 + dir;
     let board = world.get_resource::<Board>()?;
@@ -41,13 +42,13 @@ pub fn get_action_at_dir(
     let walkable = !entities.iter()
         .any(|&e| world.get_component::<Obstacle>(e).is_some());
     if walkable {
-        return Some(Box::new(Walk { entity, target }))
+        return Some((Box::new(Walk { entity, target }), None))
     }
     let attackable = entities.iter()
         .any(|&e| world.get_component::<Health>(e).is_some());
     if attackable {
-        if let Some(attack) = get_attack(entity, world) {
-            return Some(get_attack_action(&attack, entity, target))
+        if let Some((attack, source_item)) = get_attack(entity, world) {
+            return Some((get_attack_action(&attack, entity, target), source_item))
         }
     }
     None
@@ -59,6 +60,7 @@ pub fn get_npc_action(
 ) -> Box<dyn Action> {
     let mut possible_actions = ORTHO_DIRECTIONS.iter()
        .filter_map(|dir| get_action_at_dir(entity, world, *dir))
+       .map(|a| a.0)
        .collect::<Vec<_>>();
 
    possible_actions.sort_by(|a, b| a.score(world).cmp(&b.score(world)));
@@ -68,9 +70,19 @@ pub fn get_npc_action(
    }
 }
 
-fn get_attack(entity: Entity, world: &World) -> Option<Ref<Attack>> {
-    // TODO incl. player's items
-    world.get_component::<Attack>(entity)
+fn get_attack(entity: Entity, world: &World) -> Option<(Ref<Attack>, Option<Entity>)> {
+    // returns (Attack, SourceItem)
+
+    if let Some(player) = world.get_component::<Player>(entity) {
+        if let Some(item) = player.items[player.active_item] {
+            if let Some(attack) = world.get_component::<Attack>(item) {
+                return Some((attack, Some(item)));
+            }
+        }
+    }
+    
+    let attack = world.get_component::<Attack>(entity)?;
+    Some((attack, None))
 }
 
 fn get_attack_action(attack: &Attack, entity: Entity, target: Vector2I) -> Box<dyn Action> {

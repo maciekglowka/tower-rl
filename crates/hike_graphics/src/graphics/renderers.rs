@@ -3,7 +3,7 @@ use std::{
     collections::VecDeque
 };
 use rogalik::math::vectors::Vector2F;
-use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
+use rogalik::storage::{Entity, World, WorldEvent};
 
 use hike_data::GameData;
 use hike_game::{

@@ -54,7 +54,8 @@ impl Component for Name {}
 pub struct Player {
     pub action: Option<Box<dyn Action>>,
     pub items: [Option<Entity>; INVENTORY_SIZE],
-    pub active_item: usize
+    pub active_item: usize,
+    pub used_item: Option<Entity>
 }
 impl Component for Player {}
 

@@ -26,7 +26,6 @@ pub fn board_start(world: &mut World) {
     world.insert_resource(pending);
 
     player::spawn_player(world);
-    // spawn_npcs(world);
 }
 
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {

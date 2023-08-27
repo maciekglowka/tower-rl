@@ -2,7 +2,7 @@ Sword:
   sprite:
     atlas_name: ascii
     index: 47
-    color: [255, 255, 128, 255]
+    color: [128, 0, 128, 255]
   components:
     Attack:
       kind: !Hit

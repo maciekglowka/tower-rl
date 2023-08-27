@@ -3,6 +3,7 @@ use rogalik::{
     storage::World
 };
 
+use crate::actions::get_action_at_dir;
 use crate::components::Player;
 use crate::globals::INVENTORY_SIZE;
 use crate::utils::spawn_with_position;
@@ -16,8 +17,28 @@ pub fn spawn_player(world: &mut World) {
     let _ = world.insert_component(entity, Player { 
         action: None,
         items: [None; INVENTORY_SIZE],
-        active_item: 0
+        active_item: 0,
+        used_item: None
     });
+}
+
+pub fn set_player_action(
+    world: &mut World,
+    dir: Vector2I
+) {
+    let query = world.query::<Player>();
+    let Some(player_item) = query.iter().next() else { return };
+
+    let res = get_action_at_dir(player_item.entity, world, dir);
+    
+    let mut player = player_item.get_mut::<Player>().unwrap();
+    if let Some((action, item)) = res {
+        player.action = Some(action);
+        player.used_item = item;
+    } else {
+        player.action = None;
+        player.used_item = None;
+    }
 }
 
 pub fn turn_end(world: &mut World) {

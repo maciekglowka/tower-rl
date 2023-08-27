@@ -5,5 +5,8 @@ Player:
     color: [255, 255, 255, 255]
   components:
     Actor:
+    Attack:
+      kind: !Hit
+      value: 1
     Health: 3
     Obstacle:

@@ -19,7 +19,7 @@ mod items;
 mod systems;
 mod utils;
 
-pub use actions::get_action_at_dir;
+pub use player::set_player_action;
 pub use board::Board;
 pub use events::ActionEvent;
 
