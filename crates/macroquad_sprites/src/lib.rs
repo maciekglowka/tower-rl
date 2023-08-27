@@ -2,8 +2,8 @@ use macroquad::prelude::*;
 use rogalik::math::vectors::Vector2F;
 use std::collections::HashMap;
 
-use odyssey_data::SpriteColor;
-use odyssey_graphics::GraphicsBackend;
+use hike_data::SpriteColor;
+use hike_graphics::GraphicsBackend;
 
 mod assets;
 mod errors;
@@ -74,6 +74,15 @@ impl MacroquadBackend {
         let macroquad_color = macroquad_color_from_sprite(color);
         draw_texture_ex(&atlas.tex, position.x, position.y, macroquad_color, params);
     }
+    fn get_text_dimension(
+        &self,
+        font_name: &str,
+        text: &str,
+        font_size: u32
+    ) -> Option<TextDimensions> {
+        let font = self.fonts.get(font_name)?;
+        Some(measure_text(text, Some(font), font_size as u16, 1.0))
+    }
 }
 impl GraphicsBackend for MacroquadBackend {
     fn viewport_size(&self) -> Vector2F {
@@ -119,6 +128,15 @@ impl GraphicsBackend for MacroquadBackend {
             ..Default::default()
         };
         draw_text_ex(text, position.x, position.y, params);
+    }
+    fn text_size(
+        &self,
+        font_name: &str,
+        text: &str,
+        font_size: u32
+    ) -> Vector2F {
+        let Some(dim) = self.get_text_dimension(font_name, text, font_size) else { return Vector2F::new(0., 0.)};
+        Vector2F::new(dim.width, dim.height)
     }
 }
 

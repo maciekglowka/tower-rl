@@ -5,11 +5,6 @@ Jellyfish:
     color: [255, 0, 255, 255]
   components:
     Actor:
-      abilities:
-        - kind: !Swim
-        - kind: !Melee
-      ap:
-        max: 1
     Health: 1
     Obstacle:
 
@@ -20,11 +15,5 @@ Shark:
     color: [128, 128, 128, 255]
   components:
     Actor:
-      abilities:
-        - kind: !Swim
-          value: 2
-        - kind: !Melee
-      ap:
-        max: 1
     Health: 2
     Obstacle:

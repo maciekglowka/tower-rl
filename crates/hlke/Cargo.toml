@@ -1,5 +1,5 @@
 [package]
-name = "macroquad_sprites"
+name = "hike"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,5 +9,8 @@ edition = "2021"
 macroquad = "0.4" 
 rogalik = { path = "../../../rogalik" }
 
+macroquad_sprites = { path = "../macroquad_sprites" }
 hike_data = { path = "../hike_data" }
+hike_game = { path = "../hike_game" }
 hike_graphics = { path = "../hike_graphics" }
+

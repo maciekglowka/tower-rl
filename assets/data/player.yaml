@@ -5,15 +5,5 @@ Player:
     color: [255, 255, 255, 255]
   components:
     Actor:
-      abilities:
-        - kind: !Swim
-        - kind: !Melee
-        - kind: !Buoy
-          value: 3
-        - kind: !Cannons
-        - kind: !Paralyze
-          value: 3
-      ap:
-        max: 2
     Health: 3
     Obstacle:

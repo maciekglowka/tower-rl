@@ -138,6 +138,46 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
 
 [[package]]
+name = "hike"
+version = "0.1.0"
+dependencies = [
+ "hike_data",
+ "hike_game",
+ "hike_graphics",
+ "macroquad",
+ "macroquad_sprites",
+ "rogalik",
+]
+
+[[package]]
+name = "hike_data"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_yaml",
+]
+
+[[package]]
+name = "hike_game"
+version = "0.1.0"
+dependencies = [
+ "hike_data",
+ "rand",
+ "rogalik",
+ "serde",
+ "serde_yaml",
+]
+
+[[package]]
+name = "hike_graphics"
+version = "0.1.0"
+dependencies = [
+ "hike_data",
+ "hike_game",
+ "rogalik",
+]
+
+[[package]]
 name = "image"
 version = "0.24.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -199,9 +239,9 @@ checksum = "f5cecfede1e530599c8686f7f2d609489101d3d63741a6dc423afc997ce3fcc8"
 name = "macroquad_sprites"
 version = "0.1.0"
 dependencies = [
+ "hike_data",
+ "hike_graphics",
  "macroquad",
- "odyssey_data",
- "odyssey_graphics",
  "rogalik",
 ]
 
@@ -279,46 +319,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
 dependencies = [
  "malloc_buf",
-]
-
-[[package]]
-name = "odyssey"
-version = "0.1.0"
-dependencies = [
- "macroquad",
- "macroquad_sprites",
- "odyssey_data",
- "odyssey_game",
- "odyssey_graphics",
- "rogalik",
-]
-
-[[package]]
-name = "odyssey_data"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_yaml",
-]
-
-[[package]]
-name = "odyssey_game"
-version = "0.1.0"
-dependencies = [
- "odyssey_data",
- "rand",
- "rogalik",
- "serde",
- "serde_yaml",
-]
-
-[[package]]
-name = "odyssey_graphics"
-version = "0.1.0"
-dependencies = [
- "odyssey_data",
- "odyssey_game",
- "rogalik",
 ]
 
 [[package]]
