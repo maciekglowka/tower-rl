@@ -9,7 +9,7 @@ use crate::globals::INVENTORY_SIZE;
 use crate::utils::spawn_with_position;
 
 pub fn spawn_player(world: &mut World) {
-    let position = Vector2I::new(0, 0);
+    let position = Vector2I::new(1, 1);
 
     // else spawn player
     let entity = spawn_with_position(world, "Player", position)

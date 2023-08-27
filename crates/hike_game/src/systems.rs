@@ -7,8 +7,9 @@ use std::collections::{HashMap, VecDeque};
 use crate::actions::{
     Action, ActorQueue, PendingActions, get_npc_action,
 };
-use crate::board::Board;
-use crate::components::{Actor, Durability, Health, Player};
+use crate::board::{Board, shift_dir};
+use crate::components::{Actor, Durability, Health, Player, Position};
+use crate::globals::BOARD_SIZE;
 use crate::GameManager;
 use crate::player;
 
@@ -30,6 +31,7 @@ pub fn board_start(world: &mut World) {
 
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     // hit_projectiles(world);
+    check_board_shift(world);
     kill_units(world);
     destroy_items(world);
     if process_pending_action(world, manager) {
@@ -140,6 +142,30 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
         
 //     }
 // }
+
+fn check_board_shift(world: &mut World) -> Option<Vector2I> {
+    let position = world.query::<Player>().with::<Position>()
+        .iter()
+        .next()?
+        .get::<Position>()?
+        .0;
+
+    let origin = world.get_resource::<Board>()?.origin;
+
+    let dir = match position {
+        a if a.x == origin.x => Some(Vector2I::LEFT),
+        a if a.y == origin.y => Some(Vector2I::UP),
+        a if a.x == origin.x + BOARD_SIZE as i32 - 1 => Some(Vector2I::RIGHT),
+        a if a.y == origin.y + BOARD_SIZE as i32 - 1 => Some(Vector2I::DOWN),
+        _ => None
+    };
+
+    if let Some(dir) = dir {
+        shift_dir(world, dir);
+    }
+
+    None
+}
 
 fn apply_durability(
     world: &World,

@@ -44,7 +44,7 @@ async fn main() {
 
     let camera_target = 0.5 * hike_graphics::globals::TILE_SIZE * hike_game::globals::BOARD_SIZE as f32;
 
-    let main_camera = Camera2D {
+    let mut main_camera = Camera2D {
         zoom: Vec2::new(2. / screen_width(), 2. / screen_height()),
         target: Vec2::splat(camera_target),
         ..Default::default()
@@ -64,6 +64,7 @@ async fn main() {
 
     loop {
         let frame_start = Instant::now();
+        update_camera(&world, &mut main_camera);
 
         if graphics_ready {
             hike_game::game_update(&mut world, &mut manager);
@@ -85,4 +86,22 @@ async fn main() {
         // temp to save some cpu cycles
         std::thread::sleep(Duration::from_millis(16).saturating_sub(frame_start.elapsed()));
     }
+}
+
+fn update_camera(
+    world: &rogalik::storage::World,
+    camera: &mut Camera2D
+) {
+    let Some(board) = world.get_resource::<hike_game::Board>() else { return };
+    let offset = 0.5 * hike_game::globals::BOARD_SIZE as f32;
+    let target = rogalik::math::vectors::Vector2F::new(
+        board.origin.x as f32 + offset,
+        board.origin.y as f32 + offset
+    ) * hike_graphics::globals::TILE_SIZE;
+    let v = hike_graphics::move_towards(
+        rogalik::math::vectors::Vector2F::new(camera.target.x, camera.target.y),
+        target,
+        2.5
+    );
+    camera.target = Vec2::new(v.x, v.y);
 }
