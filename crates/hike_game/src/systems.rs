@@ -8,7 +8,7 @@ use crate::actions::{
     Action, ActorQueue, PendingActions, get_npc_action,
 };
 use crate::board::Board;
-use crate::components::{Actor, Health, Player};
+use crate::components::{Actor, Durability, Health, Player};
 use crate::GameManager;
 use crate::player;
 
@@ -31,6 +31,7 @@ pub fn board_start(world: &mut World) {
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     // hit_projectiles(world);
     kill_units(world);
+    destroy_items(world);
     if process_pending_action(world, manager) {
         // do not process the actor queue if the pending actions were executed
         return
@@ -54,7 +55,18 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     // returns true if the actor is done
     let Some(selected) = get_new_action(entity, world) else { return false };
-    execute_action(selected, world, manager).is_ok()
+    let res = execute_action(selected, world, manager).is_ok();
+
+    if res {
+        if let Some(mut player) = world.get_component_mut::<Player>(entity) {
+            if let Some(item) =  player.used_item {
+                apply_durability(world, item);
+            }
+            player.used_item = None;
+        }
+    }
+
+    res
 }
 
 fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
@@ -128,6 +140,26 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
         
 //     }
 // }
+
+fn apply_durability(
+    world: &World,
+    entity: Entity
+) {
+    let Some(mut durability) = world.get_component_mut::<Durability>(entity) else { return };
+    durability.value = durability.value.saturating_sub(1);
+}
+
+fn destroy_items(
+    world: &mut World
+) {
+    let to_remove = world.query::<Durability>().iter()
+        .filter(|i| i.get::<Durability>().unwrap().value == 0)
+        .map(|i| i.entity)
+        .collect::<Vec<_>>();
+    for entity in to_remove {
+        world.despawn_entity(entity);
+    }
+}
 
 fn kill_units(world: &mut World) {
     let query = world.query::<Health>();

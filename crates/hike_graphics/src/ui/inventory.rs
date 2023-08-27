@@ -1,7 +1,7 @@
 use rogalik::storage::{Component, World};
 
 use hike_data::GameData;
-use hike_game::components::{Actor, Name, Player};
+use hike_game::components::{Durability, Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
 use super::{InputState, GraphicsBackend, SpriteColor};
@@ -46,13 +46,22 @@ pub fn handle_inventory(
         if let Some(entity) = player.items[i] {
             if let Some(name) = world.get_component::<Name>(entity) {
                 if let Some(data) = game_data.entities.get(&name.0) {
-                    let span = Span::new()
+                    let mut span = Span::new()
                         .with_sprite(
                             &data.sprite.atlas_name,
                             data.sprite.index
                         )
-                        .with_sprite_color(data.sprite.color);
+                        .with_sprite_color(data.sprite.color)
+                        .with_text_color(SpriteColor(0, 0, 0, 255));
+
+                    if let Some(durability) = world.get_component::<Durability>(entity) {
+                        span = span.with_text_owned(
+                            format!("({})", durability.value)
+                        );
+                    };
+
                     button = button.with_span(span);
+
                 }
             }
         }

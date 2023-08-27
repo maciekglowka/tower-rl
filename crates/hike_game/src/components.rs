@@ -24,6 +24,12 @@ pub struct Attack {
 impl Component for Attack {}
 
 #[derive(Deserialize)]
+pub struct Durability {
+    pub value: u32
+}
+impl Component for Durability {}
+
+#[derive(Deserialize)]
 // fixed tile furnishings
 pub struct Fixture;
 impl Component for Fixture {}
@@ -83,6 +89,7 @@ pub fn insert_data_components(
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
             "Attack" => insert_single::<Attack>(entity, world, component_data),
+            "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),

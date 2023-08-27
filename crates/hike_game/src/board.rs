@@ -25,6 +25,7 @@ impl Board {
 
         let _ = spawn_with_position(world, "Sword", Vector2I::new(4, 0));
         let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 4));
+        let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 5));
     }
 }
 
