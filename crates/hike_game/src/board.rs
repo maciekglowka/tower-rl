@@ -44,7 +44,7 @@ impl Board {
 
 fn get_next_content() -> Vec<ContentKind> {
     let mut rng = thread_rng();
-    let count = rng.gen_range(1..BOARD_SIZE);
+    let count = rng.gen_range(1..=BOARD_SIZE / 2);
 
     (0..count).map(|_| {
             match rng.gen_range(0.0..1.0) {

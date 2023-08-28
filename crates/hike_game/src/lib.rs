@@ -20,7 +20,7 @@ mod systems;
 mod utils;
 
 pub use player::set_player_action;
-pub use board::Board;
+pub use board::{Board, ContentKind};
 pub use events::ActionEvent;
 
 pub struct GameManager {

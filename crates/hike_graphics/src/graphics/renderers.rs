@@ -34,6 +34,17 @@ pub fn handle_world_events(
     let mut sprites_updated = false;
     for ev in state.ev_world.read().iter().flatten() {
         match ev {
+            WorldEvent::ComponentRemoved(entity, type_id) => {
+                match *type_id {
+                    a if a == TypeId::of::<Paralyzed>() => {
+                        fade_sprite(*entity, state, 1.)
+                    },
+                    a if a == TypeId::of::<Position>() || a == TypeId::of::<Projectile>() => {
+                        state.sprites.retain(|a| a.entity != *entity);
+                    },
+                    _ => continue
+                }
+            },
             WorldEvent::ComponentSpawned(entity, type_id) => {
                 match *type_id {
                     a if a == TypeId::of::<Paralyzed>() => {
@@ -54,17 +65,6 @@ pub fn handle_world_events(
                     _ => continue
                 }
             },
-            WorldEvent::ComponentRemoved(entity, type_id) => {
-                match *type_id {
-                    a if a == TypeId::of::<Paralyzed>() => {
-                        fade_sprite(*entity, state, 1.)
-                    },
-                    a if a == TypeId::of::<Position>() || a == TypeId::of::<Projectile>() => {
-                        state.sprites.retain(|a| a.entity != *entity);
-                    },
-                    _ => continue
-                }
-            }
             _ => continue
         }
     }
