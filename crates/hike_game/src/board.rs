@@ -1,16 +1,24 @@
+use rand::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use rogalik::math::vectors::Vector2I;
+use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS};
 use::rogalik::storage::{Entity, World};
 
 use crate::components::Position;
-use crate::globals::BOARD_SIZE;
+use crate::globals::{BOARD_SIZE, BOARD_SHIFT};
 use crate::utils::{get_entities_at_position, spawn_with_position};
+
+#[derive(Clone, Copy)]
+pub enum ContentKind {
+    Unit,
+    Item
+}
 
 #[derive(Default)]
 pub struct Board {
     pub tiles: HashMap<Vector2I, Entity>,
-    pub origin: Vector2I
+    pub origin: Vector2I,
+    pub next: HashMap<Vector2I, Vec<ContentKind>>
 }
 impl Board {
     pub fn new() -> Self {
@@ -26,20 +34,47 @@ impl Board {
         }
 
         let _ = spawn_with_position(world, "Sword", Vector2I::new(2, 1));
-        let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 4));
-        let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 5));
+        // let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 4));
+        // let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 5));
+        for dir in ORTHO_DIRECTIONS {
+            self.next.insert(dir, get_next_content());
+        }
     }
 }
 
-fn spawn_line(world: &mut World, vs: &HashSet<Vector2I>) {
+fn get_next_content() -> Vec<ContentKind> {
+    let mut rng = thread_rng();
+    let count = rng.gen_range(1..BOARD_SIZE);
+
+    (0..count).map(|_| {
+            match rng.gen_range(0.0..1.0) {
+                a if a < 0.35 => ContentKind::Item,
+                _ => ContentKind::Unit
+            }
+        })
+        .collect()
+}
+
+fn spawn_tiles(world: &mut World, vs: &HashSet<Vector2I>, content: Vec<ContentKind>) {
     for v in vs {
         let entity = spawn_with_position(world, "Tile", *v).unwrap();
         world.get_resource_mut::<Board>().unwrap().tiles.insert(*v, entity);
 
     }
+    let mut rng = thread_rng();
+    let mut pool: Vec<_> = vs.iter().collect();
+    for kind in content {
+        let i = rng.gen_range(0..pool.len());
+        let v = pool.remove(i);
+        let name = match kind {
+            ContentKind::Item => "Sword",
+            ContentKind::Unit => "Jellyfish"
+        };
+        spawn_with_position(world, name, *v);
+    }
 }
 
-fn remove_line(world: &mut World, vs: &HashSet<Vector2I>) {
+fn remove_tiles(world: &mut World, vs: &HashSet<Vector2I>) {
     world.get_resource_mut::<Board>().unwrap().tiles.retain(|k, _| !vs.contains(k));
 
     let to_remove = vs.iter()
@@ -63,39 +98,47 @@ pub fn shift_dir(world: &mut World, dir: Vector2I) {
 
     let (removed_vs, new_vs) = match dir {
         a if a == Vector2I::RIGHT => (
-            get_col(origin.x, origin.y),
-            get_col(origin.x + BOARD_SIZE as i32, origin.y),
+            get_rect(origin, BOARD_SHIFT as i32 - 1, BOARD_SIZE as i32 - 1),
+            get_rect(origin + Vector2I::new(BOARD_SIZE as i32, 0), BOARD_SHIFT as i32 - 1, BOARD_SIZE as i32 - 1)
         ),
         a if a == Vector2I::LEFT => (
-            get_col(origin.x + BOARD_SIZE as i32 - 1, origin.y),
-            get_col(origin.x - 1, origin.y),
+            get_rect(origin + Vector2I::new((BOARD_SIZE - 1) as i32, 0), -(BOARD_SHIFT as i32) + 1, BOARD_SIZE as i32 - 1),
+            get_rect(origin - Vector2I::new(1, 0), -(BOARD_SHIFT as i32) + 1, BOARD_SIZE as i32 - 1)
         ),
         a if a == Vector2I::DOWN => (
-            get_row(origin.x, origin.y),
-            get_row(origin.x, origin.y + BOARD_SIZE as i32),
+            get_rect(origin, BOARD_SIZE as i32 - 1, BOARD_SHIFT as i32 - 1),
+            get_rect(origin + Vector2I::new(0, BOARD_SIZE as i32), BOARD_SIZE as i32 - 1, BOARD_SHIFT as i32 - 1),
         ),
         a if a == Vector2I::UP => (
-            get_row(origin.x, origin.y + BOARD_SIZE as i32 - 1),
-            get_row(origin.x, origin.y - 1),
+            get_rect(origin + Vector2I::new(0, BOARD_SIZE as i32 - 1), BOARD_SIZE as i32 - 1, -(BOARD_SHIFT as i32) + 1),
+            get_rect(origin - Vector2I::new(0, 1), BOARD_SIZE as i32 - 1, -(BOARD_SHIFT as i32) + 1),
         ),
         _ => panic!("Wrong shift dir!")
     };
 
-    remove_line(world, &removed_vs);
-    world.get_resource_mut::<Board>().unwrap().origin += dir;
-    spawn_line(world, &new_vs);
+    remove_tiles(world, &removed_vs);
+
+    // TODO cleanup
+    world.get_resource_mut::<Board>().unwrap().origin += dir * BOARD_SHIFT as i32;
+    let content = world.get_resource::<Board>().unwrap().next[&dir].clone();
+    spawn_tiles(world, &new_vs, content);
+    world.get_resource_mut::<Board>().unwrap().next.insert(dir, get_next_content());
 }
 
-fn get_row(origin_x: i32, y: i32) -> HashSet<Vector2I> {
-    HashSet::from_iter(
-        (0..BOARD_SIZE as i32).map(|i| Vector2I::new(origin_x + i, y))
-    )
-}
-
-fn get_col(x: i32, origin_y: i32) -> HashSet<Vector2I> {
-    HashSet::from_iter(
-        (0..BOARD_SIZE as i32).map(|i| Vector2I::new(x, origin_y + i))
-    )
+fn get_rect(origin: Vector2I, w: i32, h: i32) -> HashSet<Vector2I> {
+    let b = Vector2I::new(origin.x + w, origin.y + h);
+    let x0 = origin.x.min(b.x);
+    let x1 = origin.x.max(b.x);
+    let y0 = origin.y.min(b.y);
+    let y1 = origin.y.max(b.y);
+    
+    (x0..=x1).map(|x|
+            (y0..=y1).map(move |y| {
+                Vector2I::new(x, y)
+            })
+        )
+        .flatten()
+        .collect()
 }
 
 // fn get_free_tile(world: &World) -> Vector2I {
