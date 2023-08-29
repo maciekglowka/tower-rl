@@ -123,14 +123,15 @@ pub fn shift_dir(world: &mut World, dir: Vector2I) {
         _ => panic!("Wrong shift dir!")
     };
 
-    remove_tiles(world, &removed_vs);
-
+    
     // TODO cleanup
     world.get_resource_mut::<Board>().unwrap().origin += dir * BOARD_SHIFT as i32;
     let content = world.get_resource::<Board>().unwrap().next[&dir].clone();
     spawn_tiles(world, &new_vs, content);
     world.get_resource_mut::<Board>().unwrap().next.insert(dir, get_next_content());
     world.get_resource_mut::<Board>().unwrap().level += 1;
+    
+    remove_tiles(world, &removed_vs);
 }
 
 fn get_rect(origin: Vector2I, w: i32, h: i32) -> HashSet<Vector2I> {

@@ -1,8 +1,9 @@
 use rogalik::storage::World;
 
 use hike_game::{
-    actions::{Action, PendingActions, PickItem},
-    components::{Item, Player, Position}
+    actions::PickItem,
+    components::{Item, Player, Position},
+    set_player_action
 };
 
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
@@ -38,10 +39,7 @@ pub fn handle_menu(
             .with_span(span);
         button.draw(backend);
         if button.clicked(state) || state.action == ButtonState::Pressed {
-            world.get_resource_mut::<PendingActions>().unwrap().0
-                .push_back(Box::new(
-                    PickItem { entity }
-                ) as Box<dyn Action>);
+            set_player_action(world, Box::new(PickItem { entity }));
             return true;
         }
     }

@@ -1,6 +1,6 @@
 use rogalik::math::vectors::Vector2I;
 
-use hike_game::set_player_action;
+use hike_game::set_player_action_from_dir;
 
 use super::{InputState, InputDirection};
 
@@ -15,5 +15,5 @@ pub fn handle_dir_input(
         InputDirection::Right => Vector2I::RIGHT,
         _ => return
     };
-    set_player_action(world, dir);
+    set_player_action_from_dir(world, dir);
 }
