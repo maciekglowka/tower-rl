@@ -4,6 +4,8 @@ use std::collections::{HashMap, HashSet};
 use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS};
 use::rogalik::storage::{Entity, World};
 
+use hike_data::GameData;
+
 use crate::components::{Frozen, Position};
 use crate::globals::{BOARD_SIZE, BOARD_SHIFT};
 use crate::utils::{get_entities_at_position, spawn_with_position};
@@ -61,24 +63,36 @@ fn spawn_tiles(world: &mut World, vs: &HashSet<Vector2I>, content: Vec<ContentKi
         world.get_resource_mut::<Board>().unwrap().tiles.insert(*v, entity);
 
     }
+
+    let level = world.get_resource::<Board>().unwrap().level;
+
     let mut rng = thread_rng();
     let mut pool: Vec<_> = vs.iter().collect();
     for kind in content {
         let i = rng.gen_range(0..pool.len());
         let v = pool.remove(i);
-        let name = match kind {
-            ContentKind::Item => "Sword",
-            ContentKind::Unit => "Jellyfish"
-        };
-        if let Some(entity) = spawn_with_position(world, name, *v) {
-            let _ = world.insert_component(entity, Frozen(1));
-        }
+        let name = get_content_item(
+            kind,
+            &world.get_resource::<GameData>().unwrap(),
+            level
+        );
+        spawn_with_position(world, &name, *v);
     }
     if pool.len() > 0 && rng.gen_bool(0.5) {
         let i = rng.gen_range(0..pool.len());
         let v = pool.remove(i);
         spawn_with_position(world, "Rock", *v);
     }
+}
+
+fn get_content_item(kind: ContentKind, data: &GameData, level: u32) -> String {
+    let base = match kind {
+        ContentKind::Item => &data.items,
+        ContentKind::Unit => &data.npcs
+    };
+    let pool = get_pool(data, &base, level);
+    let mut rng = thread_rng();
+    pool.choose(&mut rng).unwrap().to_string()
 }
 
 fn remove_tiles(world: &mut World, vs: &HashSet<Vector2I>) {
@@ -130,7 +144,7 @@ pub fn shift_dir(world: &mut World, dir: Vector2I) {
     spawn_tiles(world, &new_vs, content);
     world.get_resource_mut::<Board>().unwrap().next.insert(dir, get_next_content());
     world.get_resource_mut::<Board>().unwrap().level += 1;
-    
+
     remove_tiles(world, &removed_vs);
 }
 
@@ -147,6 +161,17 @@ fn get_rect(origin: Vector2I, w: i32, h: i32) -> HashSet<Vector2I> {
             })
         )
         .flatten()
+        .collect()
+}
+
+fn get_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<&'a String> {
+    base.iter()
+        .filter(|s| if let Some(data) = data.entities.get(*s) {
+                data.min_level <= level
+            } else {
+                false
+            } 
+        )
         .collect()
 }
 

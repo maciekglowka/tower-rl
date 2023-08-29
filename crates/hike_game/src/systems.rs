@@ -183,7 +183,8 @@ fn kill_units(world: &mut World) {
 fn collect_actor_queue(world: &mut World) {
     let Some(mut queue) = world.get_resource_mut::<ActorQueue>() else { return };
     let mut actors = world.query::<Actor>().iter().map(|a| a.entity).collect::<Vec<_>>();
-    actors.sort_by(|a, b| a.id.cmp(&b.id));
+    // actors.sort_by(|a, b| a.id.cmp(&b.id));
+    actors.sort_by_key(|a| (a.version, a.id));
     queue.0 = actors.into();
 }
 

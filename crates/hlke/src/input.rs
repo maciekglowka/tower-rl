@@ -27,7 +27,7 @@ pub fn get_input_state(camera: &Camera2D) -> InputState {
         left = ButtonState::Pressed
     }
 
-    let shift = if is_key_pressed(KeyCode::E) { ButtonState::Pressed } else { ButtonState::Up };
+    let shift = if is_key_pressed(KeyCode::I) { ButtonState::Pressed } else { ButtonState::Up };
     let action = if is_key_pressed(KeyCode::Space) { ButtonState::Pressed } else { ButtonState::Up };
 
     let mut direction = InputDirection::None;

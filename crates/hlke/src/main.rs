@@ -27,6 +27,8 @@ async fn main() {
     let player = game_data.add_entities_from_str(player_data_str);
     let tiles = game_data.add_entities_from_str(tile_data_str);
     let items = game_data.add_entities_from_str(item_data_str);
+    game_data.npcs = npcs;
+    game_data.items = items;
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 

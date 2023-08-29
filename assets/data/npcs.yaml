@@ -11,3 +11,16 @@ Jellyfish:
     Health: 2
     Obstacle:
 
+Jellyfish_B:
+  sprite:
+    atlas_name: ascii
+    index: 15
+    color: [50, 50, 0, 255]
+  components:
+    Actor:
+    Offensive:
+      kind: !Hit
+      value: 1
+    Health: 2
+    Obstacle:
+  min_level: 5

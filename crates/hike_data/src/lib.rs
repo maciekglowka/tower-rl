@@ -1,17 +1,17 @@
 use serde::Deserialize;
 use serde_yaml;
-use std::{
-    collections::HashMap,
-    ops::Mul
-};
+use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct GameData {
     // all entity data, by name
-    pub entities: HashMap<String, EntityData>
+    pub entities: HashMap<String, EntityData>,
+    pub items: Vec<String>,
+    pub npcs: Vec<String>,
 }
 impl GameData {
     pub fn new() -> Self {
-        GameData { entities: HashMap::new() }
+        GameData::default()
     }
     pub fn add_entities_from_str(&mut self, s: String) -> Vec<String> {
         let mut inserted_names = Vec::new();
@@ -34,6 +34,8 @@ impl GameData {
 pub struct EntityData {
     pub sprite: SpriteData,
     pub components: serde_yaml::Value,
+    #[serde(default)]
+    pub min_level: u32
 }
 
 #[derive(Clone, Deserialize)]
