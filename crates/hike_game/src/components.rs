@@ -25,16 +25,25 @@ impl Component for Actor {}
 #[derive(Deserialize)]
 pub struct Offensive {
     pub kind: AttackKind,
+    #[serde(deserialize_with="deserialize_random_u32")]
     pub value: u32
 }
-impl Component for Offensive {}
+impl Component for Offensive {
+    fn as_str(&self) -> String {
+        format!("Att: {}", self.value)
+    }
+}
 
 #[derive(Deserialize)]
 pub struct Durability {
     #[serde(deserialize_with="deserialize_random_u32")]
     pub value: u32
 }
-impl Component for Durability {}
+impl Component for Durability {
+    fn as_str(&self) -> String {
+        format!("Dur: {}", self.value)
+    }
+}
 
 #[derive(Deserialize)]
 // fixed tile furnishings

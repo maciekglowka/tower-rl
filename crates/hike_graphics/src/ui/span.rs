@@ -51,6 +51,10 @@ impl<'a> Span<'a> {
         self.sprite_color = color;
         self
     }
+    pub fn with_size(mut self, size: u32) -> Self {
+        self.size = size;
+        self
+    }
     pub fn draw(&self, origin: Vector2F, backend: &dyn GraphicsBackend) {
         let mut offset = 0.;
         let text_v_offset = -0.5 * (self.size as f32 - backend.text_size("default", "A", self.size).y);

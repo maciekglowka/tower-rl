@@ -30,8 +30,8 @@ pub fn handle_menu(
         let viewport_size = backend.viewport_size();
         let span = Span::new().with_text_borrowed("PICK");
         let button = Button::new(
-                viewport_size.x / 2. - 100.,
-                50.,
+                10.,
+                85.,
                 200.,
                 50.
             )

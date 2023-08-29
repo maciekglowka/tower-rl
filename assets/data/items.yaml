@@ -6,7 +6,7 @@ Sword:
   components:
     Offensive:
       kind: !Hit
-      value: 2
+      value: 2-4
     Durability:
       value: 3-5
     Item:

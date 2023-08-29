@@ -22,6 +22,7 @@ mod utils;
 pub use player::{set_player_action, set_player_action_from_dir};
 pub use board::{Board, ContentKind};
 pub use events::ActionEvent;
+pub use utils::get_entities_at_position;
 
 pub struct GameManager {
     pub action_events: EventBus<ActionEvent>,

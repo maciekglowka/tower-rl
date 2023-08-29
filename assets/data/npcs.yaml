@@ -15,12 +15,12 @@ Jellyfish_B:
   sprite:
     atlas_name: ascii
     index: 15
-    color: [50, 50, 0, 255]
+    color: [100, 100, 0, 255]
   components:
     Actor:
     Offensive:
       kind: !Hit
       value: 1
-    Health: 2
+    Health: 3
     Obstacle:
   min_level: 5
