@@ -64,8 +64,8 @@ pub struct Player {
 }
 impl Component for Player {}
 
-pub struct Paralyzed(pub u32);
-impl Component for Paralyzed {}
+pub struct Frozen(pub u32);
+impl Component for Frozen {}
 
 pub struct Projectile {
     pub damage: u32,

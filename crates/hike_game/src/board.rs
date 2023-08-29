@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS};
 use::rogalik::storage::{Entity, World};
 
-use crate::components::Position;
+use crate::components::{Frozen, Position};
 use crate::globals::{BOARD_SIZE, BOARD_SHIFT};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
@@ -70,7 +70,9 @@ fn spawn_tiles(world: &mut World, vs: &HashSet<Vector2I>, content: Vec<ContentKi
             ContentKind::Item => "Sword",
             ContentKind::Unit => "Jellyfish"
         };
-        spawn_with_position(world, name, *v);
+        if let Some(entity) = spawn_with_position(world, name, *v) {
+            let _ = world.insert_component(entity, Frozen(1));
+        }
     }
 }
 

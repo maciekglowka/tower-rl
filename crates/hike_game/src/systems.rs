@@ -8,7 +8,7 @@ use crate::actions::{
     Action, ActorQueue, PendingActions, get_npc_action,
 };
 use crate::board::{Board, shift_dir};
-use crate::components::{Actor, Durability, Health, Player, Position};
+use crate::components::{Actor, Durability, Frozen, Health, Player, Position};
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
 use crate::player;
@@ -56,19 +56,9 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     // returns true if the actor is done
+    if process_frozen(world, entity) { return true };
     let Some(selected) = get_new_action(entity, world) else { return false };
     execute_action(selected, world, manager).is_ok()
-
-    // if res {
-    //     if let Some(mut player) = world.get_component_mut::<Player>(entity) {
-    //         if let Some(item) =  player.used_item {
-    //             apply_durability(world, item);
-    //         }
-    //         player.used_item = None;
-    //     }
-    // }
-
-    // res
 }
 
 fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
@@ -197,19 +187,19 @@ fn collect_actor_queue(world: &mut World) {
     queue.0 = actors.into();
 }
 
-// fn process_paralyzed(world: &mut World, entity: Entity) -> bool {
-//     // returns true if the actor is still paralayzded and cannot act
-//     // decreases the paralyze counter
-//     let Some(mut paralyzed) = world.get_component_mut::<Paralyzed>(entity)
-//         else { return false };
+fn process_frozen(world: &mut World, entity: Entity) -> bool {
+    // returns true if the actor is still paralayzded and cannot act
+    // decreases the paralyze counter
+    let Some(mut frozen) = world.get_component_mut::<Frozen>(entity)
+        else { return false };
 
-//     paralyzed.0 = paralyzed.0.saturating_sub(1);
-//     if paralyzed.0 > 0 { return true }
+    frozen.0 = frozen.0.saturating_sub(1);
+    if frozen.0 > 0 { return true }
 
-//     drop(paralyzed);
-//     world.remove_component::<Paralyzed>(entity);
-//     true
-// }
+    drop(frozen);
+    world.remove_component::<Frozen>(entity);
+    true
+}
 
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
