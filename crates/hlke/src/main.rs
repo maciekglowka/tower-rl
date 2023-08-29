@@ -69,7 +69,7 @@ async fn main() {
         if graphics_ready {
             hike_game::game_update(&mut world, &mut manager);
         }
-        clear_background(BLACK);
+        clear_background(Color::from_rgba(124, 182, 219, 255));
         set_camera(&main_camera);
         backend.set_bounds(&main_camera);
 

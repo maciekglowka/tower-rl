@@ -34,7 +34,7 @@ impl Board {
         }
 
         let _ = spawn_with_position(world, "Sword", Vector2I::new(2, 1));
-        // let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 4));
+        let _ = spawn_with_position(world, "Rock", Vector2I::new(4, 4));
         // let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 5));
         for dir in ORTHO_DIRECTIONS {
             self.next.insert(dir, get_next_content());

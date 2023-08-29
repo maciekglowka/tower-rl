@@ -170,15 +170,7 @@ impl Action for Hit {
     fn event(&self) -> ActionEvent {
         ActionEvent::Melee(self.entity, self.target, self.value)
     }
-    fn score(&self, world: &World) -> i32 {
-        if get_entities_at_position(world, self.target).iter().any(
-            |e| world.get_component::<Player>(*e).is_some()
-        ) {
-            200
-        } else {
-            -50
-        }
-    }
+    // no score - should be a resulting action only
 }
 
 pub struct Bump {
@@ -191,7 +183,7 @@ impl Action for Bump {
         Ok(Vec::new())
     }
     fn event(&self) -> ActionEvent {
-        ActionEvent::Travel(self.entity, self.target)
+        ActionEvent::Bump(self.entity, self.target)
     }
 }
 
@@ -251,8 +243,5 @@ impl Action for PickItem {
 
         Ok(Vec::new())
     }
-    fn score(&self, world: &World) -> i32 {
-        // npcs do not pick
-        0
-    }
+    // no score - npcs do not pick
 }

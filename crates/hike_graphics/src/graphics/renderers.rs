@@ -1,6 +1,6 @@
 use std::{
     any::TypeId,
-    collections::VecDeque
+    collections::{HashSet, VecDeque}
 };
 use rogalik::math::vectors::Vector2F;
 use rogalik::storage::{Entity, World, WorldEvent};
@@ -14,7 +14,16 @@ use hike_game::{
 
 use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
 use super::utils::move_towards;
-use crate::globals::{TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, PARALYZE_FADE};
+use crate::globals::{
+    TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, PARALYZE_FADE, FADE_SPEED
+};
+
+#[derive(PartialEq)]
+pub enum SpriteState {
+    Added,
+    Existing,
+    Removed
+}
 
 pub struct SpriteRenderer {
     pub entity: Entity,
@@ -24,7 +33,8 @@ pub struct SpriteRenderer {
     pub index: u32,
     pub z_index: u32,
     pub color: SpriteColor,
-    pub fade: f32
+    pub fade: f32,
+    pub state: SpriteState
 }
 
 pub fn handle_world_events(
@@ -39,7 +49,12 @@ pub fn handle_world_events(
                     a if a == TypeId::of::<Paralyzed>() => {
                         fade_sprite(*entity, state, 1.)
                     },
-                    a if a == TypeId::of::<Position>() || a == TypeId::of::<Projectile>() => {
+                    a if a == TypeId::of::<Position>() => {
+                        if let Some(sprite) = get_entity_sprite(*entity, state) {
+                            sprite.state = SpriteState::Removed;
+                        }
+                    },
+                    a if a == TypeId::of::<Projectile>() => {
                         state.sprites.retain(|a| a.entity != *entity);
                     },
                     _ => continue
@@ -79,7 +94,7 @@ pub fn handle_action_events(
 ) {
     for ev in state.ev_actions.read().iter().flatten() {
         match ev {
-            ActionEvent::Melee(entity, target, _) => {
+            ActionEvent::Melee(entity, target, _) | ActionEvent::Bump(entity, target) => {
                 if let Some(sprite) = get_entity_sprite(*entity, state) {
                     sprite.path.push_back(target.as_f32() * TILE_SIZE);
                     sprite.path.push_back(sprite.v);
@@ -95,9 +110,13 @@ pub fn handle_action_events(
     }
 }
 
-pub fn update_sprites(
-    state: &mut GraphicsState
-) -> bool {
+pub fn update_sprites(state: &mut GraphicsState) -> bool {
+    update_added_sprites(state);
+    update_removed_sprites(state);
+    update_sprite_positions(state)
+}
+
+fn update_sprite_positions(state: &mut GraphicsState) -> bool {
     let mut ready = true;
     for sprite in state.sprites.iter_mut() {
         let Some(target) = sprite.path.get(0) else { continue };
@@ -110,17 +129,47 @@ pub fn update_sprites(
     ready
 }
 
-pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn GraphicsBackend) {
-    let Some(board) = world.get_resource::<Board>() else { return };
-    for sprite in state.sprites.iter() {
-        let tile = world_to_tile(sprite.v);
+fn update_added_sprites(state: &mut GraphicsState) -> bool {
+    let mut ready = true;
+    for sprite in state.sprites.iter_mut().filter(|a| a.state == SpriteState::Added) {
+        ready = false;
+        sprite.fade += FADE_SPEED;
+        if sprite.fade >= 1. {
+            sprite.fade = 1.;
+            sprite.state = SpriteState::Existing;
+        }
+    }
+    ready
+}
 
+fn update_removed_sprites(state: &mut GraphicsState) -> bool {
+    let mut ready = true;
+    let mut to_remove = HashSet::new();
+    for sprite in state.sprites.iter_mut().filter(|a| a.state == SpriteState::Removed) {
+        ready = false;
+        sprite.fade -= FADE_SPEED;
+        if sprite.fade <= 0. {
+            to_remove.insert(sprite.entity);
+        }
+    }
+    state.sprites.retain(|a| !to_remove.contains(&a.entity));
+    ready
+}
+
+pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn GraphicsBackend) {
+    for sprite in state.sprites.iter() {
+        let color = SpriteColor(
+            sprite.color.0,
+            sprite.color.1,
+            sprite.color.2,
+            (sprite.color.3 as f32 * sprite.fade) as u8,
+        );
         backend.draw_world_sprite(
             &sprite.atlas_name,
             sprite.index,
             sprite.v,
             Vector2F::new(TILE_SIZE, TILE_SIZE),
-            sprite.color * sprite.fade
+            color
         );
     }
 }
@@ -160,7 +209,8 @@ fn get_sprite_renderer(
         index: data.sprite.index,
         z_index,
         color: data.sprite.color,
-        fade: 1.
+        fade: 0.,
+        state: SpriteState::Added
     }
 }
 
@@ -179,8 +229,9 @@ fn get_projectile_renderer(
         atlas_name: "ascii".into(),
         index: 249,
         z_index: PROJECTILE_Z,
-        color: SpriteColor(255, 255, 255, 255),
-        fade: 1.
+        color: SpriteColor(0, 0, 0, 255),
+        fade: 1.,
+        state: SpriteState::Existing
     }
 }
 

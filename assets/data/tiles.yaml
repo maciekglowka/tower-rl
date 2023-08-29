@@ -2,6 +2,6 @@ Tile:
   sprite:
     atlas_name: ascii
     index: 177
-    color: [50, 50, 200, 255]
+    color: [195, 234, 254, 255]
   components:
     Tile:

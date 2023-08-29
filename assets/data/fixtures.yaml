@@ -1,12 +1,3 @@
-Buoy:
-  sprite:
-    atlas_name: ascii
-    index: 4
-    color: [255, 0, 0, 255]
-  components:
-    Fixture:
-    Obstacle:
-
 Rock:
   sprite:
     atlas_name: ascii
@@ -15,22 +6,3 @@ Rock:
   components:
     Fixture:
     Obstacle:
-    ViewBlocker:
-
-Spawner:
-  sprite:
-    atlas_name: ascii
-    index: 7
-    color: [255, 255, 255, 255]
-  components:
-    Fixture:
-    Obstacle:
-
-Vortex:
-  sprite:
-    atlas_name: ascii
-    index: 9
-    color: [50, 50, 200, 255]
-  components:
-    Fixture:
-    Vortex:

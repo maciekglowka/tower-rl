@@ -42,7 +42,7 @@ fn draw_next_content_line(
             index,
             origin + dir * i as f32 * 40. - Vector2F::new(16., 16.),
             Vector2F::new(32., 32.),
-            SpriteColor(255, 255, 255, 255)
+            SpriteColor(0, 0, 0, 255)
         );
     }
 }

@@ -9,6 +9,7 @@ pub const TILE_Z: u32 = 50;
 pub const PARALYZE_FADE: f32 = 0.75;
 
 pub const MOVEMENT_SPEED: f32 = 10.;
+pub const FADE_SPEED: f32 = 0.05;
 
 // ui
 pub const INVENTORY_SINGLE_DIM: f32 = 96.;

@@ -18,6 +18,6 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
         &format!("HP: {}", health.0),
         Vector2F::new(10., 42.),
         32,
-        SpriteColor(255, 255, 255, 255)
+        SpriteColor(0, 0, 0, 255)
     );
 }
