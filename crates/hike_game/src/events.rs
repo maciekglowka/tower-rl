@@ -6,6 +6,7 @@ use rogalik::{
 #[derive(Clone, Copy)]
 pub enum ActionEvent {
     Other,
+    Bump(Entity, Vector2I),
     Melee(Entity, Vector2I, u32),
     Travel(Entity, Vector2I)
 }

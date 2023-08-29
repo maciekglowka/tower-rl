@@ -17,11 +17,11 @@ pub struct Actor;
 impl Component for Actor {}
 
 #[derive(Deserialize)]
-pub struct Attack {
+pub struct Offensive {
     pub kind: AttackKind,
     pub value: u32
 }
-impl Component for Attack {}
+impl Component for Offensive {}
 
 #[derive(Deserialize)]
 pub struct Durability {
@@ -61,7 +61,6 @@ pub struct Player {
     pub action: Option<Box<dyn Action>>,
     pub items: [Option<Entity>; INVENTORY_SIZE],
     pub active_item: usize,
-    pub used_item: Option<Entity>
 }
 impl Component for Player {}
 
@@ -88,11 +87,11 @@ pub fn insert_data_components(
         let Some(name) = name.as_str() else { continue };
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
-            "Attack" => insert_single::<Attack>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
+            "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             a => panic!("Unknown component {a}")

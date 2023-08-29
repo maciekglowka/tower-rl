@@ -57,18 +57,18 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     // returns true if the actor is done
     let Some(selected) = get_new_action(entity, world) else { return false };
-    let res = execute_action(selected, world, manager).is_ok();
+    execute_action(selected, world, manager).is_ok()
 
-    if res {
-        if let Some(mut player) = world.get_component_mut::<Player>(entity) {
-            if let Some(item) =  player.used_item {
-                apply_durability(world, item);
-            }
-            player.used_item = None;
-        }
-    }
+    // if res {
+    //     if let Some(mut player) = world.get_component_mut::<Player>(entity) {
+    //         if let Some(item) =  player.used_item {
+    //             apply_durability(world, item);
+    //         }
+    //         player.used_item = None;
+    //     }
+    // }
 
-    res
+    // res
 }
 
 fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
@@ -165,14 +165,6 @@ fn check_board_shift(world: &mut World) -> Option<Vector2I> {
     }
 
     None
-}
-
-fn apply_durability(
-    world: &World,
-    entity: Entity
-) {
-    let Some(mut durability) = world.get_component_mut::<Durability>(entity) else { return };
-    durability.value = durability.value.saturating_sub(1);
 }
 
 fn destroy_items(

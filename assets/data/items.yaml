@@ -4,7 +4,7 @@ Sword:
     index: 47
     color: [128, 0, 128, 255]
   components:
-    Attack:
+    Offensive:
       kind: !Hit
       value: 2
     Durability:

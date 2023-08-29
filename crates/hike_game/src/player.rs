@@ -18,7 +18,6 @@ pub fn spawn_player(world: &mut World) {
         action: None,
         items: [None; INVENTORY_SIZE],
         active_item: 0,
-        used_item: None
     });
 }
 
@@ -29,16 +28,7 @@ pub fn set_player_action(
     let query = world.query::<Player>();
     let Some(player_item) = query.iter().next() else { return };
 
-    let res = get_action_at_dir(player_item.entity, world, dir);
-    
-    let mut player = player_item.get_mut::<Player>().unwrap();
-    if let Some((action, item)) = res {
-        player.action = Some(action);
-        player.used_item = item;
-    } else {
-        player.action = None;
-        player.used_item = None;
-    }
+    player_item.get_mut::<Player>().unwrap().action = get_action_at_dir(player_item.entity, world, dir);
 }
 
 pub fn turn_end(world: &mut World) {
