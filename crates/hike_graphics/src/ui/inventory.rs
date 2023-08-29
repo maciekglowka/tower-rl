@@ -4,7 +4,7 @@ use hike_data::GameData;
 use hike_game::components::{Durability, Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
-use super::{InputState, GraphicsBackend, SpriteColor};
+use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
 use super::super::globals::INVENTORY_SINGLE_DIM;
@@ -84,11 +84,10 @@ pub fn click_item(index: usize, world: &World) {
 }
 
 pub fn handle_shift_input(world: &World, state: &InputState) {
-    // if state.shift == ButtonState::Pressed {
-    //     let query = world.query::<PlayerCharacter>().with::<Actor>();
-    //     let Some(item) = query.iter().next() else { return };
-    //     let count = &item.get::<Actor>().unwrap().abilities.len();
-    //     let active = item.get::<PlayerCharacter>().unwrap().active_ability;
-    //     click_card((active + 1) % count, world);
-    // }
+    if state.shift == ButtonState::Pressed {
+        let query = world.query::<Player>();
+        let Some(item) = query.iter().next() else { return };
+        let active = item.get::<Player>().unwrap().active_item;
+        click_item((active + 1) % INVENTORY_SIZE, world);
+    }
 }

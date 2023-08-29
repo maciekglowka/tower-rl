@@ -19,6 +19,7 @@ pub struct InputState {
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
     pub shift: ButtonState,
+    pub action: ButtonState,
 }
 
 #[derive(Default, PartialEq)]
@@ -58,6 +59,6 @@ pub fn ui_update(
     }
 
     if ui_click { return };
+    inventory::handle_shift_input(world, &input_state);
     input::handle_dir_input(world, &input_state);
-    // cards::handle_shift_input(world, &input_state);
 }

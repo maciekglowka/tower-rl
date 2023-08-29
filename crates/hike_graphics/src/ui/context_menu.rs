@@ -5,7 +5,7 @@ use hike_game::{
     components::{Item, Player, Position}
 };
 
-use super::{InputState, GraphicsBackend, SpriteColor};
+use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
 
@@ -37,7 +37,7 @@ pub fn handle_menu(
             .with_color(SpriteColor(100, 100, 100, 255))
             .with_span(span);
         button.draw(backend);
-        if button.clicked(state) {
+        if button.clicked(state) || state.action == ButtonState::Pressed {
             world.get_resource_mut::<PendingActions>().unwrap().0
                 .push_back(Box::new(
                     PickItem { entity }
