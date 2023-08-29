@@ -2,7 +2,7 @@ Jellyfish:
   sprite:
     atlas_name: ascii
     index: 15
-    color: [255, 0, 255, 255]
+    color: [0, 0, 0, 255]
   components:
     Actor:
     Offensive:

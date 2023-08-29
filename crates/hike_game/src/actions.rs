@@ -208,7 +208,7 @@ impl Action for Damage {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
-        health.0 = health.0.saturating_sub(self.value);
+        health.0.current = health.0.current.saturating_sub(self.value);
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action

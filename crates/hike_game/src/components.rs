@@ -1,6 +1,7 @@
+use rand::prelude::*;
 use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2I;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 use crate::actions::Action;
 use crate::globals::INVENTORY_SIZE;
@@ -9,6 +10,11 @@ use crate::globals::INVENTORY_SIZE;
 #[derive(Deserialize)]
 pub enum AttackKind {
     Hit
+}
+
+pub struct ValueMax {
+    pub current: u32,
+    pub max: u32
 }
 
 // deserialized components
@@ -25,6 +31,7 @@ impl Component for Offensive {}
 
 #[derive(Deserialize)]
 pub struct Durability {
+    #[serde(deserialize_with="deserialize_random_u32")]
     pub value: u32
 }
 impl Component for Durability {}
@@ -35,7 +42,7 @@ pub struct Fixture;
 impl Component for Fixture {}
 
 #[derive(Deserialize)]
-pub struct Health(pub u32);
+pub struct Health(pub ValueMax);
 impl Component for Health {}
 
 #[derive(Deserialize)]
@@ -106,4 +113,31 @@ fn insert_single<T>(
 ) where for<'de> T: 'static + Component + Deserialize<'de> {
     let component = serde_yaml::from_value::<T>(data.clone()).expect(&format!("Could not parse {:?}", data));
     let _ =world.insert_component(entity, component);
+}
+
+fn deserialize_random_u32<'de, D>(d: D) -> Result<u32, D::Error>
+where D: Deserializer<'de> {
+    match serde_yaml::Value::deserialize(d)? {
+        serde_yaml::Value::Number(n) => 
+            Ok(n.as_u64().ok_or(serde::de::Error::custom("Wrong value!"))? as u32),
+        serde_yaml::Value::String(s) => {
+            let parts = s.split('-').collect::<Vec<_>>();
+            if parts.len() != 2 { Err(serde::de::Error::custom("Wrong value!")) }
+            else {
+                let mut rng = thread_rng();
+                let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
+                let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
+                Ok(rng.gen_range(a..=b))
+            }
+        }
+        _ => Err(serde::de::Error::custom("Wrong value!"))
+    }
+}
+
+impl<'de> Deserialize<'de> for ValueMax {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where D: Deserializer<'de> {
+        let n = u32::deserialize(deserializer)?;
+        Ok(ValueMax { current: n, max: n })
+    }
 }

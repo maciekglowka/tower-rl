@@ -172,7 +172,7 @@ fn destroy_items(
 fn kill_units(world: &mut World) {
     let query = world.query::<Health>();
     let entities = query.iter()
-        .filter(|a| a.get::<Health>().unwrap().0 == 0)
+        .filter(|a| a.get::<Health>().unwrap().0.current == 0)
         .map(|a| a.entity)
         .collect::<Vec<_>>();
     for entity in entities {

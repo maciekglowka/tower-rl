@@ -16,6 +16,7 @@ pub enum ContentKind {
 
 #[derive(Default)]
 pub struct Board {
+    pub level: u32,
     pub tiles: HashMap<Vector2I, Entity>,
     pub origin: Vector2I,
     pub next: HashMap<Vector2I, Vec<ContentKind>>
@@ -34,7 +35,6 @@ impl Board {
         }
 
         let _ = spawn_with_position(world, "Sword", Vector2I::new(2, 1));
-        let _ = spawn_with_position(world, "Rock", Vector2I::new(4, 4));
         // let _ = spawn_with_position(world, "Jellyfish", Vector2I::new(4, 5));
         for dir in ORTHO_DIRECTIONS {
             self.next.insert(dir, get_next_content());
@@ -73,6 +73,11 @@ fn spawn_tiles(world: &mut World, vs: &HashSet<Vector2I>, content: Vec<ContentKi
         if let Some(entity) = spawn_with_position(world, name, *v) {
             let _ = world.insert_component(entity, Frozen(1));
         }
+    }
+    if pool.len() > 0 && rng.gen_bool(0.5) {
+        let i = rng.gen_range(0..pool.len());
+        let v = pool.remove(i);
+        spawn_with_position(world, "Rock", *v);
     }
 }
 
@@ -125,6 +130,7 @@ pub fn shift_dir(world: &mut World, dir: Vector2I) {
     let content = world.get_resource::<Board>().unwrap().next[&dir].clone();
     spawn_tiles(world, &new_vs, content);
     world.get_resource_mut::<Board>().unwrap().next.insert(dir, get_next_content());
+    world.get_resource_mut::<Board>().unwrap().level += 1;
 }
 
 fn get_rect(origin: Vector2I, w: i32, h: i32) -> HashSet<Vector2I> {

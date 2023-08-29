@@ -8,5 +8,5 @@ Sword:
       kind: !Hit
       value: 2
     Durability:
-      value: 2
+      value: 3-5
     Item:
