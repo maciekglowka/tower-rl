@@ -35,7 +35,8 @@ pub struct EntityData {
     pub sprite: SpriteData,
     pub components: serde_yaml::Value,
     #[serde(default)]
-    pub min_level: u32
+    pub min_level: u32,
+    pub spawn_chance: Option<f32>
 }
 
 #[derive(Clone, Deserialize)]

@@ -92,7 +92,7 @@ fn get_content_item(kind: ContentKind, data: &GameData, level: u32) -> String {
     };
     let pool = get_pool(data, &base, level);
     let mut rng = thread_rng();
-    pool.choose(&mut rng).unwrap().to_string()
+    pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.to_string()
 }
 
 fn remove_tiles(world: &mut World, vs: &HashSet<Vector2I>) {
@@ -164,14 +164,11 @@ fn get_rect(origin: Vector2I, w: i32, h: i32) -> HashSet<Vector2I> {
         .collect()
 }
 
-fn get_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<&'a String> {
+fn get_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, &'a String)> {
     base.iter()
-        .filter(|s| if let Some(data) = data.entities.get(*s) {
-                data.min_level <= level
-            } else {
-                false
-            } 
-        )
+        .filter_map(|name| data.entities.get(name).map(|d| (name, d)))
+        .filter(|(name, d)| d.min_level <= level)
+        .map(|(name, d)| (d.spawn_chance.unwrap_or(1.), name))
         .collect()
 }
 

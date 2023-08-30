@@ -9,7 +9,9 @@ use std::{
 };
 
 use crate::board::Board;
-use crate::components::{AttackKind, Durability, Health, Obstacle, Offensive, Position, Player};
+use crate::components::{
+    AttackKind, Consumable, Durability, Health, Obstacle, Offensive, Position, Player
+};
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
 use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
@@ -211,6 +213,30 @@ pub struct PickItem {
     pub entity: Entity
 }
 impl Action for PickItem {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if world.get_component::<Consumable>(self.entity).is_some() {
+            let player = world.query::<Player>()
+                .iter().next().ok_or(())?.entity;
+            return Ok(vec![Box::new(Consume {
+                entity: self.entity,
+                consumer: player
+            })])            
+        }
+        if world.get_component::<Offensive>(self.entity).is_some() {
+            return Ok(vec![Box::new(AddToInventory {
+                entity: self.entity
+            })])  
+        }
+        Ok(Vec::new())
+    }
+    // no score - npcs do not pick
+}
+
+pub struct AddToInventory {
+    pub entity: Entity
+}
+impl Action for AddToInventory {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let player_query = world.query::<Player>();

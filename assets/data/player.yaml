@@ -8,5 +8,5 @@ Player:
     Offensive:
       kind: !Hit
       value: 1
-    Health: 3
+    Health: 8
     Obstacle:

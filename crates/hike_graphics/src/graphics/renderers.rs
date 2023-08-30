@@ -9,13 +9,13 @@ use hike_data::GameData;
 use hike_game::{
     ActionEvent,
     Board,
-    components::{Actor, Fixture, Name, Frozen, Position, Projectile, Tile}
+    components::{Actor, Fixture, Item, Name, Frozen, Position, Projectile, Tile}
 };
 
 use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
 use super::utils::move_towards;
 use crate::globals::{
-    TILE_SIZE, ACTOR_Z, FIXTURE_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, FROZE_FADE, FADE_SPEED
+    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, FROZE_FADE, FADE_SPEED
 };
 
 #[derive(PartialEq)]
@@ -193,6 +193,8 @@ fn get_sprite_renderer(
         z_index = FIXTURE_Z
     } else if world.get_component::<Tile>(entity).is_some() {
         z_index = TILE_Z
+    } else if world.get_component::<Item>(entity).is_some() {
+        z_index = ITEM_Z
     } else if world.get_component::<Actor>(entity).is_some() {
         z_index = ACTOR_Z
     }

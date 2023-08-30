@@ -35,7 +35,16 @@ pub struct Consumable {
     #[serde(deserialize_with="deserialize_random_u32")]
     pub value: u32
 }
-impl Component for Consumable {}
+impl Component for Consumable {
+    fn as_str(&self) -> String {
+        let action = match self.kind {
+            ConsumableKind::Heal => "Heal",
+            ConsumableKind::Repair => "Repair",
+            ConsumableKind::Resource => "Collect",
+        };
+        format!("{} ({})", action, self.value)
+    }
+}
 
 #[derive(Deserialize)]
 pub struct Durability {

@@ -2,7 +2,7 @@ use rogalik::storage::World;
 
 use hike_game::{
     actions::PickItem,
-    components::{Item, Player, Position},
+    components::{Consumable, Item, Position},
     get_player_position,
     set_player_action
 };
@@ -25,8 +25,9 @@ pub fn handle_menu(
         .next();
 
     if let Some(entity) = item {
-        let viewport_size = backend.viewport_size();
-        let span = Span::new().with_text_borrowed("PICK");
+        // let viewport_size = backend.viewport_size();
+        let text = if world.get_component::<Consumable>(entity).is_some() { "USE" } else { "PICK" };
+        let span = Span::new().with_text_borrowed(text);
         let button = Button::new(
                 10.,
                 85.,
