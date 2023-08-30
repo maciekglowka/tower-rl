@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rogalik = { path = "../../../rogalik" }
+rogalik = { git = "https://github.com/maciekglowka/rogalik.git" }
 
 hike_data = { path = "../hike_data" }
 hike_game = { path = "../hike_game" }

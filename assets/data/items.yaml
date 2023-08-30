@@ -45,3 +45,17 @@ Sword:
     Durability:
       value: 5-15
     Item:
+
+Wand:
+  sprite:
+    atlas_name: ascii
+    index: 47
+    color: [0, 0, 128, 255]
+  components:
+    Offensive:
+      kind: !Freeze
+      value: 2-5
+    Durability:
+      value: 5-15
+    Item:
+  min_level: 5

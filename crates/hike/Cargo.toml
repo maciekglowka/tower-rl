@@ -3,11 +3,18 @@ name = "hike"
 version = "0.1.0"
 edition = "2021"
 
+[package.metadata.android]
+assets = "../../assets/"
+
+[package.metadata.android.activity_attributes]
+"android:exported" =  "true"
+"android:screenOrientation" = "userPortrait"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 macroquad = "0.4" 
-rogalik = { path = "../../../rogalik" }
+rogalik = { git = "https://github.com/maciekglowka/rogalik.git" }
 
 macroquad_sprites = { path = "../macroquad_sprites" }
 hike_data = { path = "../hike_data" }

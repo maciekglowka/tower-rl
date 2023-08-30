@@ -15,10 +15,11 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
     let Some(item) = query.iter().next() else { return };
 
     let health = item.get::<Health>().unwrap();
+    let player = item.get::<Player>().unwrap();
 
     backend.draw_ui_text(
         "default",
-        &format!("HP: {}/{}", health.0.current, health.0.max),
+        &format!("HP: {}/{} R: {}", health.0.current, health.0.max, player.resources),
         Vector2F::new(10., 42.),
         32,
         SpriteColor(0, 0, 0, 255)

@@ -1,6 +1,6 @@
 use rogalik::storage::{Entity, World};
 
-use crate::actions::{Action, Heal, Repair};
+use crate::actions::{Action, CollectResource, Heal, Repair};
 use crate::components::{Consumable, ConsumableKind, Durability, Player};
 
 pub fn get_consume_action(
@@ -14,13 +14,15 @@ pub fn get_consume_action(
         ConsumableKind::Heal => Some(Box::new(
             Heal { entity: consumer, value: consumable.value }
         )),
-        ConsumableKind::Repair => get_repair(world, consumer, consumable.value),
-        _ => None
+        ConsumableKind::Repair => get_repair(world, consumable.value),
+        ConsumableKind::Resource => Some(Box::new(
+            CollectResource { value: consumable.value }
+        ))
     }
 }
 
 
-fn get_repair(world: &World, player_entity: Entity, value: u32) -> Option<Box<dyn Action>> {
+fn get_repair(world: &World, value: u32) -> Option<Box<dyn Action>> {
     let query = world.query::<Player>();
     let player_item = query.iter().next()?;
     let player = player_item.get::<Player>()?;

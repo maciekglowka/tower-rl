@@ -10,7 +10,7 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    AttackKind, Consumable, Durability, Health, Obstacle, Offensive, Position, Player
+    AttackKind, Consumable, Durability, Frozen, Health, Obstacle, Offensive, Position, Player
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -52,7 +52,8 @@ pub fn get_action_at_dir(
     let bumpable = entities.iter()
         .any(|&e| world.get_component::<Obstacle>(e).is_some());
     if bumpable {
-        return Some(Box::new(Bump { entity, target }))
+        // return Some(Box::new(Bump { entity, target }))
+        return None
     }
 
     // otherwise should be safe to walk into
@@ -123,6 +124,11 @@ impl Attack {
                 entity: self.entity,
                 target: self.target,
                 value: offensive.value 
+            }),
+            AttackKind::Freeze => Box::new(Freeze {
+                entity: self.entity,
+                target: self.target,
+                value: offensive.value  
             })
         }
     }
@@ -174,6 +180,25 @@ impl Action for Hit {
         ActionEvent::Melee(self.entity, self.target, self.value)
     }
     // no score - should be a resulting action only
+}
+
+pub struct Freeze {
+    pub entity: Entity,
+    pub target: Vector2I,
+    pub value: u32
+}
+impl Action for Freeze {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        for entity in get_entities_at_position(world, self.target) {
+            if world.get_component::<Health>(entity).is_none() { continue }
+            let _ = world.insert_component(entity, Frozen(self.value));
+        }
+        Ok(Vec::new())
+    }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Melee(self.entity, self.target, self.value)
+    }
 }
 
 pub struct Bump {
@@ -314,4 +339,18 @@ impl Action for Repair {
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action
+}
+
+pub struct CollectResource {
+    pub value: u32
+}
+impl Action for CollectResource {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        world.query::<Player>().iter().next().ok_or(())?
+            .get_mut::<Player>().unwrap().resources += self.value;
+
+        Ok(Vec::new())
+    }
+    // no score - npcs do not pick
 }

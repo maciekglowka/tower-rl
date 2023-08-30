@@ -78,7 +78,7 @@ fn spawn_tiles(world: &mut World, vs: &HashSet<Vector2I>, content: Vec<ContentKi
         );
         spawn_with_position(world, &name, *v);
     }
-    if pool.len() > 0 && rng.gen_bool(0.5) {
+    for _ in 0..rng.gen_range(0..(2 * pool.len() / 3)) {
         let i = rng.gen_range(0..pool.len());
         let v = pool.remove(i);
         spawn_with_position(world, "Rock", *v);

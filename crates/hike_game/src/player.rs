@@ -18,6 +18,7 @@ pub fn spawn_player(world: &mut World) {
         action: None,
         items: [None; INVENTORY_SIZE],
         active_item: 0,
+        resources: 0
     });
 }
 

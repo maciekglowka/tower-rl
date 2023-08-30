@@ -1,5 +1,8 @@
 use macroquad::prelude::*;
-use std::time::{Duration, Instant};
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant}
+};
 
 mod input;
 
@@ -63,6 +66,7 @@ async fn main() {
     hike_game::init(&mut world, &mut manager);
 
     let mut graphics_ready = true;
+    let mut touch_state = HashMap::new();
 
     loop {
         let frame_start = Instant::now();
@@ -80,7 +84,7 @@ async fn main() {
         set_default_camera();
         hike_graphics::ui::ui_update(
             &mut world,
-            input::get_input_state(&main_camera),
+            input::get_input_state(&main_camera, &mut touch_state),
             &backend,
         );
         next_frame().await;

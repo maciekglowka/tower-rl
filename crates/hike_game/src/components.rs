@@ -7,8 +7,9 @@ use crate::actions::Action;
 use crate::globals::INVENTORY_SIZE;
 // use crate::items::ItemKind;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq)]
 pub enum AttackKind {
+    Freeze,
     Hit
 }
 
@@ -100,6 +101,7 @@ pub struct Player {
     pub action: Option<Box<dyn Action>>,
     pub items: [Option<Entity>; INVENTORY_SIZE],
     pub active_item: usize,
+    pub resources: u32
 }
 impl Component for Player {}
 

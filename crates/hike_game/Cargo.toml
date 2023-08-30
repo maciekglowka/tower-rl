@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 hike_data = { path = "../hike_data" }
-rogalik = { path = "../../../rogalik" }
+rogalik = { git = "https://github.com/maciekglowka/rogalik.git" }
 
 rand = "0.8"
 serde = { version = "1.0", features = ["derive"]}

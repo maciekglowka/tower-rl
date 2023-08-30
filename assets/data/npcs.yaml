@@ -24,3 +24,17 @@ Jellyfish_B:
     Health: 4
     Obstacle:
   min_level: 5
+
+# Jellyfish_C:
+#   sprite:
+#     atlas_name: ascii
+#     index: 15
+#     color: [200, 100, 0, 255]
+#   components:
+#     Actor:
+#     Offensive:
+#       kind: !Freeze
+#       value: 1
+#     Health: 4
+#     Obstacle:
+#   min_level: 7

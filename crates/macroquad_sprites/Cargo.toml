@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 macroquad = "0.4" 
-rogalik = { path = "../../../rogalik" }
+rogalik = { git = "https://github.com/maciekglowka/rogalik.git" }
 
 hike_data = { path = "../hike_data" }
 hike_graphics = { path = "../hike_graphics" }
