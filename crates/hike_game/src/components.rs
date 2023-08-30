@@ -12,6 +12,13 @@ pub enum AttackKind {
     Hit
 }
 
+#[derive(Deserialize)]
+pub enum ConsumableKind {
+    Heal,
+    Repair,
+    Resource
+}
+
 pub struct ValueMax {
     pub current: u32,
     pub max: u32
@@ -23,16 +30,12 @@ pub struct Actor;
 impl Component for Actor {}
 
 #[derive(Deserialize)]
-pub struct Offensive {
-    pub kind: AttackKind,
+pub struct Consumable {
+    pub kind: ConsumableKind,
     #[serde(deserialize_with="deserialize_random_u32")]
     pub value: u32
 }
-impl Component for Offensive {
-    fn as_str(&self) -> String {
-        format!("Att: {}", self.value)
-    }
-}
+impl Component for Consumable {}
 
 #[derive(Deserialize)]
 pub struct Durability {
@@ -67,6 +70,17 @@ impl Component for Obstacle {}
 pub struct Tile;
 impl Component for Tile {}
 
+#[derive(Deserialize)]
+pub struct Offensive {
+    pub kind: AttackKind,
+    #[serde(deserialize_with="deserialize_random_u32")]
+    pub value: u32
+}
+impl Component for Offensive {
+    fn as_str(&self) -> String {
+        format!("Att: {}", self.value)
+    }
+}
 
 // context-dependet components
 
@@ -103,6 +117,7 @@ pub fn insert_data_components(
         let Some(name) = name.as_str() else { continue };
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
+            "Consumable" => insert_single::<Consumable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),

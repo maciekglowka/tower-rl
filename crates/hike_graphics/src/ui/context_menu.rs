@@ -3,6 +3,7 @@ use rogalik::storage::World;
 use hike_game::{
     actions::PickItem,
     components::{Item, Player, Position},
+    get_player_position,
     set_player_action
 };
 
@@ -16,10 +17,7 @@ pub fn handle_menu(
     state: &InputState
 ) -> bool {
     // true if clicked
-    let query = world.query::<Player>().with::<Position>();
-    let Some(player_item) = query.iter().next() else { return false };
-    
-    let position = player_item.get::<Position>().unwrap().0;
+    let Some(position) = get_player_position(world) else { return false };
 
     let item = world.query::<Item>().with::<Position>().iter()
         .filter(|i| i.get::<Position>().unwrap().0 == position)

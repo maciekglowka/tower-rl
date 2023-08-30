@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 use crate::actions::{Action, get_action_at_dir};
-use crate::components::Player;
+use crate::components::{Position, Player};
 use crate::globals::INVENTORY_SIZE;
 use crate::utils::spawn_with_position;
 
@@ -19,6 +19,11 @@ pub fn spawn_player(world: &mut World) {
         items: [None; INVENTORY_SIZE],
         active_item: 0,
     });
+}
+
+pub fn get_player_position(world: &World) -> Option<Vector2I> {
+    Some(world.query::<Player>().with::<Position>()
+        .iter().next()?.get::<Position>()?.0)
 }
 
 pub fn set_player_action_from_dir(

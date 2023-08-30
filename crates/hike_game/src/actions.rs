@@ -10,6 +10,7 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{AttackKind, Durability, Health, Obstacle, Offensive, Position, Player};
+use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
 use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
 
@@ -200,20 +201,6 @@ impl Action for UseItem {
     }
 }
 
-pub struct Damage {
-    pub entity: Entity,
-    pub value: u32
-}
-impl Action for Damage {
-    fn as_any(&self) -> &dyn Any { self }
-    fn execute(&self, world: &mut World) -> ActionResult {
-        let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
-        health.0.current = health.0.current.saturating_sub(self.value);
-        Ok(Vec::new())
-    }
-    // score is not implemented as it always should be a resulting action
-}
-
 pub struct Pause;
 impl Action for Pause {
     fn as_any(&self) -> &dyn Any { self }
@@ -244,4 +231,61 @@ impl Action for PickItem {
         Ok(Vec::new())
     }
     // no score - npcs do not pick
+}
+
+pub struct Consume {
+    pub entity: Entity,
+    pub consumer: Entity
+}
+impl Action for Consume {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(action) = get_consume_action(self.entity, self.consumer, world) {
+            world.despawn_entity(self.entity);
+            return Ok(vec![action]);
+        }
+        Ok(Vec::new())
+    }
+}
+
+pub struct Damage {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for Damage {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
+        health.0.current = health.0.current.saturating_sub(self.value);
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+pub struct Heal {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for Heal {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
+        health.0.current = health.0.max.min(health.0.current + self.value);
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+pub struct Repair {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for Repair {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut durability = world.get_component_mut::<Durability>(self.entity).ok_or(())?;
+        durability.value += self.value;
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
 }

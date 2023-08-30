@@ -21,6 +21,6 @@ Jellyfish_B:
     Offensive:
       kind: !Hit
       value: 1
-    Health: 3
+    Health: 4
     Obstacle:
   min_level: 5

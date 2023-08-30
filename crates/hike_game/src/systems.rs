@@ -5,13 +5,14 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, PendingActions, get_npc_action,
+    Action, ActorQueue, Consume, PendingActions, get_npc_action,
 };
 use crate::board::{Board, shift_dir};
-use crate::components::{Actor, Durability, Frozen, Health, Player, Position};
+use crate::components::{Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position};
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
 use crate::player;
+use crate::utils::get_entities_at_position;
 
 pub fn board_start(world: &mut World) {
     // replace board resource
@@ -34,6 +35,7 @@ pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     check_board_shift(world);
     kill_units(world);
     destroy_items(world);
+    handle_consumable(world);
     if process_pending_action(world, manager) {
         // do not process the actor queue if the pending actions were executed
         return
@@ -155,6 +157,21 @@ fn check_board_shift(world: &mut World) -> Option<Vector2I> {
     }
 
     None
+}
+
+fn handle_consumable(
+    world: &mut World
+) {
+    let Some(player_v) = player::get_player_position(world) else { return };
+    let player = world.query::<Player>().iter().next().unwrap().entity;
+
+    let actions = get_entities_at_position(world, player_v).iter()
+        .filter(|e| world.get_component::<Consumable>(**e).is_some())
+        .map(|&entity| Box::new(Consume { entity, consumer: player }) as Box<dyn Action> )
+        .collect::<Vec<_>>();
+    if let Some(mut pending) = world.get_resource_mut::<PendingActions>() {
+        pending.0.extend(actions);
+    }
 }
 
 fn destroy_items(

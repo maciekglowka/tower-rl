@@ -5,7 +5,7 @@ use rogalik::{
 
 use hike_game::{
     components::{Health, Player, Position, Name, Item, Durability},
-    get_entities_at_position
+    get_entities_at_position, get_player_position
 };
 
 use super::{GraphicsBackend, SpriteColor};
@@ -37,8 +37,8 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
 fn get_item_desc(
     world: &World
 ) -> Option<String> {
-    let player_v = world.query::<Player>().with::<Position>()
-        .iter().next()?.get::<Position>()?.0;
+    let player_v = get_player_position(world)?;
+
     let entities = get_entities_at_position(world, player_v);
     for entity in entities {
         if world.get_component::<Item>(entity).is_none() { continue };

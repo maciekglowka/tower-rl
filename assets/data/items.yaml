@@ -1,3 +1,23 @@
+Anvil:
+  sprite:
+    atlas_name: ascii
+    index: 22
+    color: [0, 0, 0, 255]
+  components:
+    Consumable:
+      kind: !Repair
+      value: 5-10
+
+Food:
+  sprite:
+    atlas_name: ascii
+    index: 3
+    color: [180, 0, 50, 255]
+  components:
+    Consumable:
+      kind: !Heal
+      value: 1-3
+
 Sword:
   sprite:
     atlas_name: ascii

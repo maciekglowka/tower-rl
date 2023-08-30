@@ -12,14 +12,14 @@ use std::{
 pub mod actions;
 mod board;
 pub mod components;
+mod consumables;
 mod events;
 pub mod globals;
 mod player;
-mod items;
 mod systems;
 mod utils;
 
-pub use player::{set_player_action, set_player_action_from_dir};
+pub use player::{set_player_action, set_player_action_from_dir, get_player_position};
 pub use board::{Board, ContentKind};
 pub use events::ActionEvent;
 pub use utils::get_entities_at_position;
