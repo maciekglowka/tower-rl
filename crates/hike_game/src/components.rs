@@ -15,14 +15,18 @@ pub enum AttackKind {
 
 #[derive(Deserialize)]
 pub enum ConsumableKind {
-    Heal,
-    Repair,
-    Resource
+    Heal
 }
 
 pub struct ValueMax {
     pub current: u32,
     pub max: u32
+}
+
+#[derive(Deserialize, PartialEq)]
+pub enum InteractionKind {
+    Ascend,
+    Repair(#[serde(deserialize_with="deserialize_random_u32")] u32)
 }
 
 // deserialized components
@@ -40,8 +44,6 @@ impl Component for Consumable {
     fn as_str(&self) -> String {
         let action = match self.kind {
             ConsumableKind::Heal => "Heal",
-            ConsumableKind::Repair => "Repair",
-            ConsumableKind::Resource => "Collect",
         };
         format!("{} ({})", action, self.value)
     }
@@ -68,6 +70,13 @@ pub struct Health(pub ValueMax);
 impl Component for Health {}
 
 #[derive(Deserialize)]
+pub struct Interactive{
+    pub kind: InteractionKind,
+    pub next: Option<String>
+}
+impl Component for Interactive {}
+
+#[derive(Deserialize)]
 pub struct Item;
 impl Component for Item {}
 
@@ -92,16 +101,20 @@ impl Component for Offensive {
     }
 }
 
+#[derive(Deserialize)]
+pub struct ViewBlocker;
+impl Component for ViewBlocker {}
+
 // context-dependet components
 
 pub struct Name (pub String);
 impl Component for Name {}
 
+#[derive(Default)]
 pub struct Player {
     pub action: Option<Box<dyn Action>>,
     pub items: [Option<Entity>; INVENTORY_SIZE],
     pub active_item: usize,
-    pub resources: u32
 }
 impl Component for Player {}
 
@@ -132,10 +145,12 @@ pub fn insert_data_components(
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
+            "Interactive" => insert_single::<Interactive>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
+            "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),
             a => panic!("Unknown component {a}")
         };
     }

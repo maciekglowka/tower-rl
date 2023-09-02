@@ -19,8 +19,8 @@ mod player;
 mod systems;
 mod utils;
 
-pub use player::{set_player_action, set_player_action_from_dir, get_player_position};
-pub use board::{Board, ContentKind};
+pub use player::{set_player_action, set_player_action_from_dir, get_player_position, get_player_entity};
+pub use board::Board;
 pub use events::ActionEvent;
 pub use utils::get_entities_at_position;
 
@@ -40,6 +40,12 @@ pub fn init(world: &mut World, manager: &mut GameManager) {
 }
 
 
-pub fn game_update(world: &mut World, manager: &mut GameManager) {
+pub fn game_update(world: &mut World, manager: &mut GameManager) -> Result<(), ()> {
+    if world.get_resource::<Board>().ok_or(())?.is_exit() {
+        systems::board_end(world);
+        systems::board_start(world);
+        return Ok(());
+    }
     systems::turn_step(world, manager);
+    Ok(())
 }

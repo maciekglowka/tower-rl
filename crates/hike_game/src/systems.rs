@@ -7,7 +7,7 @@ use std::collections::{HashMap, VecDeque};
 use crate::actions::{
     Action, ActorQueue, Consume, PendingActions, get_npc_action,
 };
-use crate::board::{Board, shift_dir};
+use crate::board::{Board, furnish_board, update_visibility};
 use crate::components::{Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position};
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
@@ -16,9 +16,14 @@ use crate::utils::get_entities_at_position;
 
 pub fn board_start(world: &mut World) {
     // replace board resource
-    let mut board = Board::new();
+    let level = match world.get_resource::<Board>() {
+        Some(b) => b.level,
+        _=> 0
+    };
+    let mut board = Board::new(level);
     board.generate(world);
     world.insert_resource(board);
+    furnish_board(world);
 
     // reset queues
     let queue = ActorQueue(VecDeque::new());
@@ -30,9 +35,21 @@ pub fn board_start(world: &mut World) {
     player::spawn_player(world);
 }
 
+pub fn board_end(world: &mut World) {
+    // unpin player
+    player::unpin_player(world);
+    // despawn board objects
+    let objects = world.query::<Position>().iter()
+        .map(|i| i.entity)
+        .collect::<Vec<_>>();
+    for entity in objects {
+        world.despawn_entity(entity);
+    }
+}
+
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     // hit_projectiles(world);
-    check_board_shift(world);
+    update_visibility(world);
     kill_units(world);
     destroy_items(world);
     if process_pending_action(world, manager) {
@@ -133,30 +150,6 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
         
 //     }
 // }
-
-fn check_board_shift(world: &mut World) -> Option<Vector2I> {
-    let position = world.query::<Player>().with::<Position>()
-        .iter()
-        .next()?
-        .get::<Position>()?
-        .0;
-
-    let origin = world.get_resource::<Board>()?.origin;
-
-    let dir = match position {
-        a if a.x == origin.x => Some(Vector2I::LEFT),
-        a if a.y == origin.y => Some(Vector2I::UP),
-        a if a.x == origin.x + BOARD_SIZE as i32 - 1 => Some(Vector2I::RIGHT),
-        a if a.y == origin.y + BOARD_SIZE as i32 - 1 => Some(Vector2I::DOWN),
-        _ => None
-    };
-
-    if let Some(dir) = dir {
-        shift_dir(world, dir);
-    }
-
-    None
-}
 
 // fn handle_consumable(
 //     world: &mut World

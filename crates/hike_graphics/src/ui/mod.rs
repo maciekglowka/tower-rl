@@ -8,7 +8,6 @@ mod context_menu;
 mod input;
 mod inventory;
 mod modal;
-mod next;
 mod span;
 mod status;
 
@@ -48,7 +47,6 @@ pub fn ui_update(
     backend: &dyn GraphicsBackend
 ) {
     status::draw_status(world, backend);
-    next::draw_next_content(world, backend);
     let mut ui_click = false;
     if let Some(clicked) = inventory::handle_inventory(world, backend, &input_state) {
         inventory::click_item(clicked, world);

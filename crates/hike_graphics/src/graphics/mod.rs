@@ -16,7 +16,7 @@ pub fn graphics_update(
 ) -> bool {
     renderers::handle_world_events(world, state);
     renderers::handle_action_events(world, state);
-    let ready = renderers::update_sprites(state);
+    let ready = renderers::update_sprites(world, state);
 
     renderers::draw_sprites(world, state, backend);
     ready

@@ -1,3 +1,24 @@
+Workshop:
+  sprite:
+    atlas_name: ascii
+    index: 22
+    color: [0, 0, 0, 255]
+  components:
+    Fixture:
+    Interactive:
+      kind: !Repair 5-10
+      next: Empty_Workshop
+  spawn_chance: 0.5
+
+Empty_Workshop:
+  sprite:
+    atlas_name: ascii
+    index: 22
+    color: [100, 100, 100, 255]
+  components:
+    Fixture:
+  spawn_chance: 0.5
+
 Rock:
   sprite:
     atlas_name: ascii
@@ -6,3 +27,14 @@ Rock:
   components:
     Fixture:
     Obstacle:
+    ViewBlocker:
+
+Stair:
+  sprite:
+    atlas_name: ascii
+    index: 9
+    color: [0, 0, 0, 255]
+  components:
+    Fixture:
+    Interactive: 
+      kind: !Ascend

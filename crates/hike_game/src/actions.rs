@@ -10,7 +10,8 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    AttackKind, Consumable, Durability, Frozen, Health, Obstacle, Offensive, Position, Player
+    AttackKind, Consumable, Durability, Frozen, Health, Interactive,
+    Obstacle, Offensive, Position, Player, InteractionKind
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -234,29 +235,29 @@ impl Action for Pause {
     fn execute(&self, world: &mut World) -> ActionResult { Ok(Vec::new() )}
 }
 
-pub struct PickItem {
-    pub entity: Entity
-}
-impl Action for PickItem {
-    fn as_any(&self) -> &dyn Any { self }
-    fn execute(&self, world: &mut World) -> ActionResult {
-        if world.get_component::<Consumable>(self.entity).is_some() {
-            let player = world.query::<Player>()
-                .iter().next().ok_or(())?.entity;
-            return Ok(vec![Box::new(Consume {
-                entity: self.entity,
-                consumer: player
-            })])            
-        }
-        if world.get_component::<Offensive>(self.entity).is_some() {
-            return Ok(vec![Box::new(AddToInventory {
-                entity: self.entity
-            })])  
-        }
-        Ok(Vec::new())
-    }
-    // no score - npcs do not pick
-}
+// pub struct PickItem {
+//     pub entity: Entity
+// }
+// impl Action for PickItem {
+//     fn as_any(&self) -> &dyn Any { self }
+//     fn execute(&self, world: &mut World) -> ActionResult {
+//         if world.get_component::<Consumable>(self.entity).is_some() {
+//             let player = world.query::<Player>()
+//                 .iter().next().ok_or(())?.entity;
+//             return Ok(vec![Box::new(Consume {
+//                 entity: self.entity,
+//                 consumer: player
+//             })])            
+//         }
+//         if world.get_component::<Offensive>(self.entity).is_some() {
+//             return Ok(vec![Box::new(AddToInventory {
+//                 entity: self.entity
+//             })])  
+//         }
+//         Ok(Vec::new())
+//     }
+//     // no score - npcs do not pick
+// }
 
 pub struct AddToInventory {
     pub entity: Entity
@@ -341,16 +342,53 @@ impl Action for Repair {
     // score is not implemented as it always should be a resulting action
 }
 
-pub struct CollectResource {
-    pub value: u32
+
+pub struct Interact {
+    pub entity: Entity
 }
-impl Action for CollectResource {
+impl Action for Interact {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        world.query::<Player>().iter().next().ok_or(())?
-            .get_mut::<Player>().unwrap().resources += self.value;
+        let interactive = world.get_component::<Interactive>(self.entity).ok_or(())?;
+        let action: Box<dyn Action> = match interactive.kind {
+            InteractionKind::Ascend => Box::new(Ascend),
+            InteractionKind::Repair(value) => {
+                let idx = world.query::<Player>().iter().next().ok_or(())?
+                    .get::<Player>().unwrap().active_item;
+                let item = world.query::<Player>().iter().next().ok_or(())?
+                    .get::<Player>().unwrap().items[idx].ok_or(())?;
+                Box::new(Repair { entity: item, value } )
+            }
+        };
+        let mut res = vec![action];
+        if let Some(next) = &interactive.next {
+            res.push(Box::new(Replace {
+                entity: self.entity, name: next.to_string()
+            }))
+        }
+        Ok(res)
+    }
+}
 
+pub struct Replace {
+    pub entity: Entity,
+    pub name: String
+}
+impl Action for Replace {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
+        world.despawn_entity(self.entity);
+        spawn_with_position(world, &self.name, position);
         Ok(Vec::new())
     }
-    // no score - npcs do not pick
+}
+
+pub struct Ascend;
+impl Action for Ascend {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        world.get_resource_mut::<Board>().ok_or(())?.exit = true;
+        Ok(Vec::new())
+    }
 }

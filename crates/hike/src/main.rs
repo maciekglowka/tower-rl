@@ -9,7 +9,7 @@ mod input;
 fn window_conf() -> Conf {
     Conf { 
         window_title: "Micro Hike".into(),
-        window_width: 540,
+        window_width: 600,
         window_height: 800,
         ..Default::default()
     }
@@ -98,16 +98,16 @@ fn update_camera(
     world: &rogalik::storage::World,
     camera: &mut Camera2D
 ) {
-    let Some(board) = world.get_resource::<hike_game::Board>() else { return };
-    let offset = 0.5 * hike_game::globals::BOARD_SIZE as f32;
-    let target = rogalik::math::vectors::Vector2F::new(
-        board.origin.x as f32 + offset,
-        board.origin.y as f32 + offset
-    ) * hike_graphics::globals::TILE_SIZE;
-    let v = hike_graphics::move_towards(
-        rogalik::math::vectors::Vector2F::new(camera.target.x, camera.target.y),
-        target,
-        2.5
-    );
-    camera.target = Vec2::new(v.x, v.y);
+    // let Some(board) = world.get_resource::<hike_game::Board>() else { return };
+    // let offset = 0.5 * hike_game::globals::BOARD_SIZE as f32;
+    // let target = rogalik::math::vectors::Vector2F::new(
+    //     board.origin.x as f32 + offset,
+    //     board.origin.y as f32 + offset
+    // ) * hike_graphics::globals::TILE_SIZE;
+    // let v = hike_graphics::move_towards(
+    //     rogalik::math::vectors::Vector2F::new(camera.target.x, camera.target.y),
+    //     target,
+    //     2.5
+    // );
+    // camera.target = Vec2::new(v.x, v.y);
 }

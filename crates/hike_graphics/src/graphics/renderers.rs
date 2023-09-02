@@ -18,13 +18,14 @@ use crate::globals::{
     TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, FROZE_FADE, FADE_SPEED
 };
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum SpriteState {
     Added,
     Existing,
     Removed
 }
 
+#[derive(Debug)]
 pub struct SpriteRenderer {
     pub entity: Entity,
     pub v: Vector2F,
@@ -110,17 +111,26 @@ pub fn handle_action_events(
     }
 }
 
-pub fn update_sprites(state: &mut GraphicsState) -> bool {
+pub fn update_sprites(world: &World, state: &mut GraphicsState) -> bool {
     update_added_sprites(state);
     update_removed_sprites(state);
-    update_sprite_positions(state)
+    update_sprite_positions(world, state)
 }
 
-fn update_sprite_positions(state: &mut GraphicsState) -> bool {
+fn update_sprite_positions(world: &World, state: &mut GraphicsState) -> bool {
+    let Some(board) = world.get_resource::<Board>() else { return true };
     let mut ready = true;
     for sprite in state.sprites.iter_mut() {
         let Some(target) = sprite.path.get(0) else { continue };
-        sprite.v = move_towards(sprite.v, *target, MOVEMENT_SPEED);
+
+        let target_tile = world_to_tile(*target);
+        let source_tile = world_to_tile(sprite.v);
+        if !(board.visible.contains(&target_tile) || board.visible.contains(&source_tile)) { 
+            sprite.v = *target;
+        } else {
+            sprite.v = move_towards(sprite.v, *target, MOVEMENT_SPEED);
+        }
+
         if sprite.v == *target {
             sprite.path.pop_front();
         }
@@ -152,12 +162,16 @@ fn update_removed_sprites(state: &mut GraphicsState) -> bool {
             to_remove.insert(sprite.entity);
         }
     }
-    state.sprites.retain(|a| !to_remove.contains(&a.entity));
+    state.sprites.retain(|a| !to_remove.contains(&a.entity) && a.state != SpriteState::Removed);
     ready
 }
 
 pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn GraphicsBackend) {
+    let Some(board) = world.get_resource::<Board>() else { return };
     for sprite in state.sprites.iter() {
+        let tile = world_to_tile(sprite.v);
+        if !board.visible.contains(&tile) { continue; }
+
         let color = SpriteColor(
             sprite.color.0,
             sprite.color.1,

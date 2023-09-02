@@ -35,7 +35,7 @@ pub fn handle_inventory(
 
         let mut button = Button::new(
                 offset,
-                viewport_size.y - 1.5 * INVENTORY_SINGLE_DIM as f32,
+                viewport_size.y - 1.25 * INVENTORY_SINGLE_DIM as f32,
                 INVENTORY_SINGLE_DIM,
                 INVENTORY_SINGLE_DIM
             )
