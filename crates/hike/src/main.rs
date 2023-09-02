@@ -21,17 +21,18 @@ async fn main() {
     let fixture_data_str = load_string("data/fixtures.yaml").await.expect("Could not load data!");
     let npc_data_str = load_string("data/npcs.yaml").await.expect("Could not load data!");
     let player_data_str = load_string("data/player.yaml").await.expect("Could not load data!");
-    let tile_data_str = load_string("data/tiles.yaml").await.expect("Could not load data!");
+    let board_data_str = load_string("data/board_elements.yaml").await.expect("Could not load data!");
     let item_data_str = load_string("data/items.yaml").await.expect("Could not load data!");
 
     let mut game_data = hike_data::GameData::new();
     let fixtures = game_data.add_entities_from_str(fixture_data_str);
     let npcs = game_data.add_entities_from_str(npc_data_str);
-    let player = game_data.add_entities_from_str(player_data_str);
-    let tiles = game_data.add_entities_from_str(tile_data_str);
+    let _ = game_data.add_entities_from_str(player_data_str);
+    let _ = game_data.add_entities_from_str(board_data_str);
     let items = game_data.add_entities_from_str(item_data_str);
     game_data.npcs = npcs;
     game_data.items = items;
+    game_data.fixtures = fixtures;
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 

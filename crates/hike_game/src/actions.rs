@@ -10,11 +10,12 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    AttackKind, Consumable, Durability, Frozen, Health, Interactive,
+    AttackKind, Durability, Frozen, Health, Interactive,
     Obstacle, Offensive, Position, Player, InteractionKind, Name
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
+use crate::player::get_player_entity;
 use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
@@ -90,6 +91,7 @@ impl Action for Walk {
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut position = world.get_component_mut::<Position>(self.entity).ok_or(())?;
         position.0 = self.target;
+
         Ok(Vec::new())
     }
     fn event(&self) -> ActionEvent {
@@ -323,13 +325,51 @@ impl Action for Repair {
     // score is not implemented as it always should be a resulting action
 }
 
+pub struct PickGold {
+    pub value: u32
+}
+impl Action for PickGold {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let entity = get_player_entity(world).ok_or(())?;
+        let mut player = world.get_component_mut::<Player>(entity).ok_or(())?;
+        player.gold += self.value;
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+pub struct Pay {
+    pub value: u32
+}
+impl Action for Pay {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let entity = get_player_entity(world).ok_or(())?;
+        let mut player = world.get_component_mut::<Player>(entity).ok_or(())?;
+        player.gold = player.gold.saturating_sub(self.value);
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
 pub struct Interact {
     pub entity: Entity
 }
 impl Action for Interact {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
+        let mut res: Vec<Box< dyn Action>> = Vec::new();
         let interactive = world.get_component::<Interactive>(self.entity).ok_or(())?;
+
+        if let Some(cost) = interactive.cost {
+            if cost > world.query::<Player>().iter().next().ok_or(())?
+                .get::<Player>().unwrap().gold {
+                    return Err(());
+                }
+                res.push(Box::new(Pay { value: cost }));
+        }
+
         let action: Box<dyn Action> = match interactive.kind {
             InteractionKind::Ascend => Box::new(Ascend),
             InteractionKind::Repair(value) => {
@@ -340,11 +380,11 @@ impl Action for Interact {
                 Box::new(Repair { entity: item, value } )
             }
         };
-        let mut res = vec![action];
+        res.push(action);
         if let Some(next) = &interactive.next {
             res.push(Box::new(Replace {
                 entity: self.entity, name: next.to_string()
-            }))
+            }));
         }
         Ok(res)
     }
@@ -376,13 +416,3 @@ impl Action for Ascend {
         Ok(Vec::new())
     }
 }
-
-// pub struct OpenDoor {
-//     pub entity: Entity
-// }
-// impl Action for OpenDoor {
-//     fn as_any(&self) -> &dyn Any { self }
-//     fn execute(&self, world: &mut World) -> ActionResult {
-        
-//     }
-// }

@@ -19,7 +19,7 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
 
     backend.draw_ui_text(
         "default",
-        &format!("HP: {}/{}", health.0.current, health.0.max),
+        &format!("HP: {}/{} Gold: {}", health.0.current, health.0.max, player.gold),
         Vector2F::new(10., 42.),
         32,
         SpriteColor(0, 0, 0, 255)

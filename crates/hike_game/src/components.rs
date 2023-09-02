@@ -15,6 +15,7 @@ pub enum AttackKind {
 
 #[derive(Deserialize)]
 pub enum ConsumableKind {
+    Gold,
     Heal
 }
 
@@ -32,7 +33,7 @@ impl InteractionKind {
     pub fn to_str(&self) -> String {
         match self {
             InteractionKind::Ascend => "Ascend".to_string(),
-            InteractionKind::Repair(v) => format!("Repair by {}", v),
+            InteractionKind::Repair(v) => format!("Repair({})", v),
         }
     }
 }
@@ -41,6 +42,8 @@ impl InteractionKind {
 #[derive(Deserialize)]
 pub struct Actor;
 impl Component for Actor {}
+
+// deserialized components
 
 #[derive(Deserialize)]
 pub struct Consumable {
@@ -51,6 +54,7 @@ pub struct Consumable {
 impl Component for Consumable {
     fn as_str(&self) -> String {
         let action = match self.kind {
+            ConsumableKind::Gold => "Gold",
             ConsumableKind::Heal => "Heal",
         };
         format!("{} ({})", action, self.value)
@@ -80,11 +84,16 @@ impl Component for Health {}
 #[derive(Deserialize)]
 pub struct Interactive{
     pub kind: InteractionKind,
-    pub next: Option<String>
+    pub next: Option<String>,
+    pub cost: Option<u32>
 }
 impl Component for Interactive {
     fn as_str(&self) -> String {
-        self.kind.to_str()
+        let mut output = self.kind.to_str();
+        if let Some(cost) = self.cost {
+            output += &format!(" Gold({})", cost);
+        }
+        output
     }
 }
 
@@ -128,6 +137,7 @@ pub struct Player {
     pub action: Option<Box<dyn Action>>,
     pub items: [Option<Entity>; INVENTORY_SIZE],
     pub active_item: usize,
+    pub gold: u32
 }
 impl Component for Player {}
 

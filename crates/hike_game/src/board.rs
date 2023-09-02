@@ -50,9 +50,64 @@ impl Board {
         tile_pool.retain(|v| !layout.1.iter().any(|d| d.manhattan(*v) <= 1));
 
         let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool).unwrap());
+        spawn_npcs(world, &mut tile_pool, self.level);
+        spawn_items(world, &mut tile_pool, self.level);
+        spawn_fixtures(world, &mut tile_pool, self.level);
     }
     pub fn is_exit(&self) -> bool {
         self.exit
+    }
+}
+
+fn spawn_npcs(
+    world: &mut World,
+    tile_pool: &mut HashSet<Vector2I>,
+    level: u32
+) {
+    let npc_pool = if let Some(data) = world.get_resource::<GameData>() {
+        get_entity_pool(&data, &data.npcs, level)
+    } else { return };
+
+    let mut rng = thread_rng();
+    for _ in 0..3 {
+        let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
+        let Some(v) = get_random_tile(tile_pool) else { continue };
+        let _ = spawn_with_position(world, npc, v);
+    }
+}
+
+fn spawn_items(
+    world: &mut World,
+    tile_pool: &mut HashSet<Vector2I>,
+    level: u32
+) {
+    let item_pool = if let Some(data) = world.get_resource::<GameData>() {
+        get_entity_pool(&data, &data.items, level)
+    } else { return };
+
+    let mut rng = thread_rng();
+    for _ in 0..2 {
+        let item = &item_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
+        let Some(v) = get_random_tile(tile_pool) else { continue };
+        let _ = spawn_with_position(world, item, v);
+    }
+}
+
+fn spawn_fixtures(
+    world: &mut World,
+    tile_pool: &mut HashSet<Vector2I>,
+    level: u32
+) {
+    let mut rng = thread_rng();
+    if !rng.gen_bool(0.3) { return }
+    let fixture_pool = if let Some(data) = world.get_resource::<GameData>() {
+        get_entity_pool(&data, &data.fixtures, level)
+    } else { return };
+
+    for _ in 0..2 {
+        let fixture = &fixture_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
+        let Some(v) = get_random_tile(tile_pool) else { continue };
+        let _ = spawn_with_position(world, fixture, v);
     }
 }
 
@@ -82,7 +137,7 @@ impl Board {
 fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
     base.iter()
         .filter_map(|name| data.entities.get(name).map(|d| (name, d)))
-        .filter(|(name, d)| d.min_level <= level)
+        .filter(|(_, d)| d.min_level <= level)
         .map(|(name, d)| (d.spawn_chance.unwrap_or(1.), name.to_string()))
         .collect()
 }

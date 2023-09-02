@@ -20,7 +20,7 @@ pub fn board_start(world: &mut World) {
         Some(b) => b.level,
         _=> 0
     };
-    let mut board = Board::new(level);
+    let mut board = Board::new(level + 1);
     board.generate(world);
     world.insert_resource(board);
 

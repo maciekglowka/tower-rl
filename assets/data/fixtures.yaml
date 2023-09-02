@@ -8,6 +8,7 @@ Workshop:
     Interactive:
       kind: !Repair 5-10
       next: Empty_Workshop
+      cost: 2
   spawn_chance: 0.5
 
 Empty_Workshop:
@@ -17,42 +18,4 @@ Empty_Workshop:
     color: [100, 100, 100, 255]
   components:
     Fixture:
-  spawn_chance: 0.5
-
-Wall:
-  sprite:
-    atlas_name: ascii
-    index: 177
-    color: [150, 128, 128, 255]
-  components:
-    Fixture:
-    Obstacle:
-    ViewBlocker:
-
-Stair:
-  sprite:
-    atlas_name: ascii
-    index: 240
-    color: [150, 128, 128, 255]
-  components:
-    Fixture:
-    Interactive: 
-      kind: !Ascend
-
-Closed_Door:
-  sprite:
-    atlas_name: ascii
-    index: 35
-    color: [150, 128, 128, 255]
-  components:
-    Fixture:
-    Obstacle:
-    ViewBlocker:
-
-Open_Door:
-  sprite:
-    atlas_name: ascii
-    index: 45
-    color: [150, 128, 128, 255]
-  components:
-    Fixture:
+  spawn_chance: 0.
