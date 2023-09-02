@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 use hike_game::{
-    components::{Health, Player, Position, Name, Item, Durability},
+    components::{Health, Player, Position, Name, Item, Interactive, Durability},
     get_entities_at_position, get_player_position
 };
 
@@ -39,10 +39,11 @@ fn get_item_desc(
     world: &World
 ) -> Option<String> {
     let player_v = get_player_position(world)?;
-
     let entities = get_entities_at_position(world, player_v);
     for entity in entities {
-        if world.get_component::<Item>(entity).is_none() { continue };
+        if world.get_component::<Item>(entity).is_none()
+            && world.get_component::<Interactive>(entity).is_none() { continue };
+
         let name = world.get_component::<Name>(entity)?.0.clone();
         let s = world.get_entity_components(entity).iter()
             .map(|c| c.as_str())

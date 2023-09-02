@@ -23,11 +23,6 @@ pub fn handle_menu(
     let player = get_player_entity(world).unwrap();
 
     let entities = get_entities_at_position(world, position);
-
-    // let item = world.query::<Item>().with::<Position>().iter()
-    //     .filter(|i| i.get::<Position>().unwrap().0 == position)
-    //     .map(|i| i.entity)
-    //     .next();
     
     for (i, entity) in entities.iter().enumerate() {
         let (text, action) = match entity {

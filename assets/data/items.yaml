@@ -9,18 +9,6 @@ Food:
       value: 1-3
     Item:
 
-Resource:
-  sprite:
-    atlas_name: ascii
-    index: 5
-    color: [180, 0, 50, 255]
-  components:
-    Consumable:
-      kind: !Resource
-      value: 1
-    Item:
-  spawn_chance: 2.0
-
 Sword:
   sprite:
     atlas_name: ascii

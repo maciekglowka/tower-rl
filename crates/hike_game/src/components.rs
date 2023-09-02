@@ -28,6 +28,14 @@ pub enum InteractionKind {
     Ascend,
     Repair(#[serde(deserialize_with="deserialize_random_u32")] u32)
 }
+impl InteractionKind {
+    pub fn to_str(&self) -> String {
+        match self {
+            InteractionKind::Ascend => "Ascend".to_string(),
+            InteractionKind::Repair(v) => format!("Repair by {}", v),
+        }
+    }
+}
 
 // deserialized components
 #[derive(Deserialize)]
@@ -74,7 +82,11 @@ pub struct Interactive{
     pub kind: InteractionKind,
     pub next: Option<String>
 }
-impl Component for Interactive {}
+impl Component for Interactive {
+    fn as_str(&self) -> String {
+        self.kind.to_str()
+    }
+}
 
 #[derive(Deserialize)]
 pub struct Item;

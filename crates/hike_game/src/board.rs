@@ -62,6 +62,7 @@ pub fn furnish_board(world: &mut World) {
     }
 
     let _ = spawn_with_position(world, "Workshop", get_free_tile(world).unwrap());
+    let _ = spawn_with_position(world, "Food", get_free_tile(world).unwrap());
 }
 
 fn get_wall_layout() -> HashSet<Vector2I> {
