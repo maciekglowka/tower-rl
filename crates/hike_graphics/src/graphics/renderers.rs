@@ -170,7 +170,7 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn Graphics
     let Some(board) = world.get_resource::<Board>() else { return };
     for sprite in state.sprites.iter() {
         let tile = world_to_tile(sprite.v);
-        if !board.visible.contains(&tile) { continue; }
+        // if !board.visible.contains(&tile) { continue; }
 
         let color = SpriteColor(
             sprite.color.0,

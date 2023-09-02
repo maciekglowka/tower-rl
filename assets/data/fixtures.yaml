@@ -19,10 +19,10 @@ Empty_Workshop:
     Fixture:
   spawn_chance: 0.5
 
-Rock:
+Wall:
   sprite:
     atlas_name: ascii
-    index: 9
+    index: 177
     color: [150, 128, 128, 255]
   components:
     Fixture:

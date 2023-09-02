@@ -25,86 +25,61 @@ impl Board {
         }
     }
     pub fn generate(&mut self, world: &mut World) {
-        for x in 0..BOARD_SIZE {
-            for y in 0..BOARD_SIZE {
-                let v = Vector2I::new(x as i32, y as i32);
-                let entity = spawn_with_position(world, "Tile", v).unwrap();
-                self.tiles.insert(v, entity);
-            }
+        let mut tile_pool = tile_range(
+            Vector2I::ZERO,
+            Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
+        );
+        for v in tile_pool.iter() {
+            let entity = spawn_with_position(world, "Tile", *v).unwrap();
+            self.tiles.insert(*v, entity);
         }
 
-        for v in get_wall_layout() {
-            let _ = spawn_with_position(world, "Rock", v);
+        let layout = get_bsp_layout();
+        for v in layout.0.iter() {
+            let _ = spawn_with_position(world, "Wall", *v);
         }
+
+        // remove walls
+        tile_pool.retain(|v| !layout.0.contains(v));
+        // remvove doors and adjacent
+        tile_pool.retain(|v| !layout.1.iter().any(|d| d.manhattan(*v) <= 1));
+
+        let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool).unwrap());
     }
     pub fn is_exit(&self) -> bool {
         self.exit
     }
 }
 
-pub fn furnish_board(world: &mut World) {
-    let _ = spawn_with_position(world, "Stair", get_free_tile(world).unwrap());
-    let _ = spawn_with_position(world, "Sword", get_free_tile(world).unwrap());
+// pub fn furnish_board(world: &mut World) {
+//     // let _ = spawn_with_position(world, "Stair", get_free_tile(world).unwrap());
+//     // let _ = spawn_with_position(world, "Sword", get_free_tile(world).unwrap());
 
-    let data = world.get_resource::<GameData>().unwrap();
-    let board = world.get_resource::<Board>().unwrap();
+//     // let data = world.get_resource::<GameData>().unwrap();
+//     // let board = world.get_resource::<Board>().unwrap();
 
-    let npc_pool = get_pool(
-        &data, &data.npcs, board.level
-    );
-    drop(data);
-    drop(board);
-    let mut rng = thread_rng();
-    for _ in 0..3 {
-        let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
-        let Some(v) = get_free_tile(world) else { continue };
-        let _ = spawn_with_position(world, npc, v);
-    }
+//     // let npc_pool = get_pool(
+//     //     &data, &data.npcs, board.level
+//     // );
+//     // drop(data);
+//     // drop(board);
+//     // let mut rng = thread_rng();
+//     // for _ in 0..3 {
+//     //     let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
+//     //     let Some(v) = get_free_tile(world) else { continue };
+//     //     let _ = spawn_with_position(world, npc, v);
+//     // }
 
-    let _ = spawn_with_position(world, "Workshop", get_free_tile(world).unwrap());
-    let _ = spawn_with_position(world, "Food", get_free_tile(world).unwrap());
-}
+//     // let _ = spawn_with_position(world, "Workshop", get_free_tile(world).unwrap());
+//     // let _ = spawn_with_position(world, "Food", get_free_tile(world).unwrap());
+// }
 
-fn get_wall_layout() -> HashSet<Vector2I> {
-    let size = 4;
-    let sectors = BOARD_SIZE / size;
-    let chance = 0.75;
-    let mut walls = HashSet::new();
-    let mut rng = thread_rng();
-
-    for x in 0..sectors {
-        for y in 0..sectors {
-            let vertical = (x + y) % 2 != 0;
-            let base_offset_amount = [1_i32, 2_i32].choose(&mut rng).unwrap();
-            let base_offset = if vertical { Vector2I::new(*base_offset_amount, 0) } else { Vector2I::new(0, *base_offset_amount) };
-            let offset = if vertical { Vector2I::new(0, 1) } else { Vector2I::new(1, 0) };
-            let base = Vector2I::new(x as i32 * size as i32, y as i32 * size as i32) + base_offset;
-            for i in 0..size {
-                if !rng.gen_bool(chance) { continue; }
-                walls.insert(base + offset * i as i32);
-            }
-        }
-    }
-    walls
-}
-
-fn get_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
+fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
     base.iter()
         .filter_map(|name| data.entities.get(name).map(|d| (name, d)))
         .filter(|(name, d)| d.min_level <= level)
         .map(|(name, d)| (d.spawn_chance.unwrap_or(1.), name.to_string()))
         .collect()
-}
-
-pub fn get_free_tile(world: &World) -> Option<Vector2I> {
-    let mut rng = thread_rng();
-    let board = world.get_resource::<Board>()?;
-    let tiles = board.tiles.keys()
-        .filter(|&&v| !get_entities_at_position(world, v)
-            .iter()
-            .any(|&e| world.get_component::<Tile>(e).is_none())
-        );
-    tiles.choose(&mut rng).map(|&v| v)
 }
 
 pub fn update_visibility(world: &mut World) {
@@ -122,4 +97,95 @@ pub fn update_visibility(world: &mut World) {
         );
         board.visible.extend(currently_visible);
     }
+}
+
+struct Room {
+    pub a: Vector2I,
+    pub b: Vector2I,
+    pub doors: Vec<Vector2I>
+}
+impl Room {
+    pub fn tiles(&self) -> HashSet<Vector2I> {
+        tile_range(self.a, self.b)
+    }
+}
+
+fn get_bsp_layout() -> (HashSet<Vector2I>, HashSet<Vector2I>) {
+    // return (walls, doors)
+    loop {
+        let base = Room {
+            a: Vector2I::ZERO,
+            b: Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1),
+            doors: Vec::new()
+        };
+        let mut wall_tiles = base.tiles();
+        let rooms = divide_room(base);
+        if rooms.len() < 3 { continue; }
+        let mut doors = HashSet::new();
+        for r in rooms.iter() {
+            doors.extend(&r.doors);
+            for v in r.tiles() {
+                wall_tiles.remove(&v);
+            }
+            for v in r.doors.iter() {
+                wall_tiles.remove(&v);
+            }
+        }
+        return (wall_tiles, doors);
+    }
+}
+
+fn divide_room(r: Room) -> Vec<Room> {
+    let dx = r.b.x - r.a.x;
+    let dy = r.b.y - r.a.y;
+    if  dx < 4 && dy < 4 { return vec![r] }
+    let vertical = dx < dy;
+    let mut rng = thread_rng();
+
+    let split_val = if vertical { rng.gen_range(r.a.y + 2..r.b.y -1 ) }
+        else { rng.gen_range(r.a.x + 2..r.b.x -1 ) };
+
+    // check existing door collision
+    if vertical && r.doors.iter().any(|&v| v.x == split_val) { return vec![r] }
+        else {
+            if r.doors.iter().any(|&v| v.y == split_val) { return vec![r] }
+        }
+
+    let corner_a = if vertical { Vector2I::new(r.b.x, split_val - 1) } else { Vector2I::new(split_val - 1, r.b.y) };
+    let corner_b = if vertical { Vector2I::new(r.a.x, split_val + 1) } else { Vector2I::new(split_val + 1, r.a.y) };
+    let door = if vertical { Vector2I::new(rng.gen_range(r.a.x..=r.b.x), split_val) }
+        else { Vector2I::new(split_val, rng.gen_range(r.a.y..=r.b.y))};
+    let mut doors = r.doors.clone();
+    doors.push(door);
+    let room_a = Room { a: r.a, b: corner_a, doors: doors.clone() };
+    let room_b = Room { a: corner_b, b: r.b, doors };
+    let mut res = divide_room(room_a);
+    res.extend(divide_room(room_b));
+    res
+}
+
+fn tile_range(a: Vector2I, b: Vector2I) -> HashSet<Vector2I> {
+    (a.x..=b.x).map(
+            |x| (a.y..=b.y).map(move |y| Vector2I::new(x, y))
+        )
+        .flatten()
+        .collect()
+}
+
+fn get_random_tile(pool: &mut HashSet<Vector2I>) -> Option<Vector2I> {
+    let mut rng = thread_rng();
+    let v = *pool.iter().choose(&mut rng)?;
+    pool.remove(&v);
+    Some(v)
+}
+
+pub fn get_free_tile(world: &World) -> Option<Vector2I> {
+    let mut rng = thread_rng();
+    let board = world.get_resource::<Board>()?;
+    let tiles = board.tiles.keys()
+        .filter(|&&v| !get_entities_at_position(world, v)
+            .iter()
+            .any(|&e| world.get_component::<Tile>(e).is_none())
+        );
+    tiles.choose(&mut rng).map(|&v| v)
 }

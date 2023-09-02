@@ -7,7 +7,7 @@ use std::collections::{HashMap, VecDeque};
 use crate::actions::{
     Action, ActorQueue, Consume, PendingActions, get_npc_action,
 };
-use crate::board::{Board, furnish_board, update_visibility};
+use crate::board::{Board, update_visibility};
 use crate::components::{Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position};
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
@@ -23,7 +23,6 @@ pub fn board_start(world: &mut World) {
     let mut board = Board::new(level);
     board.generate(world);
     world.insert_resource(board);
-    furnish_board(world);
 
     // reset queues
     let queue = ActorQueue(VecDeque::new());
