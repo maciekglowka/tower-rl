@@ -112,7 +112,7 @@ impl Room {
 
 fn get_bsp_layout() -> (HashSet<Vector2I>, HashSet<Vector2I>) {
     // return (walls, doors)
-    loop {
+    'outer: loop {
         let base = Room {
             a: Vector2I::ZERO,
             b: Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1),
@@ -131,6 +131,15 @@ fn get_bsp_layout() -> (HashSet<Vector2I>, HashSet<Vector2I>) {
                 wall_tiles.remove(&v);
             }
         }
+
+        // extra door validation for safety
+        for door in doors.iter() {
+            let n = ORTHO_DIRECTIONS.iter()
+                .filter(|dir| wall_tiles.contains(&(*door + **dir)))
+                .count();
+            if n > 2 { continue 'outer }
+        }
+
         return (wall_tiles, doors);
     }
 }
@@ -153,15 +162,29 @@ fn divide_room(r: Room) -> Vec<Room> {
 
     let corner_a = if vertical { Vector2I::new(r.b.x, split_val - 1) } else { Vector2I::new(split_val - 1, r.b.y) };
     let corner_b = if vertical { Vector2I::new(r.a.x, split_val + 1) } else { Vector2I::new(split_val + 1, r.a.y) };
-    let door = if vertical { Vector2I::new(rng.gen_range(r.a.x..=r.b.x), split_val) }
-        else { Vector2I::new(split_val, rng.gen_range(r.a.y..=r.b.y))};
+    // let door = if vertical { Vector2I::new(rng.gen_range(r.a.x..=r.b.x), split_val) }
+    //     else { Vector2I::new(split_val, rng.gen_range(r.a.y..=r.b.y))};
     let mut doors = r.doors.clone();
+    let door = get_bsp_door(vertical, split_val, r.a, r.b);
+    
+    // consider extra door for large rooms
+    if dx.max(dy) > 5 && rng.gen_bool(0.75) {
+        let extra_door = get_bsp_door(vertical, split_val, r.a, r.b);
+        if extra_door.manhattan(door) > 1 { doors.push(extra_door) };
+    }
     doors.push(door);
+
     let room_a = Room { a: r.a, b: corner_a, doors: doors.clone() };
     let room_b = Room { a: corner_b, b: r.b, doors };
     let mut res = divide_room(room_a);
     res.extend(divide_room(room_b));
     res
+}
+
+fn get_bsp_door(vertical: bool, split_val: i32, a: Vector2I, b: Vector2I) -> Vector2I {
+    let mut rng = thread_rng();
+    if vertical { Vector2I::new(rng.gen_range(a.x..=b.x), split_val) }
+        else { Vector2I::new(split_val, rng.gen_range(a.y..=b.y))}
 }
 
 fn tile_range(a: Vector2I, b: Vector2I) -> HashSet<Vector2I> {
