@@ -1,7 +1,7 @@
 Player:
   sprite:
     atlas_name: ascii
-    index: 127
+    index: 64
     color: [0, 0, 0, 255]
   components:
     Actor:

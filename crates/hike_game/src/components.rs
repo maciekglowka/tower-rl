@@ -119,6 +119,7 @@ impl Component for ViewBlocker {}
 
 // context-dependet components
 
+#[derive(Default)]
 pub struct Name (pub String);
 impl Component for Name {}
 

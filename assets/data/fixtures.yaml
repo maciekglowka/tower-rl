@@ -32,9 +32,27 @@ Wall:
 Stair:
   sprite:
     atlas_name: ascii
-    index: 9
-    color: [0, 0, 0, 255]
+    index: 240
+    color: [150, 128, 128, 255]
   components:
     Fixture:
     Interactive: 
       kind: !Ascend
+
+Closed_Door:
+  sprite:
+    atlas_name: ascii
+    index: 35
+    color: [150, 128, 128, 255]
+  components:
+    Fixture:
+    Obstacle:
+    ViewBlocker:
+
+Open_Door:
+  sprite:
+    atlas_name: ascii
+    index: 45
+    color: [150, 128, 128, 255]
+  components:
+    Fixture:

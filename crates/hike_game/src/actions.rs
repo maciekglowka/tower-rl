@@ -11,7 +11,7 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     AttackKind, Consumable, Durability, Frozen, Health, Interactive,
-    Obstacle, Offensive, Position, Player, InteractionKind
+    Obstacle, Offensive, Position, Player, InteractionKind, Name
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -49,6 +49,11 @@ pub fn get_action_at_dir(
     if attackable {
         return Some(Box::new(Attack { entity, target }));
     }
+
+    if let Some(door) = entities.iter()
+        .find(|&e| world.get_component::<Name>(*e).unwrap().0 == "Closed_Door") {
+            return Some(Box::new(Replace { entity: *door, name: "Open_Door".to_string() }))
+        }
 
     let bumpable = entities.iter()
         .any(|&e| world.get_component::<Obstacle>(e).is_some());
@@ -235,30 +240,6 @@ impl Action for Pause {
     fn execute(&self, world: &mut World) -> ActionResult { Ok(Vec::new() )}
 }
 
-// pub struct PickItem {
-//     pub entity: Entity
-// }
-// impl Action for PickItem {
-//     fn as_any(&self) -> &dyn Any { self }
-//     fn execute(&self, world: &mut World) -> ActionResult {
-//         if world.get_component::<Consumable>(self.entity).is_some() {
-//             let player = world.query::<Player>()
-//                 .iter().next().ok_or(())?.entity;
-//             return Ok(vec![Box::new(Consume {
-//                 entity: self.entity,
-//                 consumer: player
-//             })])            
-//         }
-//         if world.get_component::<Offensive>(self.entity).is_some() {
-//             return Ok(vec![Box::new(AddToInventory {
-//                 entity: self.entity
-//             })])  
-//         }
-//         Ok(Vec::new())
-//     }
-//     // no score - npcs do not pick
-// }
-
 pub struct AddToInventory {
     pub entity: Entity
 }
@@ -342,7 +323,6 @@ impl Action for Repair {
     // score is not implemented as it always should be a resulting action
 }
 
-
 pub struct Interact {
     pub entity: Entity
 }
@@ -382,6 +362,10 @@ impl Action for Replace {
         spawn_with_position(world, &self.name, position);
         Ok(Vec::new())
     }
+    fn score(&self, world: &World) -> i32 {
+        // npcs should not do those things :)
+        -200
+    }
 }
 
 pub struct Ascend;
@@ -392,3 +376,13 @@ impl Action for Ascend {
         Ok(Vec::new())
     }
 }
+
+// pub struct OpenDoor {
+//     pub entity: Entity
+// }
+// impl Action for OpenDoor {
+//     fn as_any(&self) -> &dyn Any { self }
+//     fn execute(&self, world: &mut World) -> ActionResult {
+        
+//     }
+// }

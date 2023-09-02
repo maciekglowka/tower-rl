@@ -38,6 +38,11 @@ impl Board {
         for v in layout.0.iter() {
             let _ = spawn_with_position(world, "Wall", *v);
         }
+        let mut rng = thread_rng();
+        for v in layout.1.iter() {
+            if !rng.gen_bool(0.5) { continue };
+            let _ = spawn_with_position(world, "Closed_Door", *v);
+        }
 
         // remove walls
         tile_pool.retain(|v| !layout.0.contains(v));
@@ -162,8 +167,7 @@ fn divide_room(r: Room) -> Vec<Room> {
 
     let corner_a = if vertical { Vector2I::new(r.b.x, split_val - 1) } else { Vector2I::new(split_val - 1, r.b.y) };
     let corner_b = if vertical { Vector2I::new(r.a.x, split_val + 1) } else { Vector2I::new(split_val + 1, r.a.y) };
-    // let door = if vertical { Vector2I::new(rng.gen_range(r.a.x..=r.b.x), split_val) }
-    //     else { Vector2I::new(split_val, rng.gen_range(r.a.y..=r.b.y))};
+
     let mut doors = r.doors.clone();
     let door = get_bsp_door(vertical, split_val, r.a, r.b);
     
