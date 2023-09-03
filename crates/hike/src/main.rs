@@ -81,6 +81,7 @@ async fn main() {
         backend.set_bounds(&main_camera);
 
         graphics_ready = hike_graphics::graphics_update(&world, &mut graphics_state, &backend);
+        hike_graphics::ui::draw_world_ui(&world, &backend, &graphics_state);
 
         set_default_camera();
         hike_graphics::ui::ui_update(

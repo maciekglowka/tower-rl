@@ -8,6 +8,7 @@ mod context_menu;
 mod input;
 mod inventory;
 mod modal;
+mod overlays;
 mod span;
 mod status;
 
@@ -39,6 +40,14 @@ pub enum ButtonState {
     Down,
     Pressed,
     Released
+}
+
+pub fn draw_world_ui(
+    world: &World,
+    backend: &dyn GraphicsBackend,
+    state: &GraphicsState
+) {
+    overlays::draw_overlays(world, backend, state);
 }
 
 pub fn ui_update(

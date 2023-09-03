@@ -51,7 +51,7 @@ pub fn handle_world_events(
                         fade_sprite(*entity, state, 1.)
                     },
                     a if a == TypeId::of::<Position>() => {
-                        if let Some(sprite) = get_entity_sprite(*entity, state) {
+                        if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                             sprite.state = SpriteState::Removed;
                         }
                     },
@@ -96,13 +96,13 @@ pub fn handle_action_events(
     for ev in state.ev_actions.read().iter().flatten() {
         match ev {
             ActionEvent::Melee(entity, target, _) | ActionEvent::Bump(entity, target) => {
-                if let Some(sprite) = get_entity_sprite(*entity, state) {
+                if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     sprite.path.push_back((sprite.v + target.as_f32() * TILE_SIZE) * 0.5);
                     sprite.path.push_back(sprite.v);
                 }
             },
             ActionEvent::Travel(entity, target) => {
-                if let Some(sprite) = get_entity_sprite(*entity, state) {
+                if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     sprite.path.push_back(target.as_f32() * TILE_SIZE);
                 }
             },
@@ -189,7 +189,7 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn Graphics
 }
 
 fn fade_sprite(entity: Entity, state: &mut GraphicsState, value: f32) {
-    let Some(sprite) = get_entity_sprite(entity, state) else { return };
+    let Some(sprite) = get_entity_sprite_mut(entity, state) else { return };
     sprite.fade = value;
 }
 
@@ -251,7 +251,12 @@ fn get_projectile_renderer(
     }
 }
 
-fn get_entity_sprite(entity: Entity, state: &mut GraphicsState) -> Option<&mut SpriteRenderer> {
+pub fn get_entity_sprite(entity: Entity, state: &GraphicsState) -> Option<&SpriteRenderer> {
+    state.sprites.iter()
+        .find(|a| a.entity == entity)
+}
+
+pub fn get_entity_sprite_mut(entity: Entity, state: &mut GraphicsState) -> Option<&mut SpriteRenderer> {
     state.sprites.iter_mut()
         .find(|a| a.entity == entity)
 }

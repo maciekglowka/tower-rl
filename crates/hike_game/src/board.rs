@@ -6,7 +6,7 @@ use::rogalik::storage::{Entity, World};
 
 use hike_data::GameData;
 
-use crate::components::{Position, Obstacle, Player, ViewBlocker, Tile};
+use crate::components::{Position, Player, ViewBlocker, Tile};
 use crate::globals::{BOARD_SIZE, VIEW_RANGE};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
@@ -69,7 +69,7 @@ fn spawn_npcs(
     } else { return };
 
     let mut rng = thread_rng();
-    for _ in 0..3 {
+    for _ in 0..rng.gen_range(2..=4) {
         let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
         let Some(v) = get_random_tile(tile_pool) else { continue };
         let _ = spawn_with_position(world, npc, v);
@@ -86,7 +86,7 @@ fn spawn_items(
     } else { return };
 
     let mut rng = thread_rng();
-    for _ in 0..2 {
+    for _ in 0..rng.gen_range(1..=3) {
         let item = &item_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
         let Some(v) = get_random_tile(tile_pool) else { continue };
         let _ = spawn_with_position(world, item, v);
@@ -99,7 +99,7 @@ fn spawn_fixtures(
     level: u32
 ) {
     let mut rng = thread_rng();
-    if !rng.gen_bool(0.3) { return }
+    if level % 2 != 0 { return };
     let fixture_pool = if let Some(data) = world.get_resource::<GameData>() {
         get_entity_pool(&data, &data.fixtures, level)
     } else { return };
@@ -110,29 +110,6 @@ fn spawn_fixtures(
         let _ = spawn_with_position(world, fixture, v);
     }
 }
-
-// pub fn furnish_board(world: &mut World) {
-//     // let _ = spawn_with_position(world, "Stair", get_free_tile(world).unwrap());
-//     // let _ = spawn_with_position(world, "Sword", get_free_tile(world).unwrap());
-
-//     // let data = world.get_resource::<GameData>().unwrap();
-//     // let board = world.get_resource::<Board>().unwrap();
-
-//     // let npc_pool = get_pool(
-//     //     &data, &data.npcs, board.level
-//     // );
-//     // drop(data);
-//     // drop(board);
-//     // let mut rng = thread_rng();
-//     // for _ in 0..3 {
-//     //     let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
-//     //     let Some(v) = get_free_tile(world) else { continue };
-//     //     let _ = spawn_with_position(world, npc, v);
-//     // }
-
-//     // let _ = spawn_with_position(world, "Workshop", get_free_tile(world).unwrap());
-//     // let _ = spawn_with_position(world, "Food", get_free_tile(world).unwrap());
-// }
 
 fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
     base.iter()

@@ -129,6 +129,29 @@ impl GraphicsBackend for MacroquadBackend {
         };
         draw_text_ex(text, position.x, position.y, params);
     }
+    fn draw_world_text(
+        &self,
+        font_name: &str,
+        text: &str,
+        position: Vector2F,
+        font_size: u32,
+        color: SpriteColor
+    ) {
+        // draw only visible text
+        let Some(size) = self.get_text_dimension(font_name, text, font_size) else { return };
+        if position.x > self.world_bounds.1.x || position.y > self.world_bounds.1.y { return };
+        if position.x + size.width < self.world_bounds.0.x || position.y + size.height < self.world_bounds.0.y { return };
+        
+        let macroquad_color = macroquad_color_from_sprite(color);
+        let Some(font) = self.fonts.get(font_name) else { return };
+        let params = TextParams {
+            font_size: font_size as u16,
+            color: macroquad_color,
+            font: Some(font),
+            ..Default::default()
+        };
+        draw_text_ex(text, position.x, position.y, params);
+    }
     fn text_size(
         &self,
         font_name: &str,

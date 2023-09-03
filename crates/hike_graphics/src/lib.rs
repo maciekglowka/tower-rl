@@ -59,6 +59,14 @@ pub trait GraphicsBackend {
         font_size: u32,
         color: SpriteColor
     );
+    fn draw_world_text(
+        &self,
+        font_name: &str,
+        text: &str,
+        position: Vector2F,
+        font_size: u32,
+        color: SpriteColor
+    );
     fn text_size(
         &self,
         font_name: &str,

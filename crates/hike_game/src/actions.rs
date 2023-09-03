@@ -325,6 +325,35 @@ impl Action for Repair {
     // score is not implemented as it always should be a resulting action
 }
 
+pub struct UpgradeHealth {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for UpgradeHealth {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
+        health.0.max += self.value;
+        health.0.current += self.value;
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+pub struct UpgradeOffensive {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for UpgradeOffensive {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut offensive = world.get_component_mut::<Offensive>(self.entity).ok_or(())?;
+        offensive.value += self.value;
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
 pub struct PickGold {
     pub value: u32
 }

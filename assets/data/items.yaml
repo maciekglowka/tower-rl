@@ -38,7 +38,7 @@ Wand:
   sprite:
     atlas_name: ascii
     index: 47
-    color: [0, 0, 128, 255]
+    color: [0, 50, 255, 255]
   components:
     Offensive:
       kind: !Freeze
