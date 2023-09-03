@@ -5,7 +5,7 @@ use rogalik::{
 
 use hike_game::{
     Board,
-    components::Health,
+    components::{Health, Player},
 };
 
 use crate::GraphicsState;
@@ -25,6 +25,7 @@ pub fn draw_overlays(
     let Some(board) = world.get_resource::<Board>() else { return };        
 
     for item in query.iter() {
+        if world.get_component::<Player>(item.entity).is_some() { continue };
         let health = item.get::<Health>().unwrap();
 
         let text = format!("{}", health.0.current);

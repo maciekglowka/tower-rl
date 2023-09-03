@@ -27,13 +27,17 @@ pub struct ValueMax {
 #[derive(Deserialize, PartialEq)]
 pub enum InteractionKind {
     Ascend,
-    Repair(#[serde(deserialize_with="deserialize_random_u32")] u32)
+    Repair(#[serde(deserialize_with="deserialize_random_u32")] u32),
+    UpgradeOffensive(#[serde(deserialize_with="deserialize_random_u32")] u32),
+    UpgradeHealth(#[serde(deserialize_with="deserialize_random_u32")] u32),
 }
 impl InteractionKind {
     pub fn to_str(&self) -> String {
         match self {
             InteractionKind::Ascend => "Ascend".to_string(),
             InteractionKind::Repair(v) => format!("Repair({})", v),
+            InteractionKind::UpgradeHealth(v) => format!("Incr. HP({})", v),
+            InteractionKind::UpgradeOffensive(v) => format!("Incr. A({})", v),
         }
     }
 }

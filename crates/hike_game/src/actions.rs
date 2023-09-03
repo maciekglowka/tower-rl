@@ -407,6 +407,17 @@ impl Action for Interact {
                 let item = world.query::<Player>().iter().next().ok_or(())?
                     .get::<Player>().unwrap().items[idx].ok_or(())?;
                 Box::new(Repair { entity: item, value } )
+            },
+            InteractionKind::UpgradeOffensive(value) => {
+                let idx = world.query::<Player>().iter().next().ok_or(())?
+                    .get::<Player>().unwrap().active_item;
+                let item = world.query::<Player>().iter().next().ok_or(())?
+                    .get::<Player>().unwrap().items[idx].ok_or(())?;
+                Box::new(UpgradeOffensive { entity: item, value } )
+            },
+            InteractionKind::UpgradeHealth(value) => {
+                let player = world.query::<Player>().iter().next().ok_or(())?.entity;
+                Box::new(UpgradeHealth { entity: player, value } )
             }
         };
         res.push(action);

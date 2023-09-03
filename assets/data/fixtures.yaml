@@ -7,9 +7,8 @@ Workshop:
     Fixture:
     Interactive:
       kind: !Repair 5-10
-      next: Empty_Workshop
-      cost: 2
-  spawn_chance: 0.5
+      # next: Empty_Workshop
+      cost: 5
 
 Empty_Workshop:
   sprite:
@@ -19,3 +18,25 @@ Empty_Workshop:
   components:
     Fixture:
   spawn_chance: 0.
+
+Blacksmith:
+  sprite:
+    atlas_name: ascii
+    index: 22
+    color: [128, 0, 128, 255]
+  components:
+    Fixture:
+    Interactive:
+      kind: !UpgradeOffensive 1-3
+      cost: 5
+
+Herbalist:
+  sprite:
+    atlas_name: ascii
+    index: 22
+    color: [128, 128, 0, 255]
+  components:
+    Fixture:
+    Interactive:
+      kind: !UpgradeHealth 1-3
+      cost: 5

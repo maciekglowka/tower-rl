@@ -104,7 +104,7 @@ fn spawn_fixtures(
         get_entity_pool(&data, &data.fixtures, level)
     } else { return };
 
-    for _ in 0..2 {
+    for _ in 0..1 {
         let fixture = &fixture_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
         let Some(v) = get_random_tile(tile_pool) else { continue };
         let _ = spawn_with_position(world, fixture, v);
