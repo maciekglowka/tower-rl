@@ -9,6 +9,8 @@ Rat:
       kind: !Hit
       value: 1
     Health: 2
+    Loot:
+      - Gold
     Obstacle:
 
 Jellyfish:
@@ -22,6 +24,8 @@ Jellyfish:
       kind: !Hit
       value: 1
     Health: 4
+    Loot:
+      - Gold
     Obstacle:
   min_level: 5
 

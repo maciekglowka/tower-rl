@@ -49,6 +49,9 @@ pub fn handle_menu(
             set_player_action(world, action);
             return true;
         }
+        // show only first action
+        // TODO make sure a consumable comes before interactive
+        break;
     }
 
     // if let Some(entity) = item {

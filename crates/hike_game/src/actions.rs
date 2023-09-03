@@ -2,6 +2,7 @@ use rogalik::{
     math::vectors::{Vector2I, ORTHO_DIRECTIONS},
     storage::{Entity, World}
 };
+use rand::prelude::*;
 use std::{
     any::{Any, TypeId},
     cell::Ref,
@@ -10,7 +11,7 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    AttackKind, Durability, Frozen, Health, Interactive,
+    AttackKind, Durability, Frozen, Health, Interactive, Loot,
     Obstacle, Offensive, Position, Player, InteractionKind, Name
 };
 use crate::consumables::get_consume_action;
@@ -453,6 +454,24 @@ impl Action for Ascend {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         world.get_resource_mut::<Board>().ok_or(())?.exit = true;
+        Ok(Vec::new())
+    }
+}
+
+pub struct DropLoot {
+    pub entity: Entity
+}
+impl Action for DropLoot {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut rng = thread_rng();
+        if !rng.gen_bool(0.25) { return Ok(Vec::new()) };
+        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
+        let loot = world.get_component::<Loot>(self.entity).ok_or(())?;
+
+        let name = loot.0.choose(&mut rng).ok_or(())?.to_string();
+        drop(loot);
+        spawn_with_position(world, &name, position);
         Ok(Vec::new())
     }
 }

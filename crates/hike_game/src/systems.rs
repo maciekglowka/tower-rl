@@ -5,7 +5,7 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, Consume, PendingActions, get_npc_action,
+    Action, ActorQueue, DropLoot, PendingActions, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position};
@@ -49,7 +49,7 @@ pub fn board_end(world: &mut World) {
 pub fn turn_step(world: &mut World, manager: &mut GameManager) {
     // hit_projectiles(world);
     update_visibility(world);
-    kill_units(world);
+    kill_units(world, manager);
     destroy_items(world);
     if process_pending_action(world, manager) {
         // do not process the actor queue if the pending actions were executed
@@ -177,13 +177,18 @@ fn destroy_items(
     }
 }
 
-fn kill_units(world: &mut World) {
+fn kill_units(world: &mut World, manager: &mut GameManager) {
     let query = world.query::<Health>();
     let entities = query.iter()
         .filter(|a| a.get::<Health>().unwrap().0.current == 0)
         .map(|a| a.entity)
         .collect::<Vec<_>>();
     for entity in entities {
+        let _ = execute_action(
+            Box::new(DropLoot { entity }),
+            world,
+            manager
+        );
         world.despawn_entity(entity);
     }
 }

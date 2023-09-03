@@ -106,6 +106,10 @@ pub struct Item;
 impl Component for Item {}
 
 #[derive(Deserialize)]
+pub struct Loot (pub Vec<String>);
+impl Component for Loot {}
+
+#[derive(Deserialize)]
 // actor cannot travel to a blocked tile
 pub struct Obstacle;
 impl Component for Obstacle {}
@@ -174,6 +178,7 @@ pub fn insert_data_components(
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
+            "Loot" => insert_single::<Loot>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
