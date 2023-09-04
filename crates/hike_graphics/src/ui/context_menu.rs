@@ -1,8 +1,12 @@
-use rogalik::storage::World;
+use rogalik::{
+    math::vectors::Vector2F,
+    storage::{Entity, World}
+};
+use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 
 use hike_game::{
     actions::{Action, Consume, Interact, AddToInventory},
-    components::{Consumable, Interactive, Item, Offensive, Position},
+    components::{Consumable, Interactive, Item, Offensive, Name, Position},
     get_player_position,
     get_player_entity,
     set_player_action,
@@ -13,6 +17,8 @@ use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
 
+static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
+
 pub fn handle_menu(
     world: &mut World,
     backend: &dyn GraphicsBackend,
@@ -22,9 +28,42 @@ pub fn handle_menu(
     let Some(position) = get_player_position(world) else { return false };
     let player = get_player_entity(world).unwrap();
 
-    let entities = get_entities_at_position(world, position);
+    let mut entities = get_entities_at_position(world, position)
+        .iter()
+        .filter(|&&e| world.get_component::<Interactive>(e).is_some() ||
+            world.get_component::<Item>(e).is_some()
+        )
+        .map(|&e| e)
+        .collect::<Vec<_>>();
+
+    if entities.len() == 0 { return false };
+
+    entities.sort_by_key(|a| (a.version, a.id));
+
+    let cur_idx = CONTEXT_IDX.load(Relaxed);
+    CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
+
+    if entities.len() > 1 {
+        // draw next button
+        let button = Button::new(
+                220.,
+                85.,
+                200.,
+                50.
+            )
+            .with_color(SpriteColor(100, 100, 100, 255))
+            .with_span(Span::new().with_text_borrowed("[MORE]"));
+        button.draw(backend);
+        if button.clicked(state) {
+            CONTEXT_IDX.store(cur_idx + 1, Relaxed);
+            return true;
+        }
+    };
+
     
     for (i, entity) in entities.iter().enumerate() {
+        if i != cur_idx { continue };
+
         let (text, action) = match entity {
             e if world.get_component::<Interactive>(*e).is_some() =>
                 ("USE", Box::new(Interact { entity: *e}) as Box<dyn Action>),
@@ -34,6 +73,16 @@ pub fn handle_menu(
                 ("PICK", Box::new(AddToInventory { entity: *e }) as Box<dyn Action>),
             _ => continue
         };
+
+        if let Some(s) = get_item_desc(world, *entity) {
+            backend.draw_ui_text(
+                "default",
+                &format!("{}", s),
+                Vector2F::new(10., 74.),
+                32,
+                SpriteColor(0, 0, 0, 255)
+            );
+        }
 
         let span = Span::new().with_text_borrowed(text);
         let button = Button::new(
@@ -49,28 +98,21 @@ pub fn handle_menu(
             set_player_action(world, action);
             return true;
         }
-        // show only first action
-        // TODO make sure a consumable comes before interactive
-        break;
     }
 
-    // if let Some(entity) = item {
-    //     let text = if world.get_component::<Consumable>(entity).is_some() { "USE" } else { "PICK" };
-    //     let span = Span::new().with_text_borrowed(text);
-    //     let button = Button::new(
-    //             10.,
-    //             85.,
-    //             200.,
-    //             50.
-    //         )
-    //         .with_color(SpriteColor(100, 100, 100, 255))
-    //         .with_span(span);
-    //     button.draw(backend);
-    //     if button.clicked(state) || state.action == ButtonState::Pressed {
-    //         set_player_action(world, Box::new(PickItem { entity }));
-    //         return true;
-    //     }
-    // }
-
     false
+}
+
+
+fn get_item_desc(world: &World, entity: Entity)-> Option<String> {
+    if world.get_component::<Item>(entity).is_none()
+        && world.get_component::<Interactive>(entity).is_none() { return None };
+
+    let name = world.get_component::<Name>(entity)?.0.clone();
+    let s = world.get_entity_components(entity).iter()
+        .map(|c| c.as_str())
+        .filter(|s| s.len() > 0)
+        .collect::<Vec<_>>()
+        .join(" ");
+    return Some(format!("{}: {}", name, s));
 }
