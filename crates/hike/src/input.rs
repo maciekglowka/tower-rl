@@ -57,11 +57,11 @@ fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {
                 if let Some(start) = touch_state.remove(&touch.id) {
                     let dx = touch.position.x - start.x;
                     let dy = touch.position.y - start.y;
-                    let thresh = 0.25 * screen_width();
+                    let thresh = 0.1 * screen_width();
                     if dx > thresh { return InputDirection::Right }
                     if dx < -thresh { return InputDirection::Left }
-                    if dy > thresh { return InputDirection::Up }
-                    if dy < -thresh { return InputDirection::Down }
+                    if dy > thresh { return InputDirection::Down }
+                    if dy < -thresh { return InputDirection::Up }
                 }
             },
             _ => ()
