@@ -6,7 +6,7 @@ pub const ITEM_Z: u32 = 150;
 pub const PROJECTILE_Z: u32 = 250;
 pub const TILE_Z: u32 = 50;
 
-pub const FROZE_FADE: f32 = 0.75;
+pub const FROZE_FADE: f32 = 0.5;
 
 pub const MOVEMENT_SPEED: f32 = 10.;
 pub const FADE_SPEED: f32 = 0.05;
