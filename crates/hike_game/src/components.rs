@@ -106,7 +106,10 @@ pub struct Item;
 impl Component for Item {}
 
 #[derive(Deserialize)]
-pub struct Loot (pub Vec<String>);
+pub struct Loot {
+    pub items: Vec<String>,
+    pub chance: f32
+}
 impl Component for Loot {}
 
 #[derive(Deserialize)]

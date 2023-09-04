@@ -93,8 +93,6 @@ fn spawn_items(
     }
 
     let v = get_random_tile(tile_pool).unwrap();
-    let _ = spawn_with_position(world, "Food", v);
-    let _ = spawn_with_position(world, "Gold", v);
 }
 
 fn spawn_fixtures(

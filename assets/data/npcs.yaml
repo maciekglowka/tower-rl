@@ -10,7 +10,9 @@ Rat:
       value: 1
     Health: 2
     Loot:
-      - Gold
+      items:
+        - Gold
+      chance: 0.25
     Obstacle:
 
 Jellyfish:
@@ -25,7 +27,10 @@ Jellyfish:
       value: 1
     Health: 4
     Loot:
-      - Gold
+      items:
+        - Sword
+        - Gold
+      chance: 0.5
     Obstacle:
   min_level: 5
 

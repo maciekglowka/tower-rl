@@ -465,11 +465,12 @@ impl Action for DropLoot {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut rng = thread_rng();
-        if !rng.gen_bool(0.25) { return Ok(Vec::new()) };
-        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
         let loot = world.get_component::<Loot>(self.entity).ok_or(())?;
+        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
 
-        let name = loot.0.choose(&mut rng).ok_or(())?.to_string();
+        if !rng.gen_bool(loot.chance as f64) { return Ok(Vec::new()) };
+
+        let name = loot.items.choose(&mut rng).ok_or(())?.to_string();
         drop(loot);
         spawn_with_position(world, &name, position);
         Ok(Vec::new())
