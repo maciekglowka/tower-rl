@@ -8,7 +8,9 @@ use crate::actions::{
     Action, ActorQueue, DropLoot, PendingActions, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
-use crate::components::{Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position};
+use crate::components::{
+    Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position, Poisoned
+};
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
 use crate::player;
@@ -214,7 +216,24 @@ fn process_frozen(world: &mut World, entity: Entity) -> bool {
     true
 }
 
+fn process_poisoned(world: &mut World) {
+    let mut to_remove = Vec::new();
+    for item in world.query::<Poisoned>().with::<Health>().iter() {
+        let mut poisoned = item.get_mut::<Poisoned>().unwrap();
+        let mut health = item.get_mut::<Health>().unwrap();
+        health.0.current = health.0.current.saturating_sub(1);
+        poisoned.0 = poisoned.0.saturating_sub(1);
+        if poisoned.0 <= 0 {
+            to_remove.push(item.entity);
+        }
+    }
+    for entity in to_remove {
+        world.remove_component::<Poisoned>(entity);
+    }
+}
+
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
+    process_poisoned(world);
 }

@@ -2,7 +2,7 @@ Rat:
   sprite:
     atlas_name: ascii
     index: 114
-    color: [0, 0, 0, 255]
+    color: [195, 234, 254, 255]
   components:
     Actor:
     Offensive:

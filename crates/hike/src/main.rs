@@ -47,14 +47,16 @@ async fn main() {
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 
-    backend.load_atlas(
-            "ascii",
-            "sprites/ascii.png",
-            16,
-            16,
-            None
-        ).await
-        .expect("Could not load sprites!");
+    for (name, cols, rows) in [("ascii", 16, 16), ("tiles", 4, 4), ("items", 4, 4)] {
+        backend.load_atlas(
+                name,
+                &format!("sprites/{}.png", name),
+                cols,
+                rows,
+                None
+            ).await
+            .expect("Could not load sprites!");
+    }
 
     backend.load_font("default",  "ui/04B_03.ttf").await
         .expect("Could not find fonts!");
@@ -87,7 +89,9 @@ async fn main() {
         if graphics_ready {
             hike_game::game_update(&mut world, &mut manager);
         }
-        clear_background(Color::from_rgba(124, 182, 219, 255));
+        // clear_background(Color::from_rgba(124, 182, 219, 255));
+        clear_background(Color::from_rgba(31, 15, 28, 255));
+        // clear_background(BLACK);
         set_camera(&main_camera);
         backend.set_bounds(&main_camera);
 

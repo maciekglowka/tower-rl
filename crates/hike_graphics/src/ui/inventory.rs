@@ -7,7 +7,7 @@ use hike_game::globals::INVENTORY_SIZE;
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
-use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE};
+use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
 
 pub fn handle_inventory(
     world: &World,
@@ -27,9 +27,9 @@ pub fn handle_inventory(
 
     for i in 0..INVENTORY_SIZE {
         let color = if i == player.active_item {
-            SpriteColor(255, 255, 255, 255)
+            BUTTON_COLOR_SELECTED
         } else {
-            SpriteColor(128, 128, 128, 255)
+            BUTTON_COLOR
         };
 
         // let offset = gap * (i + 1) as f32 + INVENTORY_SINGLE_DIM * i as f32;
@@ -55,7 +55,7 @@ pub fn handle_inventory(
                         )
                         .with_size(UI_BUTTON_TEXT_SIZE)
                         .with_sprite_color(data.sprite.color)
-                        .with_text_color(SpriteColor(0, 0, 0, 255));
+                        .with_text_color(SpriteColor(255, 255, 255, 255));
 
                     if let Some(offensive) = world.get_component::<Offensive>(entity) {
                         span = span.with_text_owned(

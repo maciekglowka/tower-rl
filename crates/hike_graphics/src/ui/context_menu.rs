@@ -13,7 +13,7 @@ use hike_game::{
     get_entities_at_position
 };
 
-use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE};
+use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR};
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
@@ -60,7 +60,7 @@ pub fn handle_menu(
                 width,
                 UI_BUTTON_HEIGHT
             )
-            .with_color(SpriteColor(100, 100, 100, 255))
+            .with_color(BUTTON_COLOR)
             .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
         button.draw(backend);
         if button.clicked(state) {
@@ -89,7 +89,7 @@ pub fn handle_menu(
                 &format!("{}", s),
                 Vector2F::new(10., 74.),
                 32,
-                SpriteColor(0, 0, 0, 255)
+                SpriteColor(150, 128, 128, 255)
             );
         }
 
@@ -100,7 +100,7 @@ pub fn handle_menu(
                 width,
                 UI_BUTTON_HEIGHT
             )
-            .with_color(SpriteColor(100, 100, 100, 255))
+            .with_color(BUTTON_COLOR)
             .with_span(span);
         button.draw(backend);
         if button.clicked(state) || state.action == ButtonState::Pressed {

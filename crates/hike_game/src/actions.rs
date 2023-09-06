@@ -12,7 +12,7 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     AttackKind, Durability, Frozen, Health, Interactive, Loot,
-    Obstacle, Offensive, Position, Player, InteractionKind, Name
+    Obstacle, Offensive, Position, Player, InteractionKind, Name, Poisoned
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -138,6 +138,11 @@ impl Attack {
                 entity: self.entity,
                 target: self.target,
                 value: offensive.value  
+            }),
+            AttackKind::Poison => Box::new(Poison {
+                entity: self.entity,
+                target: self.target,
+                value: offensive.value  
             })
         }
     }
@@ -202,6 +207,25 @@ impl Action for Freeze {
         for entity in get_entities_at_position(world, self.target) {
             if world.get_component::<Health>(entity).is_none() { continue }
             let _ = world.insert_component(entity, Frozen(self.value));
+        }
+        Ok(Vec::new())
+    }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Melee(self.entity, self.target, self.value)
+    }
+}
+
+pub struct Poison {
+    pub entity: Entity,
+    pub target: Vector2I,
+    pub value: u32
+}
+impl Action for Poison {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        for entity in get_entities_at_position(world, self.target) {
+            if world.get_component::<Health>(entity).is_none() { continue }
+            let _ = world.insert_component(entity, Poisoned(self.value));
         }
         Ok(Vec::new())
     }

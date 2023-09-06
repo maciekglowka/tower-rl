@@ -1,16 +1,18 @@
 Tile:
   sprite:
-    atlas_name: ascii
-    index: 177
-    color: [195, 234, 254, 255]
+    atlas_name: tiles
+    index: 0
+    # color: [195, 234, 254, 255]
+    # color: [150, 128, 128, 255]
+    color: [98, 81, 81, 255]
   components:
     Tile:
 
 Wall:
   sprite:
-    atlas_name: ascii
-    index: 177
-    color: [150, 128, 128, 255]
+    atlas_name: tiles
+    index: 1
+    color: [31, 15, 28, 255]
   components:
     Fixture:
     Obstacle:
@@ -18,9 +20,9 @@ Wall:
 
 Stair:
   sprite:
-    atlas_name: ascii
-    index: 240
-    color: [150, 128, 128, 255]
+    atlas_name: tiles
+    index: 2
+    color: [255, 255, 255, 255]
   components:
     Fixture:
     Interactive: 
@@ -28,9 +30,9 @@ Stair:
 
 Closed_Door:
   sprite:
-    atlas_name: ascii
-    index: 35
-    color: [150, 128, 128, 255]
+    atlas_name: tiles
+    index: 3
+    color: [255, 255, 255, 255]
   components:
     Fixture:
     Obstacle:

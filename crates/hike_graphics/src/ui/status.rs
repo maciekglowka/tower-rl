@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 use hike_game::{
-    components::{Health, Player, Position, Name, Item, Interactive, Durability},
+    components::{Health, Player, Poisoned},
     get_entities_at_position, get_player_position
 };
 
@@ -17,12 +17,17 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
     let health = item.get::<Health>().unwrap();
     let player = item.get::<Player>().unwrap();
 
+    let mut text = format!("HP: {}/{} Gold: {}", health.0.current, health.0.max, player.gold);
+    if world.get_component::<Poisoned>(item.entity).is_some() {
+        text += " Poisoned";
+    }
+
     backend.draw_ui_text(
         "default",
-        &format!("HP: {}/{} Gold: {}", health.0.current, health.0.max, player.gold),
+        &text,
         Vector2F::new(10., 42.),
         32,
-        SpriteColor(0, 0, 0, 255)
+        SpriteColor(150, 128, 128, 255)
     );
     // if let Some(s) = get_item_desc(world) {
     //     backend.draw_ui_text(

@@ -53,7 +53,8 @@ impl Board {
         spawn_npcs(world, &mut tile_pool, self.level);
         spawn_items(world, &mut tile_pool, self.level);
         spawn_fixtures(world, &mut tile_pool, self.level);
-
+        
+        let _ = spawn_with_position(world, "Poisoned_Dagger", get_random_tile(&mut tile_pool).unwrap());
         self.tiles.extend(create_bounds(world));
 
     }

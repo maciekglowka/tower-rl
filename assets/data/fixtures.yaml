@@ -1,8 +1,8 @@
 Workshop:
   sprite:
-    atlas_name: ascii
-    index: 22
-    color: [0, 0, 0, 255]
+    atlas_name: tiles
+    index: 4
+    color: [148, 160, 184, 255]
   components:
     Fixture:
     Interactive:
@@ -21,9 +21,9 @@ Empty_Workshop:
 
 Blacksmith:
   sprite:
-    atlas_name: ascii
-    index: 22
-    color: [128, 0, 128, 255]
+    atlas_name: tiles
+    index: 4
+    color: [145, 125, 185, 255]
   components:
     Fixture:
     Interactive:
@@ -32,9 +32,9 @@ Blacksmith:
 
 Herbalist:
   sprite:
-    atlas_name: ascii
-    index: 22
-    color: [128, 128, 0, 255]
+    atlas_name: tiles
+    index: 4
+    color: [145, 200, 185, 255]
   components:
     Fixture:
     Interactive:

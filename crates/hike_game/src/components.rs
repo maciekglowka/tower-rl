@@ -10,7 +10,8 @@ use crate::globals::INVENTORY_SIZE;
 #[derive(Deserialize, PartialEq)]
 pub enum AttackKind {
     Freeze,
-    Hit
+    Hit,
+    Poison
 }
 
 #[derive(Deserialize)]
@@ -154,6 +155,9 @@ impl Component for Player {}
 
 pub struct Frozen(pub u32);
 impl Component for Frozen {}
+
+pub struct Poisoned(pub u32);
+impl Component for Poisoned {}
 
 pub struct Projectile {
     pub damage: u32,

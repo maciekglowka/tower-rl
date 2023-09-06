@@ -11,9 +11,9 @@ Food:
 
 Gold:
   sprite:
-    atlas_name: ascii
-    index: 9
-    color: [180, 180, 0, 255]
+    atlas_name: items
+    index: 2
+    color: [237, 190, 94, 255]
   components:
     Consumable:
       kind: !Gold
@@ -23,9 +23,9 @@ Gold:
 
 Sword:
   sprite:
-    atlas_name: ascii
-    index: 47
-    color: [128, 0, 128, 255]
+    atlas_name: items
+    index: 0
+    color: [195, 234, 254, 255]
   components:
     Offensive:
       kind: !Hit
@@ -34,11 +34,11 @@ Sword:
       value: 5-15
     Item:
 
-Wand:
+Freeze_Wand:
   sprite:
-    atlas_name: ascii
-    index: 47
-    color: [0, 50, 255, 255]
+    atlas_name: items
+    index: 1
+    color: [134, 241, 249, 255]
   components:
     Offensive:
       kind: !Freeze
@@ -47,3 +47,16 @@ Wand:
       value: 5-15
     Item:
   min_level: 5
+
+Poisoned_Dagger:
+  sprite:
+    atlas_name: items
+    index: 3
+    color: [145, 200, 185, 255]
+  components:
+    Offensive:
+      kind: !Poison
+      value: 2-3
+    Durability:
+      value: 5-15
+    Item:
