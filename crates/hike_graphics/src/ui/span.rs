@@ -55,6 +55,17 @@ impl<'a> Span<'a> {
         self.size = size;
         self
     }
+    pub fn width(&self, backend: &dyn GraphicsBackend) -> f32 {
+        let mut width = 0.;
+        for item in self.items.iter() {
+            match item {
+                SpanItem::Text(text) => width += backend.text_size("default", text, self.size).x + self.spacing,
+                &SpanItem::Sprite(_, _) => width += self.size as f32 + self.spacing
+            }
+        }
+        width
+    }
+
     pub fn draw(&self, origin: Vector2F, backend: &dyn GraphicsBackend) {
         let mut offset = 0.;
         let text_v_offset = -0.5 * (self.size as f32 - backend.text_size("default", "A", self.size).y);

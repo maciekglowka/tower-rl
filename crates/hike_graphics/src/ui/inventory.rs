@@ -7,7 +7,7 @@ use hike_game::globals::INVENTORY_SIZE;
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
-use super::super::globals::INVENTORY_SINGLE_DIM;
+use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE};
 
 pub fn handle_inventory(
     world: &World,
@@ -22,7 +22,8 @@ pub fn handle_inventory(
     let viewport_size = backend.viewport_size();
 
     let mut clicked = None;
-    let gap = (viewport_size.x - INVENTORY_SIZE as f32 * INVENTORY_SINGLE_DIM) / (INVENTORY_SIZE + 1) as f32;
+    // let gap = (viewport_size.x - INVENTORY_SIZE as f32 * INVENTORY_SINGLE_DIM) / (INVENTORY_SIZE + 1) as f32;
+    let width = (viewport_size.x - UI_GAP) / INVENTORY_SIZE as f32 - UI_GAP;
 
     for i in 0..INVENTORY_SIZE {
         let color = if i == player.active_item {
@@ -31,13 +32,14 @@ pub fn handle_inventory(
             SpriteColor(128, 128, 128, 255)
         };
 
-        let offset = gap * (i + 1) as f32 + INVENTORY_SINGLE_DIM * i as f32;
+        // let offset = gap * (i + 1) as f32 + INVENTORY_SINGLE_DIM * i as f32;
+        let offset = UI_GAP + i as f32 * (UI_GAP + width);
 
         let mut button = Button::new(
                 offset,
-                viewport_size.y - 1.25 * INVENTORY_SINGLE_DIM as f32,
-                INVENTORY_SINGLE_DIM,
-                INVENTORY_SINGLE_DIM
+                viewport_size.y - UI_GAP - UI_BUTTON_HEIGHT,
+                width,
+                UI_BUTTON_HEIGHT
             )
             .with_color(color);
 
@@ -51,18 +53,18 @@ pub fn handle_inventory(
                             &data.sprite.atlas_name,
                             data.sprite.index
                         )
-                        .with_size(16)
+                        .with_size(UI_BUTTON_TEXT_SIZE)
                         .with_sprite_color(data.sprite.color)
                         .with_text_color(SpriteColor(0, 0, 0, 255));
 
                     if let Some(offensive) = world.get_component::<Offensive>(entity) {
                         span = span.with_text_owned(
-                            format!("A{}", offensive.value)
+                            format!("At:{}", offensive.value)
                         );
                     };
                     if let Some(durability) = world.get_component::<Durability>(entity) {
                         span = span.with_text_owned(
-                            format!("D{}", durability.value)
+                            format!("Dur:{}", durability.value)
                         );
                     };
 

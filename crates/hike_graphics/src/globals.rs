@@ -8,8 +8,10 @@ pub const TILE_Z: u32 = 50;
 
 pub const FROZE_FADE: f32 = 0.5;
 
-pub const MOVEMENT_SPEED: f32 = 10.;
+pub const MOVEMENT_SPEED: f32 = 15.;
 pub const FADE_SPEED: f32 = 0.05;
 
 // ui
-pub const INVENTORY_SINGLE_DIM: f32 = 96.;
+pub const UI_BUTTON_HEIGHT: f32 = 64.;
+pub const UI_GAP: f32 = 10.;
+pub const UI_BUTTON_TEXT_SIZE: u32 = 24;

@@ -53,10 +53,27 @@ impl Board {
         spawn_npcs(world, &mut tile_pool, self.level);
         spawn_items(world, &mut tile_pool, self.level);
         spawn_fixtures(world, &mut tile_pool, self.level);
+
+        self.tiles.extend(create_bounds(world));
+
     }
     pub fn is_exit(&self) -> bool {
         self.exit
     }
+}
+
+fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
+    let mut entities = HashMap::new();
+    for x in -1..=BOARD_SIZE as i32 {
+        for y in -1..=BOARD_SIZE as i32 {
+            if x >=0 && y >= 0 && x < BOARD_SIZE as i32 && y < BOARD_SIZE as i32 { continue }
+            let v = Vector2I::new(x, y);
+            let entity = spawn_with_position(world, "Tile", v).unwrap();
+            let _ = spawn_with_position(world, "Wall", v).unwrap();
+            entities.insert(v, entity);
+        }
+    }
+    entities
 }
 
 fn spawn_npcs(

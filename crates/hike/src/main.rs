@@ -6,11 +6,22 @@ use std::{
 
 mod input;
 
+#[cfg(not(target_os = "android"))]
 fn window_conf() -> Conf {
     Conf { 
         window_title: "Micro Hike".into(),
         window_width: 600,
         window_height: 800,
+        ..Default::default()
+    }
+}
+
+#[cfg(target_os = "android")]
+fn window_conf() -> Conf {
+    Conf { 
+        window_title: "Micro Hike".into(),
+        window_width: 1080,
+        window_height: 1920,
         ..Default::default()
     }
 }

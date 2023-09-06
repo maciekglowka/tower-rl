@@ -13,6 +13,7 @@ use hike_game::{
     get_entities_at_position
 };
 
+use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE};
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
@@ -43,16 +44,24 @@ pub fn handle_menu(
     let cur_idx = CONTEXT_IDX.load(Relaxed);
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
 
+    let viewport_size = backend.viewport_size();
+    let y = viewport_size.y - 2.0 * (UI_BUTTON_HEIGHT + UI_GAP);
+    let width = match entities.len() {
+        0 => return false,
+        1 => viewport_size.x - 2.0 * UI_GAP,
+        _ => (viewport_size.x - 3.0 * UI_GAP) / 2.0
+    };
+
     if entities.len() > 1 {
-        // draw next button
+        // draw `next` button
         let button = Button::new(
-                220.,
-                85.,
-                200.,
-                50.
+                2.0 * UI_GAP + width,
+                y,
+                width,
+                UI_BUTTON_HEIGHT
             )
             .with_color(SpriteColor(100, 100, 100, 255))
-            .with_span(Span::new().with_text_borrowed("[MORE]"));
+            .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
         button.draw(backend);
         if button.clicked(state) {
             CONTEXT_IDX.store(cur_idx + 1, Relaxed);
@@ -84,12 +93,12 @@ pub fn handle_menu(
             );
         }
 
-        let span = Span::new().with_text_borrowed(text);
+        let span = Span::new().with_text_borrowed(text).with_size(UI_BUTTON_TEXT_SIZE);
         let button = Button::new(
-                10.,
-                85.,
-                200.,
-                50.
+                UI_GAP,
+                y,
+                width,
+                UI_BUTTON_HEIGHT
             )
             .with_color(SpriteColor(100, 100, 100, 255))
             .with_span(span);

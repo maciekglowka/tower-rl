@@ -41,7 +41,7 @@ impl<'a> Button<'a> {
         );
         if let Some(span) = &self.span {
             let span_offset = Vector2F::new(
-                8.,
+                0.5 * (self.w - span.width(backend)),
                 self.h - (self.h - span.size as f32) / 2.
             );
             span.draw(self.origin + span_offset, backend);
