@@ -117,7 +117,7 @@ fn get_item_desc(world: &World, entity: Entity)-> Option<String> {
     if world.get_component::<Item>(entity).is_none()
         && world.get_component::<Interactive>(entity).is_none() { return None };
 
-    let name = world.get_component::<Name>(entity)?.0.clone();
+    let name = world.get_component::<Name>(entity)?.0.clone().replace("_", " ");
     let s = world.get_entity_components(entity).iter()
         .map(|c| c.as_str())
         .filter(|s| s.len() > 0)

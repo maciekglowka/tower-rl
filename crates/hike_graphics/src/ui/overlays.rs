@@ -14,7 +14,7 @@ use super::{GraphicsBackend, SpriteColor};
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
 
-const FONT_SIZE: u32 = 24;
+const FONT_SIZE: u32 = 16;
 
 pub fn draw_overlays(
     world: &World,
@@ -35,19 +35,20 @@ pub fn draw_overlays(
         let tile = world_to_tile(base.v);
         if !board.visible.contains(&tile) { continue; }
 
-        backend.draw_world_sprite(
-            "ascii",
-            219,
-            base.v + Vector2F::new(TILE_SIZE, TILE_SIZE) - Vector2F::new(size.x, size.y),
-            Vector2F::new(size.x, size.y),
-            SpriteColor(195, 234, 254, 255)
-        );
+        // backend.draw_world_sprite(
+        //     "ascii",
+        //     219,
+        //     base.v + Vector2F::new(TILE_SIZE, TILE_SIZE) - Vector2F::new(size.x, size.y),
+        //     Vector2F::new(size.x, size.y),
+        //     SpriteColor(195, 234, 254, 255)
+        // );
         backend.draw_world_text(
             "default",
             &text,
-            base.v + Vector2F::new(TILE_SIZE, TILE_SIZE) - Vector2F::new(size.x, 0.),
+            base.v + Vector2F::new(TILE_SIZE, TILE_SIZE) - Vector2F::new(size.x, 8.),
             FONT_SIZE,
-            SpriteColor(180, 0, 50, 255)
+            SpriteColor(195, 234, 254, 255)
+            // SpriteColor(180, 0, 50, 255)
         );
     }
 }

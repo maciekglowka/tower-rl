@@ -1,7 +1,7 @@
-Food:
+Healing_Potion:
   sprite:
-    atlas_name: ascii
-    index: 3
+    atlas_name: items
+    index: 4
     color: [180, 0, 50, 255]
   components:
     Consumable:
@@ -60,3 +60,4 @@ Poisoned_Dagger:
     Durability:
       value: 5-15
     Item:
+  min_level: 3
