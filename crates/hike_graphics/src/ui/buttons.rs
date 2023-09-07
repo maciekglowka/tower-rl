@@ -2,6 +2,8 @@ use rogalik::math::vectors::Vector2F;
 
 use super::{GraphicsBackend, ButtonState, InputState, SpriteColor};
 use super::span::Span;
+use super::panels::Panel;
+use super::super::globals::BUTTON_COLOR_SELECTED;
 
 pub struct Button<'a> {
     origin: Vector2F,
@@ -32,13 +34,10 @@ impl<'a> Button<'a> {
         self
     }
     pub fn draw(&self, backend: &dyn GraphicsBackend) {
-        backend.draw_ui_sprite(
-            "ascii",
-            219,
-            self.origin,
-            Vector2F::new(self.w, self.h),
-            self.color
-        );
+        let panel = Panel::new(self.origin, self.w, self.h)
+            .with_color(self.color)
+            .with_border_color(BUTTON_COLOR_SELECTED);
+        panel.draw(backend);
         if let Some(span) = &self.span {
             let span_offset = Vector2F::new(
                 0.5 * (self.w - span.width(backend)),

@@ -9,6 +9,7 @@ mod input;
 mod inventory;
 mod modal;
 mod overlays;
+mod panels;
 mod span;
 mod status;
 
