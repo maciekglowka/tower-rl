@@ -54,15 +54,16 @@ pub fn draw_world_ui(
 pub fn ui_update(
     world: &mut World,
     input_state: InputState,
-    backend: &dyn GraphicsBackend
+    backend: &dyn GraphicsBackend,
+    scale: f32
 ) {
-    status::draw_status(world, backend);
+    status::draw_status(world, backend, scale);
     let mut ui_click = false;
-    if let Some(clicked) = inventory::handle_inventory(world, backend, &input_state) {
+    if let Some(clicked) = inventory::handle_inventory(world, backend, &input_state, scale) {
         inventory::click_item(clicked, world);
         ui_click = true
     }
-    if context_menu::handle_menu(world, backend, &input_state) {
+    if context_menu::handle_menu(world, backend, &input_state, scale) {
         ui_click = true
     }
 

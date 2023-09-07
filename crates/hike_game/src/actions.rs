@@ -206,6 +206,10 @@ impl Action for Freeze {
     fn execute(&self, world: &mut World) -> ActionResult {
         for entity in get_entities_at_position(world, self.target) {
             if world.get_component::<Health>(entity).is_none() { continue }
+            if let Some(mut frozen)  = world.get_component_mut::<Frozen>(entity) {
+                frozen.0 += self.value;
+                continue
+            };
             let _ = world.insert_component(entity, Frozen(self.value));
         }
         Ok(Vec::new())
@@ -225,6 +229,10 @@ impl Action for Poison {
     fn execute(&self, world: &mut World) -> ActionResult {
         for entity in get_entities_at_position(world, self.target) {
             if world.get_component::<Health>(entity).is_none() { continue }
+            if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(entity) {
+                poisoned.0 += self.value;
+                continue
+            };
             let _ = world.insert_component(entity, Poisoned(self.value));
         }
         Ok(Vec::new())

@@ -15,6 +15,7 @@ pub const FADE_SPEED: f32 = 0.05;
 pub const UI_BUTTON_HEIGHT: f32 = 64.;
 pub const UI_GAP: f32 = 10.;
 pub const UI_BUTTON_TEXT_SIZE: u32 = 24;
+pub const UI_STATUS_TEXT_SIZE: u32 = 32;
 pub const BUTTON_COLOR: super::SpriteColor = super::SpriteColor(98, 81, 81, 255);
 pub const BUTTON_COLOR_SELECTED: super::SpriteColor = super::SpriteColor(150, 128, 128, 255);
 pub const PANEL_BORDER: f32 = 4.;

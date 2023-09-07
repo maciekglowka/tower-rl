@@ -53,17 +53,25 @@ fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {
     if let Some(touch) = touches.iter().next() {
         match touch.phase {
             TouchPhase::Started => { touch_state.insert(touch.id, touch.position); },
-            TouchPhase::Ended => {
-                if let Some(start) = touch_state.remove(&touch.id) {
+            TouchPhase::Moved => {
+                if let Some(start) = touch_state.get(&touch.id) {
                     let dx = touch.position.x - start.x;
                     let dy = touch.position.y - start.y;
-                    let thresh = 0.1 * screen_width();
-                    if dx > thresh { return InputDirection::Right }
-                    if dx < -thresh { return InputDirection::Left }
-                    if dy > thresh { return InputDirection::Down }
-                    if dy < -thresh { return InputDirection::Up }
+                    let thresh = 0.05 * screen_width();
+                    let mut dir = InputDirection::None;
+                    if dx > thresh { dir = InputDirection::Right }
+                    if dx < -thresh { dir = InputDirection::Left }
+                    if dy > thresh { dir = InputDirection::Down }
+                    if dy < -thresh { dir = InputDirection::Up }
+                    if dir != InputDirection::None {
+                        touch_state.insert(touch.id, touch.position);
+                        return dir
+                    }
                 }
             },
+            TouchPhase::Ended => {
+                touch_state.remove(&touch.id);
+            }
             _ => ()
         }
     }

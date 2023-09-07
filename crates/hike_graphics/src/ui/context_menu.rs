@@ -13,7 +13,9 @@ use hike_game::{
     get_entities_at_position
 };
 
-use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR};
+use super::super::globals::{
+    UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
+};
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
@@ -23,7 +25,8 @@ static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
 pub fn handle_menu(
     world: &mut World,
     backend: &dyn GraphicsBackend,
-    state: &InputState
+    state: &InputState,
+    scale: f32
 ) -> bool {
     // true if clicked
     let Some(position) = get_player_position(world) else { return false };
@@ -45,23 +48,25 @@ pub fn handle_menu(
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
 
     let viewport_size = backend.viewport_size();
-    let y = viewport_size.y - 2.0 * (UI_BUTTON_HEIGHT + UI_GAP);
+    let gap = scale * UI_GAP;
+    let height = scale * UI_BUTTON_HEIGHT;
+    let y = viewport_size.y - 2.0 * (height + gap);
     let width = match entities.len() {
         0 => return false,
-        1 => viewport_size.x - 2.0 * UI_GAP,
-        _ => (viewport_size.x - 3.0 * UI_GAP) / 2.0
+        1 => viewport_size.x - 2.0 * gap,
+        _ => (viewport_size.x - 3.0 * gap) / 2.0
     };
 
     if entities.len() > 1 {
         // draw `next` button
         let button = Button::new(
-                2.0 * UI_GAP + width,
+                2.0 * gap + width,
                 y,
                 width,
-                UI_BUTTON_HEIGHT
+                height
             )
             .with_color(BUTTON_COLOR)
-            .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
+            .with_span(Span::new().with_text_borrowed("[MORE]").with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32));
         button.draw(backend);
         if button.clicked(state) {
             CONTEXT_IDX.store(cur_idx + 1, Relaxed);
@@ -87,18 +92,18 @@ pub fn handle_menu(
             backend.draw_ui_text(
                 "default",
                 &format!("{}", s),
-                Vector2F::new(10., 74.),
-                32,
+                Vector2F::new(gap, scale * (2.0 * UI_STATUS_TEXT_SIZE as f32 + gap)),
+                (scale * UI_STATUS_TEXT_SIZE as f32) as u32,
                 SpriteColor(150, 128, 128, 255)
             );
         }
 
-        let span = Span::new().with_text_borrowed(text).with_size(UI_BUTTON_TEXT_SIZE);
+        let span = Span::new().with_text_borrowed(text).with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
         let button = Button::new(
-                UI_GAP,
+                gap,
                 y,
                 width,
-                UI_BUTTON_HEIGHT
+                height
             )
             .with_color(BUTTON_COLOR)
             .with_span(span);

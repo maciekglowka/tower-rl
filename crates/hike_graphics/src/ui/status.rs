@@ -9,8 +9,9 @@ use hike_game::{
 };
 
 use super::{GraphicsBackend, SpriteColor};
+use super::super::globals::UI_STATUS_TEXT_SIZE;
 
-pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
+pub fn draw_status(world: &World, backend: &dyn GraphicsBackend, scale: f32) {
     let query = world.query::<Player>().with::<Health>();
     let Some(item) = query.iter().next() else { return };
 
@@ -26,16 +27,7 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend) {
         "default",
         &text,
         Vector2F::new(10., 42.),
-        32,
+        (UI_STATUS_TEXT_SIZE as f32 * scale) as u32,
         SpriteColor(150, 128, 128, 255)
     );
-    // if let Some(s) = get_item_desc(world) {
-    //     backend.draw_ui_text(
-    //         "default",
-    //         &format!("{}", s),
-    //         Vector2F::new(10., 74.),
-    //         32,
-    //         SpriteColor(0, 0, 0, 255)
-    //     );
-    // }
 }

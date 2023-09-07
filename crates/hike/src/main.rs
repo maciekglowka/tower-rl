@@ -21,10 +21,16 @@ fn window_conf() -> Conf {
     Conf { 
         window_title: "Micro Hike".into(),
         window_width: 1080,
-        window_height: 1920,
+        window_height: 2340,
         ..Default::default()
     }
 }
+
+#[cfg(not(target_os = "android"))]
+const UI_SCALE: f32 = 1.0;
+
+#[cfg(target_os = "android")]
+const UI_SCALE: f32 = 2.0;
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -35,6 +41,8 @@ async fn main() {
     let board_data_str = load_string("data/board_elements.yaml").await.expect("Could not load data!");
     let item_data_str = load_string("data/items.yaml").await.expect("Could not load data!");
 
+    let level_data_str = load_string("data/levels.yaml").await.expect("Could not load data!");
+
     let mut game_data = hike_data::GameData::new();
     let fixtures = game_data.add_entities_from_str(fixture_data_str);
     let npcs = game_data.add_entities_from_str(npc_data_str);
@@ -44,6 +52,8 @@ async fn main() {
     game_data.npcs = npcs;
     game_data.items = items;
     game_data.fixtures = fixtures;
+    
+    game_data.add_level_data_from_str(level_data_str);
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 
@@ -103,6 +113,7 @@ async fn main() {
             &mut world,
             input::get_input_state(&main_camera, &mut touch_state),
             &backend,
+            UI_SCALE
         );
         next_frame().await;
 

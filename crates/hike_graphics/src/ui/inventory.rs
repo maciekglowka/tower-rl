@@ -12,7 +12,8 @@ use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTO
 pub fn handle_inventory(
     world: &World,
     backend: &dyn GraphicsBackend,
-    state: &InputState
+    state: &InputState,
+    scale: f32
 ) -> Option<usize> {
     // return item index if clicked
     let query = world.query::<Player>();
@@ -22,8 +23,9 @@ pub fn handle_inventory(
     let viewport_size = backend.viewport_size();
 
     let mut clicked = None;
-    // let gap = (viewport_size.x - INVENTORY_SIZE as f32 * INVENTORY_SINGLE_DIM) / (INVENTORY_SIZE + 1) as f32;
-    let width = (viewport_size.x - UI_GAP) / INVENTORY_SIZE as f32 - UI_GAP;
+    let height = UI_BUTTON_HEIGHT * scale;
+    let gap = UI_GAP * scale;
+    let width = (viewport_size.x - gap) / INVENTORY_SIZE as f32 - gap;
 
     for i in 0..INVENTORY_SIZE {
         let color = if i == player.active_item {
@@ -32,14 +34,13 @@ pub fn handle_inventory(
             BUTTON_COLOR
         };
 
-        // let offset = gap * (i + 1) as f32 + INVENTORY_SINGLE_DIM * i as f32;
-        let offset = UI_GAP + i as f32 * (UI_GAP + width);
+        let offset = gap + i as f32 * (gap + width);
 
         let mut button = Button::new(
                 offset,
-                viewport_size.y - UI_GAP - UI_BUTTON_HEIGHT,
+                viewport_size.y - gap - height,
                 width,
-                UI_BUTTON_HEIGHT
+                height
             )
             .with_color(color);
 
@@ -53,7 +54,7 @@ pub fn handle_inventory(
                             &data.sprite.atlas_name,
                             data.sprite.index
                         )
-                        .with_size(UI_BUTTON_TEXT_SIZE)
+                        .with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32)
                         .with_sprite_color(data.sprite.color)
                         .with_text_color(SpriteColor(255, 255, 255, 255));
 

@@ -6,6 +6,7 @@ use std::collections::HashMap;
 pub struct GameData {
     // all entity data, by name
     pub entities: HashMap<String, EntityData>,
+    pub levels: HashMap<u32, LevelData>,
     pub items: Vec<String>,
     pub npcs: Vec<String>,
     pub fixtures: Vec<String>,
@@ -29,6 +30,9 @@ impl GameData {
         }
         inserted_names
     }
+    pub fn add_level_data_from_str(&mut self, s: String) {
+        self.levels = serde_yaml::from_str(&s).expect("Invalid level data!");
+    }
 }
 
 #[derive(Clone, Deserialize)]
@@ -37,7 +41,9 @@ pub struct EntityData {
     pub components: serde_yaml::Value,
     #[serde(default)]
     pub min_level: u32,
-    pub spawn_chance: Option<f32>
+    pub spawn_chance: Option<f32>,
+    #[serde(default)]
+    pub score: i32
 }
 
 #[derive(Clone, Deserialize)]
@@ -61,3 +67,14 @@ pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
 //         )
 //     }
 // }
+
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct LevelData {
+    #[serde(default)]
+    pub required_items: Vec<String>,
+    #[serde(default)]
+    pub required_npcs: Vec<String>,
+    #[serde(default)]
+    pub required_fixtures: Vec<String>
+}

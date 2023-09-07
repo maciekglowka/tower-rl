@@ -12,14 +12,34 @@ Rat:
     Loot:
       items:
         - Gold
-      chance: 0.25
+      chance: 0.5
     Obstacle:
+  score: 1
 
-Jellyfish:
+Snake:
   sprite:
     atlas_name: ascii
-    index: 15
-    color: [100, 100, 0, 255]
+    index: 115
+    color: [145, 200, 185, 255]
+  components:
+    Actor:
+    Offensive:
+      kind: !Poison
+      value: 2
+    Health: 2
+    Loot:
+      items:
+        - Gold
+      chance: 0.25
+    Obstacle:
+  score: 2
+  min_level: 3
+
+Monk:
+  sprite:
+    atlas_name: ascii
+    index: 109
+    color: [145, 125, 185, 255]
   components:
     Actor:
     Offensive:
@@ -33,17 +53,4 @@ Jellyfish:
       chance: 0.5
     Obstacle:
   min_level: 5
-
-# Jellyfish_C:
-#   sprite:
-#     atlas_name: ascii
-#     index: 15
-#     color: [200, 100, 0, 255]
-#   components:
-#     Actor:
-#     Offensive:
-#       kind: !Freeze
-#       value: 1
-#     Health: 4
-#     Obstacle:
-#   min_level: 7
+  score: 2
