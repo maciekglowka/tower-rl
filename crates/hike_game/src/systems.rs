@@ -9,7 +9,7 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Consumable, ConsumableKind, Durability, Frozen, Health, Player, Position, Poisoned
+    Actor, Consumable, ConsumableKind, Durability, Stunned, Health, Player, Position, Poisoned
 };
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
@@ -75,7 +75,7 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
 
 fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
     // returns true if the actor is done
-    if process_frozen(world, entity) { return true };
+    if process_stunned(world, entity) { return true };
     let Some(selected) = get_new_action(entity, world) else { return false };
     execute_action(selected, world, manager).is_ok()
 }
@@ -171,11 +171,20 @@ fn destroy_items(
     world: &mut World
 ) {
     let to_remove = world.query::<Durability>().iter()
-        .filter(|i| i.get::<Durability>().unwrap().value == 0)
+        .filter(|i| i.get::<Durability>().unwrap().0 == 0)
         .map(|i| i.entity)
         .collect::<Vec<_>>();
     for entity in to_remove {
         world.despawn_entity(entity);
+
+        if let Some(player_item) = world.query::<Player>().iter().next() {
+            let mut player = player_item.get_mut::<Player>().unwrap();
+            for idx in 0..player.items.len() {
+                if player.items[idx] == Some(entity) {
+                    player.items[idx] = None;
+                }
+            }
+        }
     }
 }
 
@@ -202,17 +211,17 @@ fn collect_actor_queue(world: &mut World) {
     queue.0 = actors.into();
 }
 
-fn process_frozen(world: &mut World, entity: Entity) -> bool {
-    // returns true if the actor is still paralayzded and cannot act
-    // decreases the paralyze counter
-    let Some(mut frozen) = world.get_component_mut::<Frozen>(entity)
+fn process_stunned(world: &mut World, entity: Entity) -> bool {
+    // returns true if the actor is still stunned and cannot act
+    // decreases the stun counter
+    let Some(mut stunned) = world.get_component_mut::<Stunned>(entity)
         else { return false };
 
-    frozen.0 = frozen.0.saturating_sub(1);
-    if frozen.0 > 0 { return true }
+    stunned.0 = stunned.0.saturating_sub(1);
+    if stunned.0 > 0 { return true }
 
-    drop(frozen);
-    world.remove_component::<Frozen>(entity);
+    drop(stunned);
+    world.remove_component::<Stunned>(entity);
     true
 }
 

@@ -5,9 +5,7 @@ Rat:
     color: [195, 234, 254, 255]
   components:
     Actor:
-    Offensive:
-      kind: !Hit
-      value: 1
+    Hit: 1
     Health: 2
     Loot:
       items:
@@ -23,9 +21,7 @@ Snake:
     color: [145, 200, 185, 255]
   components:
     Actor:
-    Offensive:
-      kind: !Poison
-      value: 2
+    Poison: 2
     Health: 2
     Loot:
       items:
@@ -42,9 +38,7 @@ Monk:
     color: [145, 125, 185, 255]
   components:
     Actor:
-    Offensive:
-      kind: !Hit
-      value: 1
+    Hit: 1
     Health: 4
     Loot:
       items:
@@ -54,3 +48,39 @@ Monk:
     Obstacle:
   min_level: 5
   score: 2
+
+ArchMonk:
+  sprite:
+    atlas_name: ascii
+    index: 109
+    color: [245, 125, 185, 255]
+  components:
+    Actor:
+    Hit: 3
+    Health: 6
+    Loot:
+      items:
+        - Sword
+        - Gold
+      chance: 0.5
+    Obstacle:
+  min_level: 8
+  score: 4
+
+Viper:
+  sprite:
+    atlas_name: ascii
+    index: 115
+    color: [145, 125, 185, 255]
+  components:
+    Actor:
+    Poison: 4
+    Health: 4
+    Loot:
+      items:
+        - Gold
+        - Poisoned_Dagger
+      chance: 0.25
+    Obstacle:
+  score: 6
+  min_level: 10

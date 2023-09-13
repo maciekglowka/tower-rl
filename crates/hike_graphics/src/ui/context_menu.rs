@@ -5,8 +5,8 @@ use rogalik::{
 use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 
 use hike_game::{
-    actions::{Action, Consume, Interact, AddToInventory},
-    components::{Consumable, Interactive, Item, Offensive, Name, Position},
+    actions::{Action, Consume, Interact, AddToInventory, Pause},
+    components::{Consumable, Interactive, Item, Name, Hit, Poison, Stun},
     get_player_position,
     get_player_entity,
     set_player_action,
@@ -40,7 +40,14 @@ pub fn handle_menu(
         .map(|&e| e)
         .collect::<Vec<_>>();
 
-    if entities.len() == 0 { return false };
+    if entities.len() == 0 { 
+        // TEMP TEMP
+        if state.action == ButtonState::Pressed {
+            set_player_action(world, Box::new(Pause));
+            return true;
+        }
+        return false 
+    };
 
     entities.sort_by_key(|a| (a.version, a.id));
 
@@ -83,7 +90,7 @@ pub fn handle_menu(
                 ("USE", Box::new(Interact { entity: *e}) as Box<dyn Action>),
             e if world.get_component::<Consumable>(*e).is_some() =>
                 ("USE", Box::new(Consume { entity: *e, consumer: player }) as Box<dyn Action>),
-            e if world.get_component::<Item>(*e).is_some() && world.get_component::<Offensive>(*e).is_some() =>
+            e if world.get_component::<Item>(*e).is_some() =>
                 ("PICK", Box::new(AddToInventory { entity: *e }) as Box<dyn Action>),
             _ => continue
         };

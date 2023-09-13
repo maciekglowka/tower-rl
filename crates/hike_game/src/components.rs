@@ -7,12 +7,12 @@ use crate::actions::Action;
 use crate::globals::INVENTORY_SIZE;
 // use crate::items::ItemKind;
 
-#[derive(Deserialize, PartialEq)]
-pub enum AttackKind {
-    Freeze,
-    Hit,
-    Poison
-}
+// #[derive(Deserialize, PartialEq)]
+// pub enum AttackKind {
+//     Freeze,
+//     Hit,
+//     Poison
+// }
 
 #[derive(Deserialize)]
 pub enum ConsumableKind {
@@ -29,7 +29,7 @@ pub struct ValueMax {
 pub enum InteractionKind {
     Ascend,
     Repair(#[serde(deserialize_with="deserialize_random_u32")] u32),
-    UpgradeOffensive(#[serde(deserialize_with="deserialize_random_u32")] u32),
+    // UpgradeOffensive(#[serde(deserialize_with="deserialize_random_u32")] u32),
     UpgradeHealth(#[serde(deserialize_with="deserialize_random_u32")] u32),
 }
 impl InteractionKind {
@@ -38,7 +38,7 @@ impl InteractionKind {
             InteractionKind::Ascend => "Ascend".to_string(),
             InteractionKind::Repair(v) => format!("Repair({})", v),
             InteractionKind::UpgradeHealth(v) => format!("Incr. HP({})", v),
-            InteractionKind::UpgradeOffensive(v) => format!("Incr. A({})", v),
+            // InteractionKind::UpgradeOffensive(v) => format!("Incr. A({})", v),
         }
     }
 }
@@ -67,13 +67,10 @@ impl Component for Consumable {
 }
 
 #[derive(Deserialize)]
-pub struct Durability {
-    #[serde(deserialize_with="deserialize_random_u32")]
-    pub value: u32
-}
+pub struct Durability(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Durability {
     fn as_str(&self) -> String {
-        format!("Dur: {}", self.value)
+        format!("D{}", self.0)
     }
 }
 
@@ -123,14 +120,26 @@ pub struct Tile;
 impl Component for Tile {}
 
 #[derive(Deserialize)]
-pub struct Offensive {
-    pub kind: AttackKind,
-    #[serde(deserialize_with="deserialize_random_u32")]
-    pub value: u32
-}
-impl Component for Offensive {
+pub struct Hit(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
+impl Component for Hit {
     fn as_str(&self) -> String {
-        format!("Att: {}", self.value)
+        format!("H{}", self.0)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct Poison(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
+impl Component for Poison {
+    fn as_str(&self) -> String {
+        format!("P{}", self.0)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct Stun(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
+impl Component for Stun {
+    fn as_str(&self) -> String {
+        format!("S{}", self.0)
     }
 }
 
@@ -153,8 +162,8 @@ pub struct Player {
 }
 impl Component for Player {}
 
-pub struct Frozen(pub u32);
-impl Component for Frozen {}
+pub struct Stunned(pub u32);
+impl Component for Stunned {}
 
 pub struct Poisoned(pub u32);
 impl Component for Poisoned {}
@@ -186,7 +195,9 @@ pub fn insert_data_components(
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
             "Loot" => insert_single::<Loot>(entity, world, component_data),
-            "Offensive" => insert_single::<Offensive>(entity, world, component_data),
+            "Hit" => insert_single::<Hit>(entity, world, component_data),
+            "Poison" => insert_single::<Poison>(entity, world, component_data),
+            "Stun" => insert_single::<Stun>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),

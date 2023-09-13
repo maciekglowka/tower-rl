@@ -1,7 +1,7 @@
 use rogalik::storage::{Component, World};
 
 use hike_data::GameData;
-use hike_game::components::{Durability, Offensive, Name, Player};
+use hike_game::components::{Durability, Hit, Poison, Stun, Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
@@ -58,16 +58,35 @@ pub fn handle_inventory(
                         .with_sprite_color(data.sprite.color)
                         .with_text_color(SpriteColor(255, 255, 255, 255));
 
-                    if let Some(offensive) = world.get_component::<Offensive>(entity) {
-                        span = span.with_text_owned(
-                            format!("At:{}", offensive.value)
-                        );
-                    };
-                    if let Some(durability) = world.get_component::<Durability>(entity) {
-                        span = span.with_text_owned(
-                            format!("Dur:{}", durability.value)
-                        );
-                    };
+                    // TODO - automate
+                    // if let Some(hit) = world.get_component::<Hit>(entity) {
+                    //     span = span.with_text_owned(
+                    //         format!("H{}", hit.0)
+                    //     );
+                    // };
+                    // if let Some(stun) = world.get_component::<Stun>(entity) {
+                    //     span = span.with_text_owned(
+                    //         format!("S{}", stun.0)
+                    //     );
+                    // };
+                    // if let Some(poison) = world.get_component::<Poison>(entity) {
+                    //     span = span.with_text_owned(
+                    //         format!("P{}", poison.0)
+                    //     );
+                    // };
+                    // if let Some(durability) = world.get_component::<Durability>(entity) {
+                    //     span = span.with_text_owned(
+                    //         format!("D{}", durability.0)
+                    //     );
+                    // };
+                    let attrs = world.get_entity_components(entity).iter()
+                        .map(|c| c.as_str())
+                        .filter(|s| s.len() > 0)
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    if attrs.len() > 0 {
+                        span = span.with_text_owned(attrs);
+                    }
 
                     button = button.with_span(span);
 

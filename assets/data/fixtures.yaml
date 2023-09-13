@@ -19,16 +19,16 @@ Empty_Workshop:
     Fixture:
   spawn_chance: 0.
 
-Blacksmith:
-  sprite:
-    atlas_name: tiles
-    index: 4
-    color: [145, 125, 185, 255]
-  components:
-    Fixture:
-    Interactive:
-      kind: !UpgradeOffensive 1-3
-      cost: 5
+# Blacksmith:
+#   sprite:
+#     atlas_name: tiles
+#     index: 4
+#     color: [145, 125, 185, 255]
+#   components:
+#     Fixture:
+#     Interactive:
+#       kind: !UpgradeOffensive 1-3
+#       cost: 5
 
 Herbalist:
   sprite:

@@ -11,8 +11,9 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    AttackKind, Durability, Frozen, Health, Interactive, Loot,
-    Obstacle, Offensive, Position, Player, InteractionKind, Name, Poisoned
+    Durability, Stunned, Health, Interactive, Loot, Item,
+    Obstacle, Position, Player, InteractionKind, Name, Poisoned,
+    Hit, Poison, Stun
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -115,50 +116,55 @@ pub struct Attack {
     pub target: Vector2I
 }
 impl Attack {
-    fn get_offensive<'a>(&'a self, world: &'a World) -> Option<(Ref<'a, Offensive>, Option<Entity>)> {
-        // returns (Attack, SourceItem)
-
+    fn get_offending_entity(&self, world: &World) -> Entity {
         if let Some(player) = world.get_component::<Player>(self.entity) {
             if let Some(item) = player.items[player.active_item] {
-                if let Some(offensive) = world.get_component::<Offensive>(item) {
-                    return Some((offensive, Some(item)));
-                }
+                return item
             }
         }
-        Some((world.get_component::<Offensive>(self.entity)?, None))
+        self.entity
     }
-    fn get_attack_action(&self, offensive: &Offensive) -> Box<dyn Action> {
-        match offensive.kind {
-            AttackKind::Hit => Box::new(Hit { 
-                entity: self.entity,
-                target: self.target,
-                value: offensive.value 
-            }),
-            AttackKind::Freeze => Box::new(Freeze {
-                entity: self.entity,
-                target: self.target,
-                value: offensive.value  
-            }),
-            AttackKind::Poison => Box::new(Poison {
-                entity: self.entity,
-                target: self.target,
-                value: offensive.value  
-            })
+    fn get_attack_actions(&self, entity: Entity, world: &World) -> Vec<Box<dyn Action>> {
+        let mut actions: Vec<Box<dyn Action>> = Vec::new();
+
+        if let Some(hit) = world.get_component::<Hit>(entity) {
+            actions.push(Box::new(HitAction { 
+                    entity: self.entity,
+                    target: self.target,
+                    value: hit.0
+                }
+            ));
         }
+        if let Some(poison) = world.get_component::<Poison>(entity) {
+            actions.push(Box::new(PoisonAction { 
+                    entity: self.entity,
+                    target: self.target,
+                    value: poison.0
+                }
+            ));
+        }
+        if let Some(stun) = world.get_component::<Stun>(entity) {
+            actions.push(Box::new(StunAction { 
+                    entity: self.entity,
+                    target: self.target,
+                    value: stun.0
+                }
+            ));
+        }
+        actions
     }
 }
 impl Action for Attack {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        let (offensive, item) = self.get_offensive(world).ok_or(())?;
-        let mut actions = vec![self.get_attack_action(&offensive)];
+        let offending_entity = self.get_offending_entity(world);
+        let mut actions = self.get_attack_actions(offending_entity, world);
 
-        if let Some(item) = item {
+        if world.get_component::<Item>(offending_entity).is_some() {
             actions.push(Box::new(
-                UseItem { entity: item }
-            ))
+                UseItem { entity: offending_entity }
+            ));
         }
-
         Ok(actions)
     }
     fn score(&self, world: &World) -> i32 {
@@ -172,12 +178,12 @@ impl Action for Attack {
     }
 }
 
-pub struct Hit {
+pub struct HitAction {
     pub entity: Entity,
     pub target: Vector2I,
     pub value: u32
 }
-impl Action for Hit {
+impl Action for HitAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let actions = get_entities_at_position(world, self.target).iter()
@@ -196,21 +202,21 @@ impl Action for Hit {
     // no score - should be a resulting action only
 }
 
-pub struct Freeze {
+pub struct StunAction {
     pub entity: Entity,
     pub target: Vector2I,
     pub value: u32
 }
-impl Action for Freeze {
+impl Action for StunAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         for entity in get_entities_at_position(world, self.target) {
             if world.get_component::<Health>(entity).is_none() { continue }
-            if let Some(mut frozen)  = world.get_component_mut::<Frozen>(entity) {
-                frozen.0 += self.value;
+            if let Some(mut stunned)  = world.get_component_mut::<Stunned>(entity) {
+                stunned.0 += self.value;
                 continue
             };
-            let _ = world.insert_component(entity, Frozen(self.value));
+            let _ = world.insert_component(entity, Stunned(self.value));
         }
         Ok(Vec::new())
     }
@@ -219,12 +225,12 @@ impl Action for Freeze {
     }
 }
 
-pub struct Poison {
+pub struct PoisonAction {
     pub entity: Entity,
     pub target: Vector2I,
     pub value: u32
 }
-impl Action for Poison {
+impl Action for PoisonAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         for entity in get_entities_at_position(world, self.target) {
@@ -263,7 +269,7 @@ impl Action for UseItem {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut durability) = world.get_component_mut::<Durability>(self.entity) {
-            durability.value = durability.value.saturating_sub(1);
+            durability.0 = durability.0.saturating_sub(1);
         }
         Ok(Vec::new())
     }
@@ -352,7 +358,7 @@ impl Action for Repair {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut durability = world.get_component_mut::<Durability>(self.entity).ok_or(())?;
-        durability.value += self.value;
+        durability.0 += self.value;
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action
@@ -373,19 +379,19 @@ impl Action for UpgradeHealth {
     // score is not implemented as it always should be a resulting action
 }
 
-pub struct UpgradeOffensive {
-    pub entity: Entity,
-    pub value: u32
-}
-impl Action for UpgradeOffensive {
-    fn as_any(&self) -> &dyn Any { self }
-    fn execute(&self, world: &mut World) -> ActionResult {
-        let mut offensive = world.get_component_mut::<Offensive>(self.entity).ok_or(())?;
-        offensive.value += self.value;
-        Ok(Vec::new())
-    }
-    // score is not implemented as it always should be a resulting action
-}
+// pub struct UpgradeOffensive {
+//     pub entity: Entity,
+//     pub value: u32
+// }
+// impl Action for UpgradeOffensive {
+//     fn as_any(&self) -> &dyn Any { self }
+//     fn execute(&self, world: &mut World) -> ActionResult {
+//         let mut offensive = world.get_component_mut::<Offensive>(self.entity).ok_or(())?;
+//         offensive.value += self.value;
+//         Ok(Vec::new())
+//     }
+//     // score is not implemented as it always should be a resulting action
+// }
 
 pub struct PickGold {
     pub value: u32
@@ -441,13 +447,13 @@ impl Action for Interact {
                     .get::<Player>().unwrap().items[idx].ok_or(())?;
                 Box::new(Repair { entity: item, value } )
             },
-            InteractionKind::UpgradeOffensive(value) => {
-                let idx = world.query::<Player>().iter().next().ok_or(())?
-                    .get::<Player>().unwrap().active_item;
-                let item = world.query::<Player>().iter().next().ok_or(())?
-                    .get::<Player>().unwrap().items[idx].ok_or(())?;
-                Box::new(UpgradeOffensive { entity: item, value } )
-            },
+            // InteractionKind::UpgradeOffensive(value) => {
+            //     let idx = world.query::<Player>().iter().next().ok_or(())?
+            //         .get::<Player>().unwrap().active_item;
+            //     let item = world.query::<Player>().iter().next().ok_or(())?
+            //         .get::<Player>().unwrap().items[idx].ok_or(())?;
+            //     Box::new(UpgradeOffensive { entity: item, value } )
+            // },
             InteractionKind::UpgradeHealth(value) => {
                 let player = world.query::<Player>().iter().next().ok_or(())?.entity;
                 Box::new(UpgradeHealth { entity: player, value } )

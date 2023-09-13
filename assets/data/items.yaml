@@ -27,24 +27,18 @@ Sword:
     index: 0
     color: [195, 234, 254, 255]
   components:
-    Offensive:
-      kind: !Hit
-      value: 2-5
-    Durability:
-      value: 5-15
+    Hit: 2-5
+    Durability: 5-15
     Item:
 
-Freeze_Wand:
+Stun_Wand:
   sprite:
     atlas_name: items
     index: 1
     color: [134, 241, 249, 255]
   components:
-    Offensive:
-      kind: !Freeze
-      value: 2-5
-    Durability:
-      value: 5-15
+    Stun: 2-5
+    Durability: 5-15
     Item:
   min_level: 5
 
@@ -54,10 +48,8 @@ Poisoned_Dagger:
     index: 3
     color: [145, 200, 185, 255]
   components:
-    Offensive:
-      kind: !Poison
-      value: 2-3
-    Durability:
-      value: 5-15
+    Hit: 1-2
+    Poison: 5-8
+    Durability: 5-15
     Item:
   min_level: 3

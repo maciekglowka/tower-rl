@@ -71,11 +71,15 @@ async fn main() {
     backend.load_font("default",  "ui/04B_03.ttf").await
         .expect("Could not find fonts!");
 
-    let camera_target = 0.5 * hike_graphics::globals::TILE_SIZE * hike_game::globals::BOARD_SIZE as f32;
+    let board_centre = 0.5 * hike_graphics::globals::TILE_SIZE * hike_game::globals::BOARD_SIZE as f32;
+    let camera_target = Vec2::new(
+        board_centre,
+        board_centre // + 0.5 * hike_graphics::globals::TILE_SIZE
+    );
 
     let mut main_camera = Camera2D {
         zoom: Vec2::new(2. / screen_width(), 2. / screen_height()),
-        target: Vec2::splat(camera_target),
+        target: camera_target,
         ..Default::default()
     };
 

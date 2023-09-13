@@ -9,13 +9,13 @@ use hike_data::GameData;
 use hike_game::{
     ActionEvent,
     Board,
-    components::{Actor, Fixture, Item, Name, Frozen, Position, Projectile, Tile}
+    components::{Actor, Fixture, Item, Name, Stunned, Position, Projectile, Tile}
 };
 
 use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
 use super::utils::move_towards;
 use crate::globals::{
-    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, FROZE_FADE, FADE_SPEED
+    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, INACTIVE_FADE, FADE_SPEED
 };
 
 #[derive(Debug, PartialEq)]
@@ -47,7 +47,7 @@ pub fn handle_world_events(
         match ev {
             WorldEvent::ComponentRemoved(entity, type_id) => {
                 match *type_id {
-                    a if a == TypeId::of::<Frozen>() => {
+                    a if a == TypeId::of::<Stunned>() => {
                         fade_sprite(*entity, state, 1.)
                     },
                     a if a == TypeId::of::<Position>() => {
@@ -75,8 +75,8 @@ pub fn handle_world_events(
                         );
                         sprites_updated = true;
                     },
-                    a if a == TypeId::of::<Frozen>() => {
-                        fade_sprite(*entity, state, FROZE_FADE)
+                    a if a == TypeId::of::<Stunned>() => {
+                        fade_sprite(*entity, state, INACTIVE_FADE)
                     },
                     _ => continue
                 }
