@@ -130,21 +130,24 @@ impl Attack {
         }
 
         let Some(position) = world.get_component::<Position>(self.entity) else { return vec![self.target] };
-
-        let d = position.0 - self.target;
-        if d.x != 0 {
-            vec![
-                self.target,
-                Vector2I::new(self.target.x, self.target.y + 1),
-                Vector2I::new(self.target.x, self.target.y - 1),
-            ]
-        } else {
-            vec![
-                self.target,
-                Vector2I::new(self.target.x + 1, self.target.y),
-                Vector2I::new(self.target.x - 1, self.target.y),
-            ] 
-        }
+        let dir = position.0 - self.target;
+        ORTHO_DIRECTIONS.iter()
+            .filter(|d| **d != dir)
+            .map(|d| position.0 + *d)
+            .collect::<Vec<_>>()
+        // if d.x != 0 {
+        //     vec![
+        //         self.target,
+        //         Vector2I::new(self.target.x, self.target.y + 1),
+        //         Vector2I::new(self.target.x, self.target.y - 1),
+        //     ]
+        // } else {
+        //     vec![
+        //         self.target,
+        //         Vector2I::new(self.target.x + 1, self.target.y),
+        //         Vector2I::new(self.target.x - 1, self.target.y),
+        //     ] 
+        // }
     }
     fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2I) -> Vec<Box<dyn Action>> {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
