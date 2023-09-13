@@ -13,7 +13,7 @@ use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
     Obstacle, Position, Player, InteractionKind, Name, Poisoned,
-    Hit, Poison, Stun
+    Hit, Poison, Stun, Swing
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -124,13 +124,35 @@ impl Attack {
         }
         self.entity
     }
-    fn get_attack_actions(&self, entity: Entity, world: &World) -> Vec<Box<dyn Action>> {
+    fn get_attack_targets(&self, entity: Entity, world: &World) -> Vec<Vector2I> {
+        if world.get_component::<Swing>(entity).is_none() {
+            return vec![self.target]
+        }
+
+        let Some(position) = world.get_component::<Position>(self.entity) else { return vec![self.target] };
+
+        let d = position.0 - self.target;
+        if d.x != 0 {
+            vec![
+                self.target,
+                Vector2I::new(self.target.x, self.target.y + 1),
+                Vector2I::new(self.target.x, self.target.y - 1),
+            ]
+        } else {
+            vec![
+                self.target,
+                Vector2I::new(self.target.x + 1, self.target.y),
+                Vector2I::new(self.target.x - 1, self.target.y),
+            ] 
+        }
+    }
+    fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2I) -> Vec<Box<dyn Action>> {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
 
         if let Some(hit) = world.get_component::<Hit>(entity) {
             actions.push(Box::new(HitAction { 
                     entity: self.entity,
-                    target: self.target,
+                    target: v,
                     value: hit.0
                 }
             ));
@@ -138,7 +160,7 @@ impl Attack {
         if let Some(poison) = world.get_component::<Poison>(entity) {
             actions.push(Box::new(PoisonAction { 
                     entity: self.entity,
-                    target: self.target,
+                    target: v,
                     value: poison.0
                 }
             ));
@@ -146,7 +168,7 @@ impl Attack {
         if let Some(stun) = world.get_component::<Stun>(entity) {
             actions.push(Box::new(StunAction { 
                     entity: self.entity,
-                    target: self.target,
+                    target: v,
                     value: stun.0
                 }
             ));
@@ -158,14 +180,20 @@ impl Action for Attack {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let offending_entity = self.get_offending_entity(world);
-        let mut actions = self.get_attack_actions(offending_entity, world);
-
+        let mut actions = self.get_attack_targets(offending_entity, world).iter()
+            .map(|&v| self.get_attack_actions(offending_entity, world, v))
+            .flatten()
+            .collect::<Vec<_>>();
+        
         if world.get_component::<Item>(offending_entity).is_some() {
             actions.push(Box::new(
                 UseItem { entity: offending_entity }
             ));
         }
         Ok(actions)
+    }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Attack(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
         if get_entities_at_position(world, self.target).iter().any(
@@ -196,9 +224,6 @@ impl Action for HitAction {
             .collect::<Vec<_>>();
         Ok(actions)
     }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Melee(self.entity, self.target, self.value)
-    }
     // no score - should be a resulting action only
 }
 
@@ -220,9 +245,6 @@ impl Action for StunAction {
         }
         Ok(Vec::new())
     }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Melee(self.entity, self.target, self.value)
-    }
 }
 
 pub struct PoisonAction {
@@ -242,9 +264,6 @@ impl Action for PoisonAction {
             let _ = world.insert_component(entity, Poisoned(self.value));
         }
         Ok(Vec::new())
-    }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Melee(self.entity, self.target, self.value)
     }
 }
 

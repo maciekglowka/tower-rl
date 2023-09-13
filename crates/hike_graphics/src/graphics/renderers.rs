@@ -95,7 +95,7 @@ pub fn handle_action_events(
 ) {
     for ev in state.ev_actions.read().iter().flatten() {
         match ev {
-            ActionEvent::Melee(entity, target, _) | ActionEvent::Bump(entity, target) => {
+            ActionEvent::Attack(entity, target) | ActionEvent::Bump(entity, target) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     sprite.path.push_back((sprite.v + target.as_f32() * TILE_SIZE) * 0.5);
                     sprite.path.push_back(sprite.v);

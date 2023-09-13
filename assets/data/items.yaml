@@ -31,6 +31,18 @@ Sword:
     Durability: 5-15
     Item:
 
+Long_Sword:
+  sprite:
+    atlas_name: items
+    index: 0
+    color: [234, 234, 55, 255]
+  components:
+    Hit: 2-5
+    Swing:
+    Durability: 5-15
+    Item:
+  min_level: 5
+
 Stun_Wand:
   sprite:
     atlas_name: items

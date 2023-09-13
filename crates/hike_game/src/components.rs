@@ -144,6 +144,14 @@ impl Component for Stun {
 }
 
 #[derive(Deserialize)]
+pub struct Swing;
+impl Component for Swing {
+    fn as_str(&self) -> String {
+        "Sw".to_string()
+    }
+}
+
+#[derive(Deserialize)]
 pub struct ViewBlocker;
 impl Component for ViewBlocker {}
 
@@ -198,6 +206,7 @@ pub fn insert_data_components(
             "Hit" => insert_single::<Hit>(entity, world, component_data),
             "Poison" => insert_single::<Poison>(entity, world, component_data),
             "Stun" => insert_single::<Stun>(entity, world, component_data),
+            "Swing" => insert_single::<Swing>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),

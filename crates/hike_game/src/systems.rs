@@ -5,7 +5,7 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, DropLoot, PendingActions, get_npc_action,
+    Action, ActorQueue, Damage, DropLoot, PendingActions, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
@@ -227,15 +227,16 @@ fn process_stunned(world: &mut World, entity: Entity) -> bool {
 
 fn process_poisoned(world: &mut World) {
     let mut to_remove = Vec::new();
-    for item in world.query::<Poisoned>().with::<Health>().iter() {
+    let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
+     for item in world.query::<Poisoned>().with::<Health>().iter() {
         let mut poisoned = item.get_mut::<Poisoned>().unwrap();
-        let mut health = item.get_mut::<Health>().unwrap();
-        health.0.current = health.0.current.saturating_sub(1);
         poisoned.0 = poisoned.0.saturating_sub(1);
         if poisoned.0 <= 0 {
             to_remove.push(item.entity);
         }
+        pending.0.push_back(Box::new(Damage { entity: item.entity, value: 1 }))
     }
+    drop(pending);
     for entity in to_remove {
         world.remove_component::<Poisoned>(entity);
     }
