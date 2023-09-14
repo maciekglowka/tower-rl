@@ -57,7 +57,9 @@ async fn main() {
 
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 
-    for (name, cols, rows) in [("ascii", 16, 16), ("tiles", 4, 4), ("items", 4, 4)] {
+    for (name, cols, rows) in [
+        ("ascii", 16, 16), ("tiles", 4, 4), ("items", 4, 4), ("icons", 4, 4)
+        ] {
         backend.load_atlas(
                 name,
                 &format!("sprites/{}.png", name),
@@ -71,10 +73,15 @@ async fn main() {
     backend.load_font("default",  "ui/04B_03.ttf").await
         .expect("Could not find fonts!");
 
-    let board_centre = 0.5 * hike_graphics::globals::TILE_SIZE * hike_game::globals::BOARD_SIZE as f32;
+    let board_centre = hike_graphics::tile_to_world(
+        rogalik::math::vectors::vector2::Vector2I::new(
+            hike_game::globals::BOARD_SIZE as i32 / 2,
+            hike_game::globals::BOARD_SIZE as i32 / 2
+        )
+    );
     let camera_target = Vec2::new(
-        board_centre,
-        board_centre // + 0.5 * hike_graphics::globals::TILE_SIZE
+        board_centre.x,
+        board_centre.y
     );
 
     let mut main_camera = Camera2D {

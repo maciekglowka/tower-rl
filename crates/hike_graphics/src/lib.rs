@@ -9,7 +9,7 @@ use rogalik::math::vectors::{Vector2F, Vector2I};
 use hike_data::SpriteColor;
 use hike_game::{ActionEvent, GameManager};
 
-use globals::TILE_SIZE;
+use globals::{TILE_SIZE, PERSP_RATIO};
 
 pub use graphics::{
     graphics_update,
@@ -84,6 +84,15 @@ fn world_to_tile(
 ) -> Vector2I {
     Vector2I::new (
         (v.x / TILE_SIZE).floor() as i32,
-        (v.y / TILE_SIZE).floor() as i32,
+        (v.y / TILE_SIZE / PERSP_RATIO).floor() as i32,
+    )
+}
+
+pub fn tile_to_world(
+    v: Vector2I
+) -> Vector2F {
+    Vector2F::new(
+        v.x as f32 * TILE_SIZE,
+        v.y as f32 * TILE_SIZE * PERSP_RATIO
     )
 }

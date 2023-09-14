@@ -5,7 +5,8 @@ use super::{GraphicsBackend, SpriteColor};
 
 pub enum SpanItem<'a> {
     Sprite(&'a str, u32),
-    Text(Cow<'a, str>)
+    Text(Cow<'a, str>),
+    Spacer(f32)
 }
 
 pub struct Span<'a> {
@@ -13,7 +14,6 @@ pub struct Span<'a> {
     sprite_color: SpriteColor,
     pub size: u32,
     items: Vec<SpanItem<'a>>,
-    spacing: f32
 }
 impl<'a> Span<'a> {
     pub fn new() -> Self {
@@ -22,7 +22,6 @@ impl<'a> Span<'a> {
             sprite_color: SpriteColor(255, 255, 255, 255),
             text_color: SpriteColor(255, 255, 255, 255),
             items: Vec::new(),
-            spacing: 8.
         }
     }
     pub fn with_text_borrowed(mut self, text: &'a str) -> Self {
@@ -43,6 +42,12 @@ impl<'a> Span<'a> {
         );
         self
     }
+    pub fn with_spacer(mut self, width: f32) -> Self {
+        self.items.push(
+            SpanItem::Spacer(width)
+        );
+        self
+    }
     pub fn with_text_color(mut self, color: SpriteColor) -> Self {
         self.text_color = color;
         self
@@ -59,8 +64,9 @@ impl<'a> Span<'a> {
         let mut width = 0.;
         for item in self.items.iter() {
             match item {
-                SpanItem::Text(text) => width += backend.text_size("default", text, self.size).x + self.spacing,
-                &SpanItem::Sprite(_, _) => width += self.size as f32 + self.spacing
+                SpanItem::Text(text) => width += backend.text_size("default", text, self.size).x,
+                &SpanItem::Sprite(_, _) => width += self.size as f32,
+                SpanItem::Spacer(w) => width += w * self.size as f32
             }
         }
         width
@@ -79,7 +85,7 @@ impl<'a> Span<'a> {
                         self.size, 
                         self.text_color
                     );
-                    offset += backend.text_size("default", text, self.size).x + self.spacing;
+                    offset += backend.text_size("default", text, self.size).x;
                 },
                 &SpanItem::Sprite(atlas, index) => {
                     backend.draw_ui_sprite(
@@ -89,7 +95,10 @@ impl<'a> Span<'a> {
                         Vector2F::new(self.size as f32, self.size as f32),
                         self.sprite_color
                     );
-                    offset += self.size as f32 + self.spacing;
+                    offset += self.size as f32;
+                },
+                SpanItem::Spacer(w) => {
+                    offset += self.size as f32 * w
                 }
             }
         }

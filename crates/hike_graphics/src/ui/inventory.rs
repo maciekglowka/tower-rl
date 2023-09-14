@@ -1,13 +1,14 @@
-use rogalik::storage::{Component, World};
+use rogalik::storage::{Entity, World};
 
-use hike_data::GameData;
-use hike_game::components::{Durability, Hit, Poison, Stun, Name, Player};
+use hike_data::{EntityData, GameData};
+use hike_game::components::{Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
 use super::span::Span;
 use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
+use super::utils::get_entity_icons;
 
 pub fn handle_inventory(
     world: &World,
@@ -49,44 +50,25 @@ pub fn handle_inventory(
         if let Some(entity) = player.items[i] {
             if let Some(name) = world.get_component::<Name>(entity) {
                 if let Some(data) = game_data.entities.get(&name.0) {
-                    let mut span = Span::new()
-                        .with_sprite(
-                            &data.sprite.atlas_name,
-                            data.sprite.index
-                        )
-                        .with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32)
-                        .with_sprite_color(data.sprite.color)
-                        .with_text_color(SpriteColor(255, 255, 255, 255));
+                    // let mut span = Span::new()
+                    //     .with_sprite(
+                    //         &data.sprite.atlas_name,
+                    //         data.sprite.index
+                    //     )
+                    //     .with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32)
+                    //     .with_sprite_color(data.sprite.color)
+                    //     .with_text_color(SpriteColor(255, 255, 255, 255));
 
-                    // TODO - automate
-                    // if let Some(hit) = world.get_component::<Hit>(entity) {
-                    //     span = span.with_text_owned(
-                    //         format!("H{}", hit.0)
-                    //     );
-                    // };
-                    // if let Some(stun) = world.get_component::<Stun>(entity) {
-                    //     span = span.with_text_owned(
-                    //         format!("S{}", stun.0)
-                    //     );
-                    // };
-                    // if let Some(poison) = world.get_component::<Poison>(entity) {
-                    //     span = span.with_text_owned(
-                    //         format!("P{}", poison.0)
-                    //     );
-                    // };
-                    // if let Some(durability) = world.get_component::<Durability>(entity) {
-                    //     span = span.with_text_owned(
-                    //         format!("D{}", durability.0)
-                    //     );
-                    // };
-                    let attrs = world.get_entity_components(entity).iter()
-                        .map(|c| c.as_str())
-                        .filter(|s| s.len() > 0)
-                        .collect::<Vec<_>>()
-                        .join(" ");
-                    if attrs.len() > 0 {
-                        span = span.with_text_owned(attrs);
-                    }
+                    // let attrs = world.get_entity_components(entity).iter()
+                    //     .map(|c| c.as_str())
+                    //     .filter(|s| s.len() > 0)
+                    //     .collect::<Vec<_>>()
+                    //     .join(" ");
+                    // if attrs.len() > 0 {
+                    //     span = span.with_text_owned(attrs);
+                    // }
+                    let mut span = get_item_span(entity, world, data);
+                    span = span.with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
 
                     button = button.with_span(span);
 
@@ -118,4 +100,28 @@ pub fn handle_shift_input(world: &World, state: &InputState) {
         let active = item.get::<Player>().unwrap().active_item;
         click_item((active + 1) % INVENTORY_SIZE, world);
     }
+}
+
+fn get_item_span<'a>(entity: Entity, world: &World, data: &'a EntityData) -> Span<'a> {
+    let mut span = Span::new()
+        // .with_sprite(
+        //     &data.sprite.atlas_name,
+        //     data.sprite.index
+        // )
+        // .with_sprite_color(data.sprite.color)
+        .with_text_color(SpriteColor(255, 255, 255, 255));
+
+    let icons = get_entity_icons(entity, world);
+    let mut it = icons.iter().peekable();
+    while let Some((idx, val)) = it.next() {
+        span = span.with_sprite("icons", *idx);
+        if let Some(val) = val {
+            span = span.with_text_owned(format!("{}", val));
+        }
+        if it.peek().is_some() {
+            // non-last element
+            span = span.with_spacer(0.2);
+        }
+    }
+    span
 }

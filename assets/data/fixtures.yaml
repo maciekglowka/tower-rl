@@ -1,7 +1,7 @@
 Workshop:
   sprite:
     atlas_name: tiles
-    index: 4
+    index: 8
     color: [148, 160, 184, 255]
   components:
     Fixture:
@@ -33,7 +33,7 @@ Empty_Workshop:
 Herbalist:
   sprite:
     atlas_name: tiles
-    index: 4
+    index: 8
     color: [145, 200, 185, 255]
   components:
     Fixture:

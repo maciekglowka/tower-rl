@@ -11,7 +11,7 @@ Tile:
 Wall:
   sprite:
     atlas_name: tiles
-    index: 1
+    index: 4
     color: [255, 255, 255, 255]
     # color: [31, 15, 28, 255]
   components:

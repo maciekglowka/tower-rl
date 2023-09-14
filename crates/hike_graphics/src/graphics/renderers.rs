@@ -12,7 +12,10 @@ use hike_game::{
     components::{Actor, Fixture, Item, Name, Stunned, Position, Projectile, Tile}
 };
 
-use super::super::{GraphicsState, GraphicsBackend, SpriteColor, world_to_tile};
+use super::super::{
+    GraphicsState, GraphicsBackend, SpriteColor,
+    world_to_tile, tile_to_world
+};
 use super::utils::move_towards;
 use crate::globals::{
     TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, INACTIVE_FADE, FADE_SPEED
@@ -97,13 +100,13 @@ pub fn handle_action_events(
         match ev {
             ActionEvent::Attack(entity, target) | ActionEvent::Bump(entity, target) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
-                    sprite.path.push_back((sprite.v + target.as_f32() * TILE_SIZE) * 0.5);
+                    sprite.path.push_back((sprite.v + tile_to_world(*target)) * 0.5);
                     sprite.path.push_back(sprite.v);
                 }
             },
             ActionEvent::Travel(entity, target) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
-                    sprite.path.push_back(target.as_f32() * TILE_SIZE);
+                    sprite.path.push_back(tile_to_world(*target));
                 }
             },
             _ => continue
@@ -219,7 +222,8 @@ fn get_sprite_renderer(
 
     SpriteRenderer { 
         entity: entity,
-        v: position.0.as_f32() * TILE_SIZE,
+        // v: position.0.as_f32() * TILE_SIZE,
+        v: tile_to_world(position.0),
         path: VecDeque::new(),
         atlas_name: data.sprite.atlas_name.clone(),
         index: data.sprite.index,
@@ -236,11 +240,11 @@ fn get_projectile_renderer(
 ) -> SpriteRenderer {
     let projectile = world.get_component::<Projectile>(entity).unwrap();
     let mut path = VecDeque::new();
-    path.push_back(projectile.target.as_f32() * TILE_SIZE);
+    path.push_back(tile_to_world(projectile.target));
 
     SpriteRenderer { 
         entity: entity,
-        v: projectile.source.as_f32() * TILE_SIZE,
+        v: tile_to_world(projectile.source),
         path,
         atlas_name: "ascii".into(),
         index: 249,

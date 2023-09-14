@@ -12,6 +12,7 @@ mod overlays;
 mod panels;
 mod span;
 mod status;
+mod utils;
 
 #[derive(Default)]
 pub struct InputState {
