@@ -2,7 +2,7 @@ Healing_Potion:
   sprite:
     atlas_name: items
     index: 4
-    color: [180, 0, 50, 255]
+    color: [255, 255, 255, 255]
   components:
     Consumable:
       kind: !Heal
@@ -13,7 +13,7 @@ Gold:
   sprite:
     atlas_name: items
     index: 2
-    color: [237, 190, 94, 255]
+    color: [255, 191, 102, 255]
   components:
     Consumable:
       kind: !Gold
