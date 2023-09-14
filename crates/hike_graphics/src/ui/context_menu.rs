@@ -14,7 +14,7 @@ use hike_game::{
 };
 
 use super::super::globals::{
-    UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
+    UI_BUTTON_HEIGHT, UI_GAP, UI_TEXT_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
 };
 use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
 use super::buttons::Button;
@@ -95,15 +95,7 @@ pub fn handle_menu(
             _ => continue
         };
 
-        if let Some(s) = get_item_desc(world, *entity) {
-            backend.draw_ui_text(
-                "default",
-                &format!("{}", s),
-                Vector2F::new(gap, scale * (2.0 * UI_STATUS_TEXT_SIZE as f32 + gap)),
-                (scale * UI_STATUS_TEXT_SIZE as f32) as u32,
-                SpriteColor(150, 128, 128, 255)
-            );
-        }
+        draw_item_desc(world, *entity, backend, scale);
 
         let span = Span::new().with_text_borrowed(text).with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
         let button = Button::new(
@@ -125,15 +117,46 @@ pub fn handle_menu(
 }
 
 
-fn get_item_desc(world: &World, entity: Entity)-> Option<String> {
+fn get_item_desc(world: &World, entity: Entity) -> Option<Vec<String>> {
     if world.get_component::<Item>(entity).is_none()
         && world.get_component::<Interactive>(entity).is_none() { return None };
 
-    let name = world.get_component::<Name>(entity)?.0.clone().replace("_", " ");
-    let s = world.get_entity_components(entity).iter()
-        .map(|c| c.as_str())
-        .filter(|s| s.len() > 0)
-        .collect::<Vec<_>>()
-        .join(" ");
-    return Some(format!("{}: {}", name, s));
+    let mut v = vec![world.get_component::<Name>(entity)?.0.clone().replace("_", " ")];
+    v.extend(world.get_entity_components(entity).iter()
+            .map(|c| c.as_str())
+            .filter(|s| s.len() > 0)
+        );
+        // .collect::<Vec<_>>();
+        // .join(" ");
+    // return Some(format!("{}: {}", name, s));
+    Some(v)
+}
+
+fn draw_item_desc(world: &World, entity: Entity, backend: &dyn GraphicsBackend, scale: f32) {
+    if let Some(parts) = get_item_desc(world, entity) {
+        let gap = scale * UI_GAP;
+        let text_gap = scale * UI_TEXT_GAP;
+        let font_size = (scale * UI_STATUS_TEXT_SIZE as f32) as u32;
+        // let parts = s.split(" ");
+        let space = backend.text_size("default", " ", font_size).x;
+
+        let mut y = 2.0 * (font_size as f32 + text_gap);
+        let mut x = gap;
+
+        for (i, part) in parts.iter().enumerate() {
+            let width = backend.text_size("default", &part, font_size).x;
+            if x + width > backend.viewport_size().x - 2.0 * gap {
+                x = gap;
+                y += font_size as f32 + text_gap;
+            }
+            backend.draw_ui_text(
+                "default",
+                &format!("{} ", part),
+                Vector2F::new(x, y),
+                font_size,
+                if i == 0 { SpriteColor(150, 128, 128, 255) } else { SpriteColor(98, 81, 81, 255) }
+            );
+            x += width + space;
+        }
+    }
 }

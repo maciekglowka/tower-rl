@@ -70,7 +70,7 @@ impl Component for Consumable {
 pub struct Durability(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Durability {
     fn as_str(&self) -> String {
-        format!("Dur:{}", self.0)
+        format!("Durability({})", self.0)
     }
 }
 
@@ -123,7 +123,7 @@ impl Component for Tile {}
 pub struct Hit(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Hit {
     fn as_str(&self) -> String {
-        format!("Hit:{}", self.0)
+        format!("Hit({})", self.0)
     }
 }
 
@@ -131,7 +131,7 @@ impl Component for Hit {
 pub struct Poison(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Poison {
     fn as_str(&self) -> String {
-        format!("Poison:{}", self.0)
+        format!("Poison({})", self.0)
     }
 }
 
@@ -139,7 +139,7 @@ impl Component for Poison {
 pub struct Stun(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Stun {
     fn as_str(&self) -> String {
-        format!("Stun:{}", self.0)
+        format!("Stun({})", self.0)
     }
 }
 
