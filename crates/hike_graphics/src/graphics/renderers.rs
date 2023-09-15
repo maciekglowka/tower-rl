@@ -20,7 +20,8 @@ use super::super::{
 };
 use super::utils::move_towards;
 use crate::globals::{
-    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, MOVEMENT_SPEED, INACTIVE_FADE, FADE_SPEED
+    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z,
+    MOVEMENT_SPEED, INACTIVE_FADE, FADE_SPEED, BACKGROUND_COLOR
 };
 
 #[derive(Debug, PartialEq)]
@@ -120,7 +121,6 @@ pub fn handle_action_events(
 pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
     let Some(board) = world.get_resource::<Board>() else { return };
     for (v, _) in board.tiles.iter() {
-        // if v.y >= BOARD_SIZE as i32 { continue; }
         let Some(wall) = get_wall_at(*v, world) else { continue };
         let mut offset = 0;
         if get_wall_at(Vector2I::new(v.x, v.y + 1), world).is_none() && v.y < BOARD_SIZE as i32 {
@@ -219,6 +219,24 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn Graphics
             Vector2F::new(TILE_SIZE, TILE_SIZE),
             color
         );
+    }
+}
+
+pub fn draw_fog(world: &World, backend: &dyn GraphicsBackend) {
+    let Some(board) = world.get_resource::<Board>() else { return };
+    for x in -2..BOARD_SIZE as i32 + 2 {
+        for y in -2..BOARD_SIZE as i32 + 2 {
+            let vi = Vector2I::new(x, y);
+            if board.visible.contains(&vi) { continue; }
+
+            backend.draw_world_sprite(
+                "fog",
+                0,
+                tile_to_world(vi) - Vector2F::new(0.5, 0.5) * TILE_SIZE,
+                Vector2F::new(TILE_SIZE, TILE_SIZE) * 2.0,
+                BACKGROUND_COLOR
+            );
+        }
     }
 }
 

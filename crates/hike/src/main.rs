@@ -58,7 +58,7 @@ async fn main() {
     let mut backend = macroquad_sprites::MacroquadBackend::new();
 
     for (name, cols, rows) in [
-        ("ascii", 16, 16), ("tiles", 4, 4), ("items", 4, 4), ("icons", 4, 4)
+        ("ascii", 16, 16), ("tiles", 4, 4), ("items", 4, 4), ("icons", 4, 4), ("fog", 1, 1)
         ] {
         backend.load_atlas(
                 name,
@@ -102,6 +102,12 @@ async fn main() {
 
     let mut graphics_ready = true;
     let mut touch_state = HashMap::new();
+    let bg_color = Color::from_rgba(
+        hike_graphics::globals::BACKGROUND_COLOR.0,
+        hike_graphics::globals::BACKGROUND_COLOR.1,
+        hike_graphics::globals::BACKGROUND_COLOR.2,
+        hike_graphics::globals::BACKGROUND_COLOR.3,
+    );
 
     loop {
         let frame_start = Instant::now();
@@ -111,7 +117,7 @@ async fn main() {
             hike_game::game_update(&mut world, &mut manager);
         }
         // clear_background(Color::from_rgba(124, 182, 219, 255));
-        clear_background(Color::from_rgba(31, 15, 28, 255));
+        clear_background(bg_color);
         // clear_background(BLACK);
         set_camera(&main_camera);
         backend.set_bounds(&main_camera);

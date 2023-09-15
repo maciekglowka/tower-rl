@@ -19,5 +19,6 @@ pub fn graphics_update(
     let ready = renderers::update_sprites(world, state);
 
     renderers::draw_sprites(world, state, backend);
+    renderers::draw_fog(world, backend);
     ready
 }
