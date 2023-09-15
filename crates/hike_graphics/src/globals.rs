@@ -1,6 +1,7 @@
 pub const TILE_SIZE: f32 = 64.;
 pub const PERSP_RATIO: f32 = 1.0;
-pub const BACKGROUND_COLOR:super::SpriteColor = super::SpriteColor(31, 15, 28, 255);
+pub const BACKGROUND_COLOR:super::SpriteColor = super::SpriteColor(38, 18, 34, 255);
+// pub const BACKGROUND_COLOR:super::SpriteColor = super::SpriteColor(31, 15, 28, 255);
 
 pub const ACTOR_Z: u32 = 200;
 pub const FIXTURE_Z: u32 = 100;
