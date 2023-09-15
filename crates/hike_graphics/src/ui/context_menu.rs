@@ -41,11 +41,6 @@ pub fn handle_menu(
         .collect::<Vec<_>>();
 
     if entities.len() == 0 { 
-        // TEMP TEMP
-        if state.action == ButtonState::Pressed {
-            set_player_action(world, Box::new(Pause));
-            return true;
-        }
         return false 
     };
 

@@ -28,8 +28,9 @@ pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) 
         left = ButtonState::Pressed
     }
 
-    let shift = if is_key_pressed(KeyCode::E) { ButtonState::Pressed } else { ButtonState::Up };
+    let shift = if is_key_pressed(KeyCode::O) { ButtonState::Pressed } else { ButtonState::Up };
     let action = if is_key_pressed(KeyCode::Space) { ButtonState::Pressed } else { ButtonState::Up };
+    let pause = if is_key_pressed(KeyCode::P) { ButtonState::Pressed } else { ButtonState::Up };
 
     let mut direction = handle_touches(touch_state);
     if is_key_pressed(KeyCode::W) { direction = InputDirection::Up }
@@ -44,7 +45,8 @@ pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) 
         mouse_button_left: left,
         direction,
         shift,
-        action
+        action,
+        pause
     }
 }
 

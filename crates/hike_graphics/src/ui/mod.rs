@@ -22,6 +22,7 @@ pub struct InputState {
     pub direction: InputDirection,
     pub shift: ButtonState,
     pub action: ButtonState,
+    pub pause: ButtonState,
 }
 
 #[derive(Default, PartialEq)]
