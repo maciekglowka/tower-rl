@@ -2,14 +2,16 @@ use std::{
     any::TypeId,
     collections::{HashSet, VecDeque}
 };
-use rogalik::math::vectors::Vector2F;
+use rogalik::math::vectors::{Vector2F, Vector2I};
 use rogalik::storage::{Entity, World, WorldEvent};
 
 use hike_data::GameData;
 use hike_game::{
     ActionEvent,
     Board,
-    components::{Actor, Fixture, Item, Name, Stunned, Position, Projectile, Tile}
+    components::{Actor, Fixture, Item, Name, Stunned, Position, Projectile, Tile},
+    globals::BOARD_SIZE,
+    get_entities_at_position
 };
 
 use super::super::{
@@ -98,6 +100,7 @@ pub fn handle_action_events(
 ) {
     for ev in state.ev_actions.read().iter().flatten() {
         match ev {
+            ActionEvent::BoardReady => update_wall_sprites(world, state),
             ActionEvent::Attack(entity, target) | ActionEvent::Bump(entity, target) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     sprite.path.push_back((sprite.v + tile_to_world(*target)) * 0.5);
@@ -112,6 +115,34 @@ pub fn handle_action_events(
             _ => continue
         }
     }
+}
+
+pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
+    let Some(board) = world.get_resource::<Board>() else { return };
+    for (v, _) in board.tiles.iter() {
+        // if v.y >= BOARD_SIZE as i32 { continue; }
+        let Some(wall) = get_wall_at(*v, world) else { continue };
+        let mut offset = 0;
+        if get_wall_at(Vector2I::new(v.x, v.y + 1), world).is_none() && v.y < BOARD_SIZE as i32 {
+            offset += 1;
+        }
+        if get_wall_at(Vector2I::new(v.x, v.y - 1), world).is_none() && v.y >= 0 {
+            offset += 2;
+        }
+        if let Some(sprite) = get_entity_sprite_mut(wall, state) {
+            sprite.index += offset;
+        }
+    }
+}
+
+fn get_wall_at(v: Vector2I, world: &World) -> Option<Entity> {
+    get_entities_at_position(world, v).iter()
+        .filter_map(|&e| match world.get_component::<Name>(e) {
+                Some(a) if a.0 == "Wall" => Some(e),
+                _ => None
+            }
+        )
+        .next()
 }
 
 pub fn update_sprites(world: &World, state: &mut GraphicsState) -> bool {

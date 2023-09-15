@@ -42,7 +42,7 @@ Closed_Door:
 Open_Door:
   sprite:
     atlas_name: tiles
-    index: 5
+    index: 1
     color: [255, 255, 255, 255]
   components:
     Fixture:

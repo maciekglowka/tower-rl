@@ -16,7 +16,7 @@ use crate::GameManager;
 use crate::player;
 use crate::utils::get_entities_at_position;
 
-pub fn board_start(world: &mut World) {
+pub fn board_start(world: &mut World, manager: &mut GameManager) {
     // replace board resource
     let level = match world.get_resource::<Board>() {
         Some(b) => b.level,
@@ -34,6 +34,7 @@ pub fn board_start(world: &mut World) {
     world.insert_resource(pending);
 
     player::spawn_player(world);
+    manager.action_events.publish(crate::ActionEvent::BoardReady);
 }
 
 pub fn board_end(world: &mut World) {

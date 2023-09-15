@@ -36,14 +36,14 @@ impl GameManager {
 }
 
 pub fn init(world: &mut World, manager: &mut GameManager) {
-    systems::board_start(world);
+    systems::board_start(world, manager);
 }
 
 
 pub fn game_update(world: &mut World, manager: &mut GameManager) -> Result<(), ()> {
     if world.get_resource::<Board>().ok_or(())?.is_exit() {
         systems::board_end(world);
-        systems::board_start(world);
+        systems::board_start(world, manager);
         return Ok(());
     }
     systems::turn_step(world, manager);
