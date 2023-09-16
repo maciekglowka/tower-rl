@@ -28,16 +28,29 @@ pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) 
         left = ButtonState::Pressed
     }
 
-    let shift = if is_key_pressed(KeyCode::O) { ButtonState::Pressed } else { ButtonState::Up };
-    let action = if is_key_pressed(KeyCode::Space) { ButtonState::Pressed } else { ButtonState::Up };
-    let pause = if is_key_pressed(KeyCode::P) { ButtonState::Pressed } else { ButtonState::Up };
+    let shift = key_state(KeyCode::O);
+    let action = key_state(KeyCode::Space);
+    let pause = key_state(KeyCode::P);
 
     let mut direction = handle_touches(touch_state);
     if is_key_pressed(KeyCode::W) { direction = InputDirection::Up }
     if is_key_pressed(KeyCode::S) { direction = InputDirection::Down }
     if is_key_pressed(KeyCode::A) { direction = InputDirection::Left }
     if is_key_pressed(KeyCode::D) { direction = InputDirection::Right }
-    if is_key_pressed(KeyCode::Space) { direction = InputDirection::Still } 
+    if is_key_pressed(KeyCode::Space) { direction = InputDirection::Still }
+
+    let digits = [
+        key_state(KeyCode::Key0),
+        key_state(KeyCode::Key1),
+        key_state(KeyCode::Key2),
+        key_state(KeyCode::Key3),
+        key_state(KeyCode::Key4),
+        key_state(KeyCode::Key5),
+        key_state(KeyCode::Key6),
+        key_state(KeyCode::Key7),
+        key_state(KeyCode::Key8),
+        key_state(KeyCode::Key9),
+    ];
 
     InputState {
         mouse_screen_position: get_mouse_screen_position(),
@@ -46,8 +59,13 @@ pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) 
         direction,
         shift,
         action,
-        pause
+        pause,
+        digits
     }
+}
+
+fn key_state(code: KeyCode) -> ButtonState {
+    if is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
 }
 
 fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {

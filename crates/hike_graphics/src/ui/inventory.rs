@@ -81,6 +81,10 @@ pub fn handle_inventory(
             }
     }
 
+    if state.digits[1] == ButtonState::Pressed { clicked = Some(0) };
+    if state.digits[2] == ButtonState::Pressed { clicked = Some(1) };
+    if state.digits[3] == ButtonState::Pressed { clicked = Some(2) };
+
     clicked
 }
 

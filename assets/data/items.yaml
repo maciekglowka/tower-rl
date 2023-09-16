@@ -25,17 +25,17 @@ Sword:
   sprite:
     atlas_name: items
     index: 0
-    color: [195, 234, 254, 255]
+    color: [255, 255, 255, 255]
   components:
     Hit: 2-5
     Durability: 5-15
     Item:
 
-Long_Sword:
+Axe:
   sprite:
     atlas_name: items
-    index: 0
-    color: [234, 234, 55, 255]
+    index: 5
+    color: [255, 255, 255, 255]
   components:
     Hit: 2-5
     Swing:
@@ -58,7 +58,7 @@ Poisoned_Dagger:
   sprite:
     atlas_name: items
     index: 3
-    color: [145, 200, 185, 255]
+    color: [255, 255, 255, 255]
   components:
     Hit: 1-2
     Poison: 5-8

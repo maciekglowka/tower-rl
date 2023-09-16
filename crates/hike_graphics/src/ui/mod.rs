@@ -23,6 +23,7 @@ pub struct InputState {
     pub shift: ButtonState,
     pub action: ButtonState,
     pub pause: ButtonState,
+    pub digits: [ButtonState; 10]
 }
 
 #[derive(Default, PartialEq)]
