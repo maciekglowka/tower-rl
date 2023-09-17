@@ -17,7 +17,8 @@ use crate::globals::INVENTORY_SIZE;
 #[derive(Deserialize)]
 pub enum ConsumableKind {
     Gold,
-    Heal
+    Heal,
+    Immunity
 }
 
 pub struct ValueMax {
@@ -61,6 +62,7 @@ impl Component for Consumable {
         let action = match self.kind {
             ConsumableKind::Gold => "Gold",
             ConsumableKind::Heal => "Heal",
+            ConsumableKind::Immunity => "Immune"
         };
         format!("{} ({})", action, self.value)
     }
@@ -128,6 +130,14 @@ impl Component for Hit {
 }
 
 #[derive(Deserialize)]
+pub struct Immunity(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
+impl Component for Immunity {
+    fn as_str(&self) -> String {
+        format!("Immunity({})", self.0)
+    }
+}
+
+#[derive(Deserialize)]
 pub struct Poison(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Poison {
     fn as_str(&self) -> String {
@@ -170,6 +180,9 @@ pub struct Player {
 }
 impl Component for Player {}
 
+pub struct Immune(pub u32);
+impl Component for Immune {}
+
 pub struct Stunned(pub u32);
 impl Component for Stunned {}
 
@@ -201,6 +214,7 @@ pub fn insert_data_components(
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
+            "Immunity" => insert_single::<Immunity>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
             "Loot" => insert_single::<Loot>(entity, world, component_data),
             "Hit" => insert_single::<Hit>(entity, world, component_data),

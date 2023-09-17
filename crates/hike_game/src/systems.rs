@@ -9,7 +9,7 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Consumable, ConsumableKind, Durability, Stunned, Health, Player, Position, Poisoned
+    Actor, Consumable, ConsumableKind, Durability, Immune, Stunned, Health, Player, Position, Poisoned
 };
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
@@ -229,7 +229,7 @@ fn process_stunned(world: &mut World, entity: Entity) -> bool {
 fn process_poisoned(world: &mut World) {
     let mut to_remove = Vec::new();
     let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
-     for item in world.query::<Poisoned>().with::<Health>().iter() {
+    for item in world.query::<Poisoned>().with::<Health>().iter() {
         let mut poisoned = item.get_mut::<Poisoned>().unwrap();
         poisoned.0 = poisoned.0.saturating_sub(1);
         if poisoned.0 <= 0 {
@@ -243,8 +243,23 @@ fn process_poisoned(world: &mut World) {
     }
 }
 
+fn process_immune(world: &mut World) {
+    let mut to_remove = Vec::new();
+    for item in world.query::<Immune>().iter() {
+        let mut immune = item.get_mut::<Immune>().unwrap();
+        immune.0 = immune.0.saturating_sub(1);
+        if immune.0 <= 0 {
+            to_remove.push(item.entity);
+        }
+    }
+    for entity in to_remove {
+        world.remove_component::<Immune>(entity);
+    }
+}
+
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
     process_poisoned(world);
+    process_immune(world);
 }

@@ -1,6 +1,6 @@
 use rogalik::storage::{Entity, World};
 
-use crate::actions::{Action, Heal, PickGold};
+use crate::actions::{Action, Heal, PickGold, MakeImmune};
 use crate::components::{Consumable, ConsumableKind};
 
 pub fn get_consume_action(
@@ -17,5 +17,8 @@ pub fn get_consume_action(
         ConsumableKind::Heal => Some(Box::new(
             Heal { entity: consumer, value: consumable.value }
         )),
+        ConsumableKind::Immunity => Some(Box::new(
+            MakeImmune { entity: consumer, value: consumable.value }
+        ))
     }
 }

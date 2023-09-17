@@ -13,7 +13,7 @@ use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
     Obstacle, Position, Player, InteractionKind, Name, Poisoned,
-    Hit, Poison, Stun, Swing
+    Hit, Poison, Stun, Swing, Immune
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -369,6 +369,9 @@ pub struct Damage {
 impl Action for Damage {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
+        if world.get_component::<Immune>(self.entity).is_some() {
+            return Err(())
+        }
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0.current = health.0.current.saturating_sub(self.value);
         Ok(Vec::new())
@@ -388,6 +391,23 @@ impl Action for Heal {
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action
+}
+
+pub struct MakeImmune {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for MakeImmune {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut immune)  = world.get_component_mut::<Immune>(self.entity) {
+            immune.0 += self.value;
+            return Ok(Vec::new());
+        }
+
+        let _ = world.insert_component(self.entity, Immune(self.value));
+        Ok(Vec::new())
+    }
 }
 
 pub struct Repair {

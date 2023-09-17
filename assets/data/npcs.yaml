@@ -60,8 +60,7 @@ ArchMonk:
     Health: 6
     Loot:
       items:
-        - Sword
-        - Gold
+        - Axe
       chance: 0.5
     Obstacle:
   min_level: 8
