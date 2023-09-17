@@ -79,7 +79,7 @@ pub trait GraphicsBackend {
 // #[derive(Clone, Copy)]
 // pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
 
-fn world_to_tile(
+pub fn world_to_tile(
     v: Vector2F,
 ) -> Vector2I {
     Vector2I::new (

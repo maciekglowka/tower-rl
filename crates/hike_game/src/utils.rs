@@ -1,11 +1,11 @@
 use rogalik::{
-    math::vectors::Vector2I,
+    math::vectors::{Vector2I, get_line},
     storage::{Entity, World}
 };
 
 use hike_data::GameData;
 
-use crate::components::{Actor, Name, Player, Position, insert_data_components};
+use crate::components::{Actor, Name, Player, Position, ViewBlocker, insert_data_components};
 
 pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
     if world.get_component::<Player>(source).is_some() {
@@ -13,6 +13,17 @@ pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
     } else {
         return world.get_component::<Player>(target).is_some()
     }
+}
+
+pub fn visibility(world: &World, a: Vector2I, b: Vector2I) -> bool {
+    let line = get_line(a, b);
+    for v in line[1..line.len() - 1].iter() {
+        if get_entities_at_position(world, *v).iter()
+            .any(|&e| world.get_component::<ViewBlocker>(e).is_some()) {
+                return  false;
+            }
+    }
+    true
 }
 
 pub fn get_entities_at_position(world: &World, v: Vector2I) -> Vec<Entity> {

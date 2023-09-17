@@ -1,12 +1,12 @@
 use rogalik::{
-    math::vectors::{Vector2I, ORTHO_DIRECTIONS},
+    math::vectors::{Vector2I, ORTHO_DIRECTIONS, find_path},
     storage::{Entity, World}
 };
 use rand::prelude::*;
 use std::{
     any::{Any, TypeId},
     cell::Ref,
-    collections::VecDeque
+    collections::{HashSet, VecDeque}
 };
 
 use crate::board::Board;
@@ -18,7 +18,7 @@ use crate::components::{
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
 use crate::player::get_player_entity;
-use crate::utils::{are_hostile, get_entities_at_position, spawn_with_position};
+use crate::utils::{visibility, get_entities_at_position, spawn_with_position};
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
 pub struct ActorQueue(pub VecDeque<Entity>);
@@ -100,13 +100,31 @@ impl Action for Walk {
         ActionEvent::Travel(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
+        let mut rng = thread_rng();
+        let r = rng.gen_range(0..4);
+        let Some(position) = world.get_component::<Position>(self.entity) else { return r };
         let Some(player_position) = world.query::<Player>().with::<Position>()
             .iter()
             .map(|i| i.get::<Position>().unwrap().0)
             .next()
-            else { return 0 };
+            else { return r };
 
-        20 - self.target.manhattan(player_position)
+        if !visibility(world, position.0, player_position) {
+            return r;
+        }
+        let Some(board) = world.get_resource::<Board>() else { return r };
+        let blockers = world.query::<Obstacle>().with::<Position>().iter()
+            .map(|i| i.get::<Position>().unwrap().0)
+            .collect::<HashSet<_>>();
+
+        let Some(path) = find_path(
+            position.0,
+            player_position,
+            &board.tiles.keys().map(|&v| v).collect::<HashSet<_>>(),
+            &blockers
+        ) else { return r };
+
+        if path.contains(&self.target) { 20 } else { r }
     }
 }
 

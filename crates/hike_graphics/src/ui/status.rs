@@ -20,7 +20,7 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend, scale: f32) {
     let health = item.get::<Health>().unwrap();
     let player = item.get::<Player>().unwrap();
 
-    let mut text = format!("HP: {}/{} Gold: {}, L: {}", health.0.current, health.0.max, player.gold, board.level);
+    let mut text = format!("HP: {}/{} Gold: {}, Level: {}", health.0.current, health.0.max, player.gold, board.level);
     if let Some(poisoned) = world.get_component::<Poisoned>(item.entity) {
         text += &format!(" Poisoned({})", poisoned.0);
     }
