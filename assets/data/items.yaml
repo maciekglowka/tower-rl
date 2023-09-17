@@ -50,7 +50,7 @@ Axe:
     index: 5
     color: [255, 255, 255, 255]
   components:
-    Hit: 2-5
+    Hit: 4-7
     Swing:
     Durability: 5-15
     Item:

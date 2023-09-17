@@ -44,7 +44,7 @@ Monk:
       items:
         - Sword
         - Gold
-      chance: 0.5
+      chance: 0.3
     Obstacle:
   min_level: 5
   score: 2
@@ -61,7 +61,7 @@ ArchMonk:
     Loot:
       items:
         - Axe
-      chance: 0.5
+      chance: 0.3
     Obstacle:
   min_level: 8
   score: 4
