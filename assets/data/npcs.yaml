@@ -31,7 +31,7 @@ Snake:
   score: 2
   min_level: 3
 
-Monk:
+Novice:
   sprite:
     atlas_name: ascii
     index: 109
@@ -49,7 +49,7 @@ Monk:
   min_level: 5
   score: 2
 
-ArchMonk:
+Monk:
   sprite:
     atlas_name: ascii
     index: 109
@@ -61,6 +61,7 @@ ArchMonk:
     Loot:
       items:
         - Axe
+        - Spear
       chance: 0.3
     Obstacle:
   min_level: 8

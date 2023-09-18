@@ -17,7 +17,7 @@ Scroll_of_Immunity:
   components:
     Consumable:
       kind: !Immunity
-      value: 6-12
+      value: 8-14
     Item:
   spawn_chance: 0.25
   min_level: 7
@@ -30,7 +30,7 @@ Scroll_of_Dexterity:
   components:
     Consumable:
       kind: !Dexterity
-      value: 6-12
+      value: 8-14
     Item:
   spawn_chance: 0.25
   min_level: 7
