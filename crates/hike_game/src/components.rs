@@ -138,6 +138,14 @@ impl Component for Immunity {
 }
 
 #[derive(Deserialize)]
+pub struct Lunge;
+impl Component for Lunge {
+    fn as_str(&self) -> String {
+        "Lunge".to_string()
+    }
+}
+
+#[derive(Deserialize)]
 pub struct Poison(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Poison {
     fn as_str(&self) -> String {
@@ -217,6 +225,7 @@ pub fn insert_data_components(
             "Immunity" => insert_single::<Immunity>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
             "Loot" => insert_single::<Loot>(entity, world, component_data),
+            "Lunge" => insert_single::<Lunge>(entity, world, component_data),
             "Hit" => insert_single::<Hit>(entity, world, component_data),
             "Poison" => insert_single::<Poison>(entity, world, component_data),
             "Stun" => insert_single::<Stun>(entity, world, component_data),

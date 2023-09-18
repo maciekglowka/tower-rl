@@ -17,6 +17,7 @@ pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
 
 pub fn visibility(world: &World, a: Vector2I, b: Vector2I) -> bool {
     let line = get_line(a, b);
+    if line.len() <= 2 { return true }
     for v in line[1..line.len() - 1].iter() {
         if get_entities_at_position(world, *v).iter()
             .any(|&e| world.get_component::<ViewBlocker>(e).is_some()) {

@@ -56,6 +56,18 @@ Axe:
     Item:
   spawn_chance: 0
 
+Spear:
+  sprite:
+    atlas_name: items
+    index: 8
+    color: [255, 255, 255, 255]
+  components:
+    Hit: 4-7
+    Lunge:
+    Durability: 5-15
+    Item:
+  spawn_chance: 0
+
 Stun_Wand:
   sprite:
     atlas_name: items

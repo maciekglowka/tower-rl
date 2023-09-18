@@ -1,6 +1,6 @@
 use rogalik::storage::{Entity, World};
 
-use hike_game::components::{Hit, Durability, Poison, Stun, Swing};
+use hike_game::components::{Hit, Durability, Lunge, Poison, Stun, Swing};
 
 pub fn get_entity_icons(entity: Entity, world: &World) -> Vec<(u32, Option<u32>)> {
     // surely can be done better?
@@ -20,6 +20,9 @@ pub fn get_entity_icons(entity: Entity, world: &World) -> Vec<(u32, Option<u32>)
     }
     if let Some(_swing) = world.get_component::<Swing>(entity) {
         output.push((4, None));
+    }
+    if let Some(_swing) = world.get_component::<Lunge>(entity) {
+        output.push((5, None));
     }
     output
 }

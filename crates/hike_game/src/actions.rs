@@ -13,7 +13,7 @@ use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
     Obstacle, Position, Player, InteractionKind, Name, Poisoned,
-    Hit, Poison, Stun, Swing, Immune
+    Hit, Poison, Stun, Swing, Immune, Lunge
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -142,30 +142,23 @@ impl Attack {
         }
         self.entity
     }
-    fn get_attack_targets(&self, entity: Entity, world: &World) -> Vec<Vector2I> {
-        if world.get_component::<Swing>(entity).is_none() {
-            return vec![self.target]
+    fn get_attack_targets(&self, entity: Entity, world: &World) -> HashSet<Vector2I> {
+        let mut output = HashSet::from_iter([self.target]);
+        let Some(position) = world.get_component::<Position>(self.entity) else { return output };
+        let dir = self.target - position.0;
+
+        if world.get_component::<Swing>(entity).is_some() {
+            let vs = ORTHO_DIRECTIONS.iter()
+                .filter(|d| **d != dir * -1)
+                .map(|d| position.0 + *d)
+                .collect::<Vec<_>>();
+            output.extend(vs);
+        }
+        if world.get_component::<Lunge>(entity).is_some() {
+            output.insert(position.0 + dir * 2);
         }
 
-        let Some(position) = world.get_component::<Position>(self.entity) else { return vec![self.target] };
-        let dir = position.0 - self.target;
-        ORTHO_DIRECTIONS.iter()
-            .filter(|d| **d != dir)
-            .map(|d| position.0 + *d)
-            .collect::<Vec<_>>()
-        // if d.x != 0 {
-        //     vec![
-        //         self.target,
-        //         Vector2I::new(self.target.x, self.target.y + 1),
-        //         Vector2I::new(self.target.x, self.target.y - 1),
-        //     ]
-        // } else {
-        //     vec![
-        //         self.target,
-        //         Vector2I::new(self.target.x + 1, self.target.y),
-        //         Vector2I::new(self.target.x - 1, self.target.y),
-        //     ] 
-        // }
+        output
     }
     fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2I) -> Vec<Box<dyn Action>> {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
