@@ -13,7 +13,7 @@ use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
     Obstacle, Position, Player, InteractionKind, Name, Poisoned,
-    Hit, Poison, Stun, Swing, Immune, Lunge
+    Hit, Poison, Stun, Swing, Immune, Lunge, Dexterity
 };
 use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
@@ -201,7 +201,7 @@ impl Action for Attack {
         
         if world.get_component::<Item>(offending_entity).is_some() {
             actions.push(Box::new(
-                UseItem { entity: offending_entity }
+                UseItem { entity: offending_entity, owner: self.entity }
             ));
         }
         Ok(actions)
@@ -296,13 +296,16 @@ impl Action for Bump {
 }
 
 pub struct UseItem {
-    pub entity: Entity
+    pub entity: Entity,
+    pub owner: Entity
 }
 impl Action for UseItem {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut durability) = world.get_component_mut::<Durability>(self.entity) {
-            durability.0 = durability.0.saturating_sub(1);
+            if world.get_component::<Dexterity>(self.owner).is_none() {
+                durability.0 = durability.0.saturating_sub(1);
+            }
         }
         Ok(Vec::new())
     }
@@ -386,11 +389,11 @@ impl Action for Heal {
     // score is not implemented as it always should be a resulting action
 }
 
-pub struct MakeImmune {
+pub struct GiveImmunity {
     pub entity: Entity,
     pub value: u32
 }
-impl Action for MakeImmune {
+impl Action for GiveImmunity {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut immune)  = world.get_component_mut::<Immune>(self.entity) {
@@ -399,6 +402,23 @@ impl Action for MakeImmune {
         }
 
         let _ = world.insert_component(self.entity, Immune(self.value));
+        Ok(Vec::new())
+    }
+}
+
+pub struct GiveDexterity {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for GiveDexterity {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut dexterity)  = world.get_component_mut::<Dexterity>(self.entity) {
+            dexterity.0 += self.value;
+            return Ok(Vec::new());
+        }
+
+        let _ = world.insert_component(self.entity, Dexterity(self.value));
         Ok(Vec::new())
     }
 }

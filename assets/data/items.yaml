@@ -17,7 +17,20 @@ Scroll_of_Immunity:
   components:
     Consumable:
       kind: !Immunity
-      value: 4-8
+      value: 6-12
+    Item:
+  spawn_chance: 0.25
+  min_level: 7
+
+Scroll_of_Dexterity:
+  sprite:
+    atlas_name: items
+    index: 6
+    color: [255, 255, 255, 255]
+  components:
+    Consumable:
+      kind: !Dexterity
+      value: 6-12
     Item:
   spawn_chance: 0.25
   min_level: 7

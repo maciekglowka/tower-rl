@@ -3,3 +3,6 @@
     - Sword
     - Spear
     - Axe
+2:
+  required_items:
+    - Scroll_of_Dexterity

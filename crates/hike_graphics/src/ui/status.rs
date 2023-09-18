@@ -5,7 +5,7 @@ use rogalik::{
 
 use hike_game::{
     Board,
-    components::{Health, Player, Poisoned, Immune},
+    components::{Health, Player, Poisoned, Immune, Dexterity},
     get_entities_at_position, get_player_position
 };
 
@@ -26,6 +26,9 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend, scale: f32) {
     }
     if let Some(immune) = world.get_component::<Immune>(item.entity) {
         text += &format!(" Immune({})", immune.0);
+    }
+    if let Some(dexterity) = world.get_component::<Dexterity>(item.entity) {
+        text += &format!(" Dexterity({})", dexterity.0);
     }
 
     backend.draw_ui_text(

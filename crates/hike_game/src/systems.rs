@@ -9,7 +9,7 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Consumable, ConsumableKind, Durability, Immune, Stunned, Health, Player, Position, Poisoned
+    Actor, Consumable, ConsumableKind, Durability, Immune, Stunned, Health, Player, Position, Poisoned, Dexterity
 };
 use crate::globals::BOARD_SIZE;
 use crate::GameManager;
@@ -257,9 +257,24 @@ fn process_immune(world: &mut World) {
     }
 }
 
+fn process_dexterity(world: &mut World) {
+    let mut to_remove = Vec::new();
+    for item in world.query::<Dexterity>().iter() {
+        let mut dexterity = item.get_mut::<Dexterity>().unwrap();
+        dexterity.0 = dexterity.0.saturating_sub(1);
+        if dexterity.0 <= 0 {
+            to_remove.push(item.entity);
+        }
+    }
+    for entity in to_remove {
+        world.remove_component::<Dexterity>(entity);
+    }
+}
+
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
     process_poisoned(world);
     process_immune(world);
+    process_dexterity(world);
 }
