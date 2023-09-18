@@ -103,3 +103,22 @@ Poisoned_Dagger:
     Durability: 5-15
     Item:
   min_level: 3
+
+Crate:
+  sprite:
+    atlas_name: items
+    index: 9
+    color: [255, 255, 255, 255]
+  components:
+    Health: 1
+    Loot:
+      items:
+        - Snake
+        - Rat
+        - Sword
+        - Spear
+        - Axe
+        - Healing_Potion
+      chance: 1.
+    Item:
+  min_level: 6
