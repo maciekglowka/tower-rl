@@ -390,8 +390,8 @@ dependencies = [
 
 [[package]]
 name = "rogalik"
-version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik.git#8c15415fba659dadf5fece945c4e978bcbae65e7"
+version = "0.2.0"
+source = "git+https://github.com/maciekglowka/rogalik.git#3ab85fc2a6753fcc2d54e029aa87dfa3029c7daf"
 dependencies = [
  "rogalik_events",
  "rogalik_math",
@@ -401,12 +401,12 @@ dependencies = [
 [[package]]
 name = "rogalik_events"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik.git#8c15415fba659dadf5fece945c4e978bcbae65e7"
+source = "git+https://github.com/maciekglowka/rogalik.git#3ab85fc2a6753fcc2d54e029aa87dfa3029c7daf"
 
 [[package]]
 name = "rogalik_math"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik.git#8c15415fba659dadf5fece945c4e978bcbae65e7"
+source = "git+https://github.com/maciekglowka/rogalik.git#3ab85fc2a6753fcc2d54e029aa87dfa3029c7daf"
 dependencies = [
  "num-traits",
 ]
@@ -414,7 +414,7 @@ dependencies = [
 [[package]]
 name = "rogalik_storage"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik.git#8c15415fba659dadf5fece945c4e978bcbae65e7"
+source = "git+https://github.com/maciekglowka/rogalik.git#3ab85fc2a6753fcc2d54e029aa87dfa3029c7daf"
 dependencies = [
  "rogalik_events",
 ]

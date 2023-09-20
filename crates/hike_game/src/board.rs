@@ -137,14 +137,13 @@ fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
 // }
 
 pub fn update_visibility(world: &mut World) {
-    if let Some(player) = world.query::<Player>().with::<Position>().iter().next() {
+    if let Some(position) = world.query::<Player>().with::<Position>().build().single::<Position>() {
         let Some(mut board) = world.get_resource_mut::<Board>() else { return };
-        let position = player.get::<Position>().unwrap().0;
-        let blockers = world.query::<Position>().with::<ViewBlocker>().iter()
-            .map(|i| i.get::<Position>().unwrap().0)
-            .collect();
+        let blockers = world.query::<ViewBlocker>().with::<Position>().build().iter::<Position>()
+            .map(|p| p.0)
+            .collect::<HashSet<_>>();
         let currently_visible = visible_tiles(
-            position,
+            position.0,
             &HashSet::from_iter(board.tiles.keys().map(|&v| v)),
             &blockers,
             VIEW_RANGE

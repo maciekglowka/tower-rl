@@ -25,30 +25,30 @@ pub fn spawn_player(world: &mut World) {
 
 pub fn get_player_position(world: &World) -> Option<Vector2I> {
     Some(world.query::<Player>().with::<Position>()
-        .iter().next()?.get::<Position>()?.0)
+        .build().single::<Position>()?.0)
 }
 
 pub fn get_player_entity(world: &World) -> Option<Entity> {
-    Some(world.query::<Player>().with::<Position>()
-        .iter().next()?.entity)
+    world.query::<Player>().with::<Position>()
+        .build().single_entity()
 }
 
 pub fn set_player_action_from_dir(
     world: &mut World,
     dir: Vector2I
 ) {
-    let query = world.query::<Player>();
-    let Some(player_item) = query.iter().next() else { return };
-    player_item.get_mut::<Player>().unwrap().action = get_action_at_dir(player_item.entity, world, dir);
+    let query = world.query::<Player>().build();
+    let Some(entity) = query.single_entity() else { return };
+    query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir);
 }
 
 pub fn set_player_action(
     world: &mut World,
     action: Box<dyn Action>
 ) {
-    let query = world.query::<Player>();
-    let Some(player_item) = query.iter().next() else { return };
-    player_item.get_mut::<Player>().unwrap().action = Some(action);
+    if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
+        player.action = Some(action);
+    };
 }
 
 pub fn turn_end(world: &mut World) {
@@ -60,16 +60,15 @@ pub fn turn_end(world: &mut World) {
 
 
 pub fn unpin_player(world: &mut World) {
-    let query = world.query::<Player>().with::<Position>();
-    let Some(item) = query.iter().next() else { return };
-    world.remove_component::<Position>(item.entity);
+    let Some(entity) = world.query::<Player>().with::<Position>()
+        .build().single_entity() else { return };
+    world.remove_component::<Position>(entity);
 }
 
 pub fn pin_player(world: &mut World, position: Vector2I) -> bool {
-    let query = world.query::<Player>();
-    let Some(item) = query.iter().next() else { return false };
-    
-    let _ = world.insert_component(item.entity, Position(position));
+    let Some(entity) = world.query::<Player>().with::<Position>()
+        .build().single_entity() else { return false };
+    let _ = world.insert_component(entity, Position(position));
     true
 }
 

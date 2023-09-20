@@ -21,17 +21,16 @@ pub fn draw_overlays(
     backend: &dyn GraphicsBackend,
     state: &GraphicsState
 ) {
-    let query = world.query::<Health>();
+    let query = world.query::<Health>().build();
     let Some(board) = world.get_resource::<Board>() else { return };        
 
-    for item in query.iter() {
-        if world.get_component::<Player>(item.entity).is_some() { continue };
-        let health = item.get::<Health>().unwrap();
+    for (health, &entity) in query.iter::<Health>().zip(query.entities()) {
+        if world.get_component::<Player>(entity).is_some() { continue };
 
         let text = format!("{}", health.0.current);
         let size = backend.text_size("default", &text, FONT_SIZE);
 
-        let Some(base) = get_entity_sprite(item.entity, state) else { continue };
+        let Some(base) = get_entity_sprite(entity, state) else { continue };
         let tile = world_to_tile(base.v);
         if !board.visible.contains(&tile) { continue; }
 

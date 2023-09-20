@@ -41,10 +41,9 @@ pub fn board_end(world: &mut World) {
     // unpin player
     player::unpin_player(world);
     // despawn board objects
-    let objects = world.query::<Position>().iter()
-        .map(|i| i.entity)
-        .collect::<Vec<_>>();
-    for entity in objects {
+    let to_remove = world.query::<Position>().build().entities()
+        .copied().collect::<Vec<_>>();
+    for entity in to_remove {
         world.despawn_entity(entity);
     }
 }
@@ -171,15 +170,16 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
 fn destroy_items(
     world: &mut World
 ) {
-    let to_remove = world.query::<Durability>().iter()
-        .filter(|i| i.get::<Durability>().unwrap().0 == 0)
-        .map(|i| i.entity)
+    let query = world.query::<Durability>().build();
+    let to_remove = query.iter::<Durability>().zip(query.entities())
+        .filter(|(d, _)| d.0 == 0)
+        .map(|(_, e)| *e)
         .collect::<Vec<_>>();
+
     for entity in to_remove {
         world.despawn_entity(entity);
 
-        if let Some(player_item) = world.query::<Player>().iter().next() {
-            let mut player = player_item.get_mut::<Player>().unwrap();
+        if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
             for idx in 0..player.items.len() {
                 if player.items[idx] == Some(entity) {
                     player.items[idx] = None;
@@ -190,11 +190,12 @@ fn destroy_items(
 }
 
 fn kill_units(world: &mut World, manager: &mut GameManager) {
-    let query = world.query::<Health>();
-    let entities = query.iter()
-        .filter(|a| a.get::<Health>().unwrap().0.current == 0)
-        .map(|a| a.entity)
+    let query = world.query::<Health>().build();
+    let entities = query.iter::<Health>().zip(query.entities())
+        .filter(|(h, _)| h.0.current == 0)
+        .map(|(_, e)| *e)
         .collect::<Vec<_>>();
+
     for entity in entities {
         let _ = execute_action(
             Box::new(DropLoot { entity }),
@@ -207,7 +208,7 @@ fn kill_units(world: &mut World, manager: &mut GameManager) {
 
 fn collect_actor_queue(world: &mut World) {
     let Some(mut queue) = world.get_resource_mut::<ActorQueue>() else { return };
-    let mut actors = world.query::<Actor>().iter().map(|a| a.entity).collect::<Vec<_>>();
+    let mut actors = world.query::<Actor>().build().entities().copied().collect::<Vec<_>>();
     actors.sort_by_key(|a| (a.version, a.id));
     queue.0 = actors.into();
 }
@@ -229,13 +230,13 @@ fn process_stunned(world: &mut World, entity: Entity) -> bool {
 fn process_poisoned(world: &mut World) {
     let mut to_remove = Vec::new();
     let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
-    for item in world.query::<Poisoned>().with::<Health>().iter() {
-        let mut poisoned = item.get_mut::<Poisoned>().unwrap();
+    let query = world.query::<Poisoned>().with::<Health>().build();
+    for (mut poisoned, &entity) in query.iter_mut::<Poisoned>().zip(query.entities()) {
         poisoned.0 = poisoned.0.saturating_sub(1);
         if poisoned.0 <= 0 {
-            to_remove.push(item.entity);
+            to_remove.push(entity);
         }
-        pending.0.push_back(Box::new(Damage { entity: item.entity, value: 1 }))
+        pending.0.push_back(Box::new(Damage { entity: entity, value: 1 }))
     }
     drop(pending);
     for entity in to_remove {
@@ -245,11 +246,11 @@ fn process_poisoned(world: &mut World) {
 
 fn process_immune(world: &mut World) {
     let mut to_remove = Vec::new();
-    for item in world.query::<Immune>().iter() {
-        let mut immune = item.get_mut::<Immune>().unwrap();
+    let query = world.query::<Immune>().build();
+    for (mut immune, &entity) in query.iter_mut::<Immune>().zip(query.entities()) {
         immune.0 = immune.0.saturating_sub(1);
         if immune.0 <= 0 {
-            to_remove.push(item.entity);
+            to_remove.push(entity);
         }
     }
     for entity in to_remove {
@@ -259,11 +260,11 @@ fn process_immune(world: &mut World) {
 
 fn process_dexterity(world: &mut World) {
     let mut to_remove = Vec::new();
-    for item in world.query::<Dexterity>().iter() {
-        let mut dexterity = item.get_mut::<Dexterity>().unwrap();
+    let query = world.query::<Dexterity>().build();
+    for (mut dexterity, &entity) in query.iter_mut::<Dexterity>().zip(query.entities()) {
         dexterity.0 = dexterity.0.saturating_sub(1);
         if dexterity.0 <= 0 {
-            to_remove.push(item.entity);
+            to_remove.push(entity);
         }
     }
     for entity in to_remove {

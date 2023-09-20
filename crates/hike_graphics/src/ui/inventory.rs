@@ -17,9 +17,8 @@ pub fn handle_inventory(
     scale: f32
 ) -> Option<usize> {
     // return item index if clicked
-    let query = world.query::<Player>();
-    let player_item = query.iter().next()?;
-    let player = player_item.get::<Player>()?;
+    let query = world.query::<Player>().build();
+    let player = query.single::<Player>()?;
 
     let viewport_size = backend.viewport_size();
 
@@ -89,20 +88,17 @@ pub fn handle_inventory(
 }
 
 pub fn click_item(index: usize, world: &World) {
-    world.query::<Player>().iter()
-        .next()
-        .unwrap()
-        .get_mut::<Player>()
+    world.query::<Player>().build()
+        .single_mut::<Player>()
         .unwrap()
         .active_item = index;
 }
 
 pub fn handle_shift_input(world: &World, state: &InputState) {
     if state.shift == ButtonState::Pressed {
-        let query = world.query::<Player>();
-        let Some(item) = query.iter().next() else { return };
-        let active = item.get::<Player>().unwrap().active_item;
-        click_item((active + 1) % INVENTORY_SIZE, world);
+        if let Some(player) = world.query::<Player>().build().single::<Player>() {
+            click_item((player.active_item + 1) % INVENTORY_SIZE, world);
+        }
     }
 }
 

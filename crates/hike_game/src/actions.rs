@@ -5,7 +5,6 @@ use rogalik::{
 use rand::prelude::*;
 use std::{
     any::{Any, TypeId},
-    cell::Ref,
     collections::{HashSet, VecDeque}
 };
 
@@ -103,18 +102,18 @@ impl Action for Walk {
         let mut rng = thread_rng();
         let r = rng.gen_range(0..4);
         let Some(position) = world.get_component::<Position>(self.entity) else { return r };
-        let Some(player_position) = world.query::<Player>().with::<Position>()
-            .iter()
-            .map(|i| i.get::<Position>().unwrap().0)
-            .next()
-            else { return r };
+        let player_position = if let Some(p) = world.query::<Player>().with::<Position>().build().single::<Position>() {
+            p.0
+        } else {
+            return r;
+        };
 
         if !visibility(world, position.0, player_position) {
             return r;
         }
         let Some(board) = world.get_resource::<Board>() else { return r };
-        let blockers = world.query::<Obstacle>().with::<Position>().iter()
-            .map(|i| i.get::<Position>().unwrap().0)
+        let blockers = world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
+            .map(|p| p.0)
             .collect::<HashSet<_>>();
 
         let Some(path) = find_path(
@@ -323,15 +322,13 @@ pub struct AddToInventory {
 impl Action for AddToInventory {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        let player_query = world.query::<Player>();
-        let player_item = player_query.iter().next().ok_or(())?;
-        let mut player = player_item.get_mut::<Player>().ok_or(())?;
-        let active = player.active_item;
-
-        let current = player.items[active];
-        player.items[active] = Some(self.entity);
-
-        drop(player);
+        let mut current = None;
+        if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
+            let active = player.active_item;
+    
+            current = player.items[active];
+            player.items[active] = Some(self.entity);
+        };
 
         world.remove_component::<Position>(self.entity);
         if let Some(current) = current {
@@ -502,10 +499,11 @@ impl Action for Interact {
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut res: Vec<Box< dyn Action>> = Vec::new();
         let interactive = world.get_component::<Interactive>(self.entity).ok_or(())?;
+        let query = world.query::<Player>().build();
+        let player = query.single::<Player>().ok_or(())?;
 
         if let Some(cost) = interactive.cost {
-            if cost > world.query::<Player>().iter().next().ok_or(())?
-                .get::<Player>().unwrap().gold {
+            if cost > player.gold {
                     return Err(());
                 }
                 res.push(Box::new(Pay { value: cost }));
@@ -514,11 +512,7 @@ impl Action for Interact {
         let action: Box<dyn Action> = match interactive.kind {
             InteractionKind::Ascend => Box::new(Ascend),
             InteractionKind::Repair(value) => {
-                let idx = world.query::<Player>().iter().next().ok_or(())?
-                    .get::<Player>().unwrap().active_item;
-                let item = world.query::<Player>().iter().next().ok_or(())?
-                    .get::<Player>().unwrap().items[idx].ok_or(())?;
-                Box::new(Repair { entity: item, value } )
+                Box::new(Repair { entity: player.items[player.active_item].ok_or(())?, value } )
             },
             // InteractionKind::UpgradeOffensive(value) => {
             //     let idx = world.query::<Player>().iter().next().ok_or(())?
@@ -528,8 +522,8 @@ impl Action for Interact {
             //     Box::new(UpgradeOffensive { entity: item, value } )
             // },
             InteractionKind::UpgradeHealth(value) => {
-                let player = world.query::<Player>().iter().next().ok_or(())?.entity;
-                Box::new(UpgradeHealth { entity: player, value } )
+                let player_entity = world.query::<Player>().build().single_entity().ok_or(())?;
+                Box::new(UpgradeHealth { entity: player_entity, value } )
             }
         };
         res.push(action);
