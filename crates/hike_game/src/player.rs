@@ -66,8 +66,7 @@ pub fn unpin_player(world: &mut World) {
 }
 
 pub fn pin_player(world: &mut World, position: Vector2I) -> bool {
-    let Some(entity) = world.query::<Player>().with::<Position>()
-        .build().single_entity() else { return false };
+    let Some(entity) = world.query::<Player>().build().single_entity() else { return false };
     let _ = world.insert_component(entity, Position(position));
     true
 }
