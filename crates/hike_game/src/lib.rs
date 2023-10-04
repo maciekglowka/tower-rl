@@ -1,7 +1,7 @@
 use rand::prelude::*;
 use rogalik::{
     events::EventBus,
-    math::vectors::Vector2I,
+    math::vectors::Vector2i,
     storage::World
 };
 use std::{
@@ -24,28 +24,28 @@ pub use board::Board;
 pub use events::ActionEvent;
 pub use utils::get_entities_at_position;
 
-pub struct GameManager {
+pub struct GameEvents {
     pub action_events: EventBus<ActionEvent>,
 }
-impl GameManager {
+impl GameEvents {
     pub fn new() -> Self {
-        GameManager { 
+        GameEvents { 
             action_events: EventBus::new(),
         }
     }
 }
 
-pub fn init(world: &mut World, manager: &mut GameManager) {
-    systems::board_start(world, manager);
+pub fn init(world: &mut World, events: &mut GameEvents) {
+    systems::board_start(world, events);
 }
 
 
-pub fn game_update(world: &mut World, manager: &mut GameManager) -> Result<(), ()> {
+pub fn game_update(world: &mut World, events: &mut GameEvents) -> Result<(), ()> {
     if world.get_resource::<Board>().ok_or(())?.is_exit() {
         systems::board_end(world);
-        systems::board_start(world, manager);
+        systems::board_start(world, events);
         return Ok(());
     }
-    systems::turn_step(world, manager);
+    systems::turn_step(world, events);
     Ok(())
 }

@@ -1,5 +1,6 @@
 use rogalik::{
-    math::vectors::Vector2F,
+    engine::{Color, GraphicsContext, Params2d},
+    math::vectors::Vector2f,
     storage::{Entity, World}
 };
 use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
@@ -16,7 +17,7 @@ use hike_game::{
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_TEXT_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
 };
-use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
+use super::{InputState, ButtonState};
 use super::buttons::Button;
 use super::span::Span;
 
@@ -24,7 +25,7 @@ static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
 
 pub fn handle_menu(
     world: &mut World,
-    backend: &dyn GraphicsBackend,
+    context: &mut crate::Context_,
     state: &InputState,
     scale: f32
 ) -> bool {
@@ -49,7 +50,7 @@ pub fn handle_menu(
     let cur_idx = CONTEXT_IDX.load(Relaxed);
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
 
-    let viewport_size = backend.viewport_size();
+    let viewport_size = context.get_physical_size();
     let gap = scale * UI_GAP;
     let height = scale * UI_BUTTON_HEIGHT;
     let y = viewport_size.y - 2.0 * (height + gap);
@@ -69,7 +70,7 @@ pub fn handle_menu(
             )
             .with_color(BUTTON_COLOR)
             .with_span(Span::new().with_text_borrowed("[MORE]").with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32));
-        button.draw(backend);
+        button.draw(context);
         if button.clicked(state) {
             CONTEXT_IDX.store(cur_idx + 1, Relaxed);
             return true;
@@ -90,7 +91,7 @@ pub fn handle_menu(
             _ => continue
         };
 
-        draw_item_desc(world, *entity, backend, scale);
+        draw_item_desc(world, *entity, context, scale);
 
         let span = Span::new().with_text_borrowed(text).with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
         let button = Button::new(
@@ -101,7 +102,7 @@ pub fn handle_menu(
             )
             .with_color(BUTTON_COLOR)
             .with_span(span);
-        button.draw(backend);
+        button.draw(context);
         if button.clicked(state) || state.action == ButtonState::Pressed {
             set_player_action(world, action);
             return true;
@@ -121,35 +122,33 @@ fn get_item_desc(world: &World, entity: Entity) -> Option<Vec<String>> {
             .map(|c| c.as_str())
             .filter(|s| s.len() > 0)
         );
-        // .collect::<Vec<_>>();
-        // .join(" ");
-    // return Some(format!("{}: {}", name, s));
     Some(v)
 }
 
-fn draw_item_desc(world: &World, entity: Entity, backend: &dyn GraphicsBackend, scale: f32) {
+fn draw_item_desc(world: &World, entity: Entity, context: &mut crate::Context_, scale: f32) {
     if let Some(parts) = get_item_desc(world, entity) {
         let gap = scale * UI_GAP;
         let text_gap = scale * UI_TEXT_GAP;
-        let font_size = (scale * UI_STATUS_TEXT_SIZE as f32) as u32;
-        // let parts = s.split(" ");
-        let space = backend.text_size("default", " ", font_size).x;
+        let font_size = (scale * UI_STATUS_TEXT_SIZE as f32);
+
+        let space = context.graphics.text_dimensions("default", " ", font_size).x;
 
         let mut y = 2.0 * (font_size as f32 + text_gap);
         let mut x = gap;
 
         for (i, part) in parts.iter().enumerate() {
-            let width = backend.text_size("default", &part, font_size).x;
-            if x + width > backend.viewport_size().x - 2.0 * gap {
+            let width = context.graphics.text_dimensions("default", &part, font_size).x;
+            if x + width > context.get_physical_size().x - 2.0 * gap {
                 x = gap;
                 y += font_size as f32 + text_gap;
             }
-            backend.draw_ui_text(
+            let color = if i == 0 { Color(150, 128, 128, 255) } else { Color(98, 81, 81, 255) };
+            context.graphics.draw_text(
                 "default",
                 &format!("{} ", part),
-                Vector2F::new(x, y),
+                Vector2f::new(x, y),
                 font_size,
-                if i == 0 { SpriteColor(150, 128, 128, 255) } else { SpriteColor(98, 81, 81, 255) }
+                Params2d { color, ..Default::default() }
             );
             x += width + space;
         }

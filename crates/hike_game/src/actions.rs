@@ -1,5 +1,5 @@
 use rogalik::{
-    math::vectors::{Vector2I, ORTHO_DIRECTIONS, find_path},
+    math::vectors::{Vector2i, ORTHO_DIRECTIONS, find_path},
     storage::{Entity, World}
 };
 use rand::prelude::*;
@@ -37,7 +37,7 @@ pub trait Action {
 pub fn get_action_at_dir(
     entity: Entity,
     world: &World,
-    dir: Vector2I
+    dir: Vector2i
 ) -> Option<Box<dyn Action>> {
     let position = world.get_component::<Position>(entity)?;
     let target = position.0 + dir;
@@ -85,7 +85,7 @@ pub fn get_npc_action(
 
 pub struct Walk {
     pub entity: Entity,
-    pub target: Vector2I
+    pub target: Vector2i
 }
 impl Action for Walk {
     fn as_any(&self) -> &dyn Any { self }
@@ -130,7 +130,7 @@ impl Action for Walk {
 pub struct Attack {
     // base attack action used to dispatch specific attack types
     pub entity: Entity,
-    pub target: Vector2I
+    pub target: Vector2i
 }
 impl Attack {
     fn get_offending_entity(&self, world: &World) -> Entity {
@@ -141,7 +141,7 @@ impl Attack {
         }
         self.entity
     }
-    fn get_attack_targets(&self, entity: Entity, world: &World) -> HashSet<Vector2I> {
+    fn get_attack_targets(&self, entity: Entity, world: &World) -> HashSet<Vector2i> {
         let mut output = HashSet::from_iter([self.target]);
         let Some(position) = world.get_component::<Position>(self.entity) else { return output };
         let dir = self.target - position.0;
@@ -159,7 +159,7 @@ impl Attack {
 
         output
     }
-    fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2I) -> Vec<Box<dyn Action>> {
+    fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2i) -> Vec<Box<dyn Action>> {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
 
         if let Some(hit) = world.get_component::<Hit>(entity) {
@@ -221,7 +221,7 @@ impl Action for Attack {
 
 pub struct HitAction {
     pub entity: Entity,
-    pub target: Vector2I,
+    pub target: Vector2i,
     pub value: u32
 }
 impl Action for HitAction {
@@ -242,7 +242,7 @@ impl Action for HitAction {
 
 pub struct StunAction {
     pub entity: Entity,
-    pub target: Vector2I,
+    pub target: Vector2i,
     pub value: u32
 }
 impl Action for StunAction {
@@ -262,7 +262,7 @@ impl Action for StunAction {
 
 pub struct PoisonAction {
     pub entity: Entity,
-    pub target: Vector2I,
+    pub target: Vector2i,
     pub value: u32
 }
 impl Action for PoisonAction {
@@ -282,7 +282,7 @@ impl Action for PoisonAction {
 
 pub struct Bump {
     pub entity: Entity,
-    pub target: Vector2I
+    pub target: Vector2i
 }
 impl Action for Bump {
     fn as_any(&self) -> &dyn Any { self }

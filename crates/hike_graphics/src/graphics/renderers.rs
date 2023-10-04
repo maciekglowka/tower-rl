@@ -2,7 +2,8 @@ use std::{
     any::TypeId,
     collections::{HashSet, VecDeque}
 };
-use rogalik::math::vectors::{Vector2F, Vector2I};
+use rogalik::engine::{Color, GraphicsContext, Params2d};
+use rogalik::math::vectors::{Vector2f, Vector2i};
 use rogalik::storage::{Entity, World, WorldEvent};
 
 use hike_data::GameData;
@@ -15,8 +16,7 @@ use hike_game::{
 };
 
 use super::super::{
-    GraphicsState, GraphicsBackend, SpriteColor,
-    world_to_tile, tile_to_world
+    GraphicsState, Context_, world_to_tile, tile_to_world
 };
 use super::utils::move_towards;
 use crate::globals::{
@@ -34,12 +34,12 @@ pub enum SpriteState {
 #[derive(Debug)]
 pub struct SpriteRenderer {
     pub entity: Entity,
-    pub v: Vector2F,
-    pub path: VecDeque<Vector2F>,
+    pub v: Vector2f,
+    pub path: VecDeque<Vector2f>,
     pub atlas_name: String,
     pub index: u32,
     pub z_index: u32,
-    pub color: SpriteColor,
+    pub color: Color,
     pub fade: f32,
     pub state: SpriteState
 }
@@ -123,10 +123,10 @@ pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
     for (v, _) in board.tiles.iter() {
         let Some(wall) = get_wall_at(*v, world) else { continue };
         let mut offset = 0;
-        if get_wall_at(Vector2I::new(v.x, v.y + 1), world).is_none() && v.y < BOARD_SIZE as i32 {
+        if get_wall_at(Vector2i::new(v.x, v.y + 1), world).is_none() && v.y < BOARD_SIZE as i32 {
             offset += 1;
         }
-        if get_wall_at(Vector2I::new(v.x, v.y - 1), world).is_none() && v.y >= 0 {
+        if get_wall_at(Vector2i::new(v.x, v.y - 1), world).is_none() && v.y >= 0 {
             offset += 2;
         }
         if let Some(sprite) = get_entity_sprite_mut(wall, state) {
@@ -135,7 +135,7 @@ pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
     }
 }
 
-fn get_wall_at(v: Vector2I, world: &World) -> Option<Entity> {
+fn get_wall_at(v: Vector2i, world: &World) -> Option<Entity> {
     get_entities_at_position(world, v).iter()
         .filter_map(|&e| match world.get_component::<Name>(e) {
                 Some(a) if a.0 == "Wall" => Some(e),
@@ -200,41 +200,41 @@ fn update_removed_sprites(state: &mut GraphicsState) -> bool {
     ready
 }
 
-pub fn draw_sprites(world: &World, state: &GraphicsState, backend: &dyn GraphicsBackend) {
+pub fn draw_sprites(world: &World, state: &GraphicsState, context: &mut Context_) {
     let Some(board) = world.get_resource::<Board>() else { return };
     for sprite in state.sprites.iter() {
         let tile = world_to_tile(sprite.v);
         if !board.visible.contains(&tile) { continue; }
 
-        let color = SpriteColor(
+        let color = Color(
             sprite.color.0,
             sprite.color.1,
             sprite.color.2,
             (sprite.color.3 as f32 * sprite.fade) as u8,
         );
-        backend.draw_world_sprite(
+        context.graphics.draw_atlas_sprite(
             &sprite.atlas_name,
-            sprite.index,
+            sprite.index as usize,
             sprite.v,
-            Vector2F::new(TILE_SIZE, TILE_SIZE),
-            color
+            Vector2f::new(TILE_SIZE, TILE_SIZE),
+            Params2d { color, ..Default::default() }
         );
     }
 }
 
-pub fn draw_fog(world: &World, backend: &dyn GraphicsBackend) {
+pub fn draw_fog(world: &World, state: &GraphicsState, context: &mut Context_) {
     let Some(board) = world.get_resource::<Board>() else { return };
     for x in -2..BOARD_SIZE as i32 + 2 {
         for y in -2..BOARD_SIZE as i32 + 2 {
-            let vi = Vector2I::new(x, y);
+            let vi = Vector2i::new(x, y);
             if board.visible.contains(&vi) { continue; }
 
-            backend.draw_world_sprite(
+            context.graphics.draw_atlas_sprite(
                 "fog",
                 0,
-                tile_to_world(vi) - Vector2F::new(0.5, 0.5) * TILE_SIZE,
-                Vector2F::new(TILE_SIZE, TILE_SIZE) * 2.0,
-                BACKGROUND_COLOR
+                tile_to_world(vi) - Vector2f::new(0.5, 0.5) * TILE_SIZE,
+                Vector2f::new(TILE_SIZE, TILE_SIZE) * 2.0,
+                Params2d { color: BACKGROUND_COLOR, ..Default::default() }
             );
         }
     }
@@ -298,7 +298,7 @@ fn get_projectile_renderer(
         atlas_name: "ascii".into(),
         index: 249,
         z_index: PROJECTILE_Z,
-        color: SpriteColor(0, 0, 0, 255),
+        color: Color(0, 0, 0, 255),
         fade: 1.,
         state: SpriteState::Existing
     }

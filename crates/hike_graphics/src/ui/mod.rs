@@ -1,7 +1,9 @@
-use rogalik::math::vectors::{Vector2I, Vector2F};
+use rogalik::engine::{Color, GraphicsContext};
+use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 
-use super::{GraphicsState, GraphicsBackend, SpriteColor};
+use super::GraphicsState;
+use super::globals::TILE_SIZE;
 
 mod buttons;
 mod context_menu;
@@ -16,8 +18,8 @@ mod utils;
 
 #[derive(Default)]
 pub struct InputState {
-    pub mouse_world_position: Vector2F,
-    pub mouse_screen_position: Vector2F,
+    pub mouse_world_position: Vector2f,
+    pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
     pub shift: ButtonState,
@@ -48,29 +50,38 @@ pub enum ButtonState {
 
 pub fn draw_world_ui(
     world: &World,
-    backend: &dyn GraphicsBackend,
+    context: &mut crate::Context_,
     state: &GraphicsState
 ) {
-    overlays::draw_overlays(world, backend, state);
+    overlays::draw_overlays(world, context, state);
 }
 
 pub fn ui_update(
     world: &mut World,
     input_state: InputState,
-    backend: &dyn GraphicsBackend,
+    context: &mut crate::Context_,
     scale: f32
 ) {
-    status::draw_status(world, backend, scale);
+    status::draw_status(world, context, scale);
     let mut ui_click = false;
-    if let Some(clicked) = inventory::handle_inventory(world, backend, &input_state, scale) {
+    if let Some(clicked) = inventory::handle_inventory(world, context, &input_state, scale) {
         inventory::click_item(clicked, world);
         ui_click = true
     }
-    if context_menu::handle_menu(world, backend, &input_state, scale) {
+    if context_menu::handle_menu(world, context, &input_state, scale) {
         ui_click = true
     }
 
     if ui_click { return };
     inventory::handle_shift_input(world, &input_state);
     input::handle_dir_input(world, &input_state);
+}
+
+fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
+    let half_size = 0.5 * context.get_physical_size();
+    let centre = (hike_game::globals::BOARD_SIZE as f32) * TILE_SIZE / 2.;
+    (
+        Vector2f::new(centre - half_size.x, centre - half_size.y),
+        Vector2f::new(centre + half_size.x, centre + half_size.y)
+    )
 }

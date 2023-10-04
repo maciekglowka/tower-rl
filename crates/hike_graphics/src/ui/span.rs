@@ -1,7 +1,9 @@
 use std::borrow::Cow;
-use rogalik::math::vectors::Vector2F;
+use rogalik::{
+    engine::{Color, GraphicsContext, Params2d},
+    math::vectors::Vector2f
+};
 
-use super::{GraphicsBackend, SpriteColor};
 
 pub enum SpanItem<'a> {
     Sprite(&'a str, u32),
@@ -10,8 +12,8 @@ pub enum SpanItem<'a> {
 }
 
 pub struct Span<'a> {
-    text_color: SpriteColor,
-    sprite_color: SpriteColor,
+    text_color: Color,
+    sprite_color: Color,
     pub size: u32,
     items: Vec<SpanItem<'a>>,
 }
@@ -19,8 +21,8 @@ impl<'a> Span<'a> {
     pub fn new() -> Self {
         Span {
             size: 32,
-            sprite_color: SpriteColor(255, 255, 255, 255),
-            text_color: SpriteColor(255, 255, 255, 255),
+            sprite_color: Color(255, 255, 255, 255),
+            text_color: Color(255, 255, 255, 255),
             items: Vec::new(),
         }
     }
@@ -48,11 +50,11 @@ impl<'a> Span<'a> {
         );
         self
     }
-    pub fn with_text_color(mut self, color: SpriteColor) -> Self {
+    pub fn with_text_color(mut self, color: Color) -> Self {
         self.text_color = color;
         self
     }
-    pub fn with_sprite_color(mut self, color: SpriteColor) -> Self {
+    pub fn with_sprite_color(mut self, color: Color) -> Self {
         self.sprite_color = color;
         self
     }
@@ -60,11 +62,11 @@ impl<'a> Span<'a> {
         self.size = size;
         self
     }
-    pub fn width(&self, backend: &dyn GraphicsBackend) -> f32 {
+    pub fn width(&self, context: &crate::Context_) -> f32 {
         let mut width = 0.;
         for item in self.items.iter() {
             match item {
-                SpanItem::Text(text) => width += backend.text_size("default", text, self.size).x,
+                SpanItem::Text(text) => width += context.graphics.text_dimensions("default", text, self.size as f32).x,
                 &SpanItem::Sprite(_, _) => width += self.size as f32,
                 SpanItem::Spacer(w) => width += w * self.size as f32
             }
@@ -72,28 +74,28 @@ impl<'a> Span<'a> {
         width
     }
 
-    pub fn draw(&self, origin: Vector2F, backend: &dyn GraphicsBackend) {
+    pub fn draw(&self, origin: Vector2f, context: &mut crate::Context_) {
         let mut offset = 0.;
-        let text_v_offset = -0.5 * (self.size as f32 - backend.text_size("default", "A", self.size).y);
+        let text_v_offset = -0.5 * (self.size as f32 - context.graphics.text_dimensions("default", "A", self.size as f32).y);
         for item in self.items.iter() {
             match item {
                 SpanItem::Text(text) => {
-                    backend.draw_ui_text(
+                    context.graphics.draw_text(
                         "default", 
                         text,
-                        origin + Vector2F::new(offset, text_v_offset), 
-                        self.size, 
-                        self.text_color
+                        origin + Vector2f::new(offset, text_v_offset), 
+                        self.size as f32, 
+                        Params2d { color: self.text_color, ..Default::default() }
                     );
-                    offset += backend.text_size("default", text, self.size).x;
+                    offset += context.graphics.text_dimensions("default", text, self.size as f32).x;
                 },
                 &SpanItem::Sprite(atlas, index) => {
-                    backend.draw_ui_sprite(
+                    context.graphics.draw_atlas_sprite(
                         atlas,
-                        index,
-                        origin + Vector2F::new(offset, -(self.size as f32)),
-                        Vector2F::new(self.size as f32, self.size as f32),
-                        self.sprite_color
+                        index as usize,
+                        origin + Vector2f::new(offset, -(self.size as f32)),
+                        Vector2f::new(self.size as f32, self.size as f32),
+                        Params2d { color: self.sprite_color, ..Default::default() }
                     );
                     offset += self.size as f32;
                 },

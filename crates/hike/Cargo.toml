@@ -13,10 +13,8 @@ assets = "../../assets/"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-macroquad = "0.4" 
-rogalik = { git = "https://github.com/maciekglowka/rogalik.git" }
+rogalik = { workspace = true }
 
-macroquad_sprites = { path = "../macroquad_sprites" }
 hike_data = { path = "../hike_data" }
 hike_game = { path = "../hike_game" }
 hike_graphics = { path = "../hike_graphics" }

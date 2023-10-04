@@ -1,24 +1,25 @@
-use rogalik::storage::World;
+use rogalik::{
+    engine::GraphicsContext,
+    storage::World
+};
 
 use hike_game::components::Position;
 
-use super::GraphicsState;
+use super::{Context_, GraphicsState};
 
 pub mod renderers;
 pub mod utils;
 
-use super::GraphicsBackend;
-
 pub fn graphics_update(
     world: &World,
     state: &mut GraphicsState,
-    backend: &dyn GraphicsBackend
+    context: &mut Context_
 ) -> bool {
     renderers::handle_world_events(world, state);
     renderers::handle_action_events(world, state);
     let ready = renderers::update_sprites(world, state);
 
-    renderers::draw_sprites(world, state, backend);
-    renderers::draw_fog(world, backend);
+    renderers::draw_sprites(world, state, context);
+    renderers::draw_fog(world, state, context);
     ready
 }

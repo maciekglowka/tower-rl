@@ -1,10 +1,13 @@
-use rogalik::storage::{Entity, World};
+use rogalik::{
+    engine::{Color, GraphicsContext},
+    storage::{Entity, World}
+};
 
 use hike_data::{EntityData, GameData};
 use hike_game::components::{Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
-use super::{InputState, ButtonState, GraphicsBackend, SpriteColor};
+use super::{InputState, ButtonState};
 use super::buttons::Button;
 use super::span::Span;
 use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
@@ -12,7 +15,7 @@ use super::utils::get_entity_icons;
 
 pub fn handle_inventory(
     world: &World,
-    backend: &dyn GraphicsBackend,
+    context: &mut crate::Context_,
     state: &InputState,
     scale: f32
 ) -> Option<usize> {
@@ -20,7 +23,7 @@ pub fn handle_inventory(
     let query = world.query::<Player>().build();
     let player = query.single::<Player>()?;
 
-    let viewport_size = backend.viewport_size();
+    let viewport_size = context.get_physical_size();
 
     let mut clicked = None;
     let height = UI_BUTTON_HEIGHT * scale;
@@ -74,7 +77,7 @@ pub fn handle_inventory(
                 }
             }
         }
-        button.draw(backend);
+        button.draw(context);
         if button.clicked(state) {
                 clicked = Some(i)
             }
@@ -104,12 +107,7 @@ pub fn handle_shift_input(world: &World, state: &InputState) {
 
 fn get_item_span<'a>(entity: Entity, world: &World, data: &'a EntityData) -> Span<'a> {
     let mut span = Span::new()
-        // .with_sprite(
-        //     &data.sprite.atlas_name,
-        //     data.sprite.index
-        // )
-        // .with_sprite_color(data.sprite.color)
-        .with_text_color(SpriteColor(255, 255, 255, 255));
+        .with_text_color(Color(255, 255, 255, 255));
 
     let icons = get_entity_icons(entity, world);
     let mut it = icons.iter().peekable();

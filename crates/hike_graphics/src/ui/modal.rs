@@ -1,7 +1,7 @@
+use rogalik::engine::{Color, GraphicsContext};
 use hike_game::actions::Action;
 
-use super::{InputState, GraphicsBackend, SpriteColor};
-use super::buttons::Button;
+use super::InputState;
 
 pub struct ModalData {
     pub text: String,
@@ -9,11 +9,11 @@ pub struct ModalData {
 }
 
 pub fn draw_modal(
-    backend: &dyn GraphicsBackend,
+    context: &crate::Context_,
     input_state: &InputState,
     data: &ModalData
 ) -> Option<usize> {
-    let viewport_size = backend.viewport_size();
+    let viewport_size = context.get_physical_size();
     let mut clicked = None;
 
     // for (i, entry) in data.choices.iter().enumerate() {
@@ -29,7 +29,7 @@ pub fn draw_modal(
     //             SpriteColor(255, 255, 255, 255),
     //             24
     //         )
-    //         .draw(backend)
+    //         .draw(context)
     //         .clicked(input_state) {
     //             clicked = Some(i)
     //         }

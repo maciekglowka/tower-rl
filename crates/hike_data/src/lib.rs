@@ -1,6 +1,8 @@
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use serde_yaml;
 use std::collections::HashMap;
+
+use rogalik::engine::Color;
 
 #[derive(Default)]
 pub struct GameData {
@@ -50,24 +52,9 @@ pub struct EntityData {
 pub struct SpriteData {
     pub atlas_name: String,
     pub index: u32,
-    pub color: SpriteColor
+    #[serde(deserialize_with="deserialize_color")]
+    pub color: Color
 }
-
-#[derive(Clone, Copy, Debug, Deserialize)]
-pub struct SpriteColor(pub u8, pub u8, pub u8, pub u8);
-
-// impl Mul<f32> for SpriteColor {
-//     type Output = Self;
-//     fn mul(self, rhs: f32) -> Self::Output {
-//         return SpriteColor(
-//             (self.0 as f32 * rhs) as u8,
-//             (self.1 as f32 * rhs) as u8,
-//             (self.2 as f32 * rhs) as u8,
-//             (self.3 as f32 * rhs) as u8
-//         )
-//     }
-// }
-
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct LevelData {
@@ -77,4 +64,17 @@ pub struct LevelData {
     pub required_npcs: Vec<String>,
     #[serde(default)]
     pub required_fixtures: Vec<String>
+}
+
+fn deserialize_color<'de, D>(d: D) -> Result<Color, D::Error>
+where D: Deserializer<'de> {
+    match serde_yaml::Value::deserialize(d)? {
+        serde_yaml::Value::Sequence(s) => {
+            if s.len() != 4 { return Err(serde::de::Error::custom("Wrong value!")) }
+            let mut c = s.iter()
+                .map(|v| v.as_u64().expect("Incorrect color numerical value!") as u8);
+            Ok(Color(c.next().unwrap(), c.next().unwrap(), c.next().unwrap(), c.next().unwrap()))
+        },
+        _ => Err(serde::de::Error::custom("Wrong value!"))
+    }
 }

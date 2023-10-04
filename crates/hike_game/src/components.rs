@@ -1,6 +1,6 @@
 use rand::prelude::*;
 use rogalik::storage::{Component, Entity, World};
-use rogalik::math::vectors::Vector2I;
+use rogalik::math::vectors::Vector2i;
 use serde::{Deserialize, Deserializer};
 
 use crate::actions::Action;
@@ -204,12 +204,12 @@ impl Component for Poisoned {}
 
 pub struct Projectile {
     pub damage: u32,
-    pub source: Vector2I,
-    pub target: Vector2I
+    pub source: Vector2i,
+    pub target: Vector2i
 }
 impl Component for Projectile {}
 
-pub struct Position(pub Vector2I);
+pub struct Position(pub Vector2i);
 impl Component for Position {}
 
 pub fn insert_data_components(

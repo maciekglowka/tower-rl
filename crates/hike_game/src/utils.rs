@@ -1,5 +1,5 @@
 use rogalik::{
-    math::vectors::{Vector2I, get_line},
+    math::vectors::{Vector2i, get_line},
     storage::{Entity, World}
 };
 
@@ -15,7 +15,7 @@ pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
     }
 }
 
-pub fn visibility(world: &World, a: Vector2I, b: Vector2I) -> bool {
+pub fn visibility(world: &World, a: Vector2i, b: Vector2i) -> bool {
     let line = get_line(a, b);
     if line.len() <= 2 { return true }
     for v in line[1..line.len() - 1].iter() {
@@ -27,7 +27,7 @@ pub fn visibility(world: &World, a: Vector2I, b: Vector2I) -> bool {
     true
 }
 
-pub fn get_entities_at_position(world: &World, v: Vector2I) -> Vec<Entity> {
+pub fn get_entities_at_position(world: &World, v: Vector2i) -> Vec<Entity> {
     let query =  world.query::<Position>().build();
     query.iter::<Position>().zip(query.entities())
         .filter(|(p, _)| p.0 == v)
@@ -38,7 +38,7 @@ pub fn get_entities_at_position(world: &World, v: Vector2I) -> Vec<Entity> {
 pub fn spawn_with_position(
     world: &mut World,
     name: &str,
-    position: Vector2I
+    position: Vector2i
 ) -> Option<Entity> {
     let entity = world.spawn_entity();
     let _ = world.insert_component(entity, Name(name.into()));

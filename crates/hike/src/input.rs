@@ -1,60 +1,73 @@
-use macroquad::prelude::*;
-use rogalik::math::vectors::Vector2F;
+use rogalik::{
+    engine::{
+        GraphicsContext, ResourceId,
+        input::{MouseButton, VirtualKeyCode}
+    },
+    math::vectors::Vector2f
+};
 use std::collections::HashMap;
 
 use hike_graphics::ui::{ButtonState, InputState, InputDirection};
 
-fn get_mouse_screen_position() -> Vector2F {
-    let v = mouse_position();
-    Vector2F::new(v.0, v.1)
-}
+use super::Context_;
 
-fn get_mouse_world_position(camera: &Camera2D) -> Vector2F {
-    let mouse = mouse_position();
-    let v = camera.screen_to_world(Vec2::new(mouse.0, mouse.1));
-    Vector2F::new(v.x, v.y)
-}
+// fn get_mouse_screen_position() -> Vector2f {
+//     let v = mouse_position();
+//     Vector2f::new(v.0, v.1)
+// }
 
-pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) -> InputState {
-    // use event streams ?
+// fn get_mouse_world_position(camera: &Camera2D) -> Vector2f {
+//     let mouse = mouse_position();
+//     let v = camera.screen_to_world(Vec2::new(mouse.0, mouse.1));
+//     Vector2f::new(v.x, v.y)
+// }
+
+pub fn get_input_state(camera: ResourceId, touch_state: &mut HashMap<u64, Vector2f>, context: &Context_) -> InputState {
     let mut left = ButtonState::Up;
-    if is_mouse_button_down(MouseButton::Left) {
+    if context.input.is_mouse_button_down(MouseButton::Left) {
         left = ButtonState::Down
     }
-    if is_mouse_button_released(MouseButton::Left) {
+    if context.input.is_mouse_button_released(MouseButton::Left) {
         left = ButtonState::Released
     }
-    if is_mouse_button_pressed(MouseButton::Left) {
+    if context.input.is_mouse_button_pressed(MouseButton::Left) {
         left = ButtonState::Pressed
     }
 
-    let shift = key_state(KeyCode::O);
-    let action = key_state(KeyCode::Space);
-    let pause = key_state(KeyCode::P);
+    let shift = key_state(context, VirtualKeyCode::O);
+    let action = key_state(context, VirtualKeyCode::Space);
+    let pause = key_state(context, VirtualKeyCode::P);
 
-    let mut direction = handle_touches(touch_state);
-    if is_key_pressed(KeyCode::W) { direction = InputDirection::Up }
-    if is_key_pressed(KeyCode::S) { direction = InputDirection::Down }
-    if is_key_pressed(KeyCode::A) { direction = InputDirection::Left }
-    if is_key_pressed(KeyCode::D) { direction = InputDirection::Right }
-    if is_key_pressed(KeyCode::Space) { direction = InputDirection::Still }
+    // let mut direction = handle_touches(touch_state);
+    let mut direction = InputDirection::None;
+    if context.input.is_key_pressed(VirtualKeyCode::W) { direction = InputDirection::Up }
+    if context.input.is_key_pressed(VirtualKeyCode::S) { direction = InputDirection::Down }
+    if context.input.is_key_pressed(VirtualKeyCode::A) { direction = InputDirection::Left }
+    if context.input.is_key_pressed(VirtualKeyCode::D) { direction = InputDirection::Right }
+    if context.input.is_key_pressed(VirtualKeyCode::Space) { direction = InputDirection::Still }
 
     let digits = [
-        key_state(KeyCode::Key0),
-        key_state(KeyCode::Key1),
-        key_state(KeyCode::Key2),
-        key_state(KeyCode::Key3),
-        key_state(KeyCode::Key4),
-        key_state(KeyCode::Key5),
-        key_state(KeyCode::Key6),
-        key_state(KeyCode::Key7),
-        key_state(KeyCode::Key8),
-        key_state(KeyCode::Key9),
+        key_state(context, VirtualKeyCode::Key0),
+        key_state(context, VirtualKeyCode::Key1),
+        key_state(context, VirtualKeyCode::Key2),
+        key_state(context, VirtualKeyCode::Key3),
+        key_state(context, VirtualKeyCode::Key4),
+        key_state(context, VirtualKeyCode::Key5),
+        key_state(context, VirtualKeyCode::Key6),
+        key_state(context, VirtualKeyCode::Key7),
+        key_state(context, VirtualKeyCode::Key8),
+        key_state(context, VirtualKeyCode::Key9),
     ];
 
+    let m = context.input.get_mouse_physical_position();
+    let mut w = Vector2f::ZERO;
+    if let Some(camera) = context.graphics.get_camera(camera) {
+        w = camera.camera_to_world(m);
+    }
+
     InputState {
-        mouse_screen_position: get_mouse_screen_position(),
-        mouse_world_position: get_mouse_world_position(camera),
+        mouse_screen_position: m,
+        mouse_world_position: w,
         mouse_button_left: left,
         direction,
         shift,
@@ -64,36 +77,36 @@ pub fn get_input_state(camera: &Camera2D, touch_state: &mut HashMap<u64, Vec2>) 
     }
 }
 
-fn key_state(code: KeyCode) -> ButtonState {
-    if is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
+fn key_state(context: &Context_, code: VirtualKeyCode) -> ButtonState {
+    if context.input.is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
 }
 
-fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {
-    let touches = touches();
-    if let Some(touch) = touches.iter().next() {
-        match touch.phase {
-            TouchPhase::Started => { touch_state.insert(touch.id, touch.position); },
-            TouchPhase::Moved => {
-                if let Some(start) = touch_state.get(&touch.id) {
-                    let dx = touch.position.x - start.x;
-                    let dy = touch.position.y - start.y;
-                    let thresh = 0.05 * screen_width();
-                    let mut dir = InputDirection::None;
-                    if dx > thresh { dir = InputDirection::Right }
-                    if dx < -thresh { dir = InputDirection::Left }
-                    if dy > thresh { dir = InputDirection::Down }
-                    if dy < -thresh { dir = InputDirection::Up }
-                    if dir != InputDirection::None {
-                        touch_state.insert(touch.id, touch.position);
-                        return dir
-                    }
-                }
-            },
-            TouchPhase::Ended => {
-                touch_state.remove(&touch.id);
-            }
-            _ => ()
-        }
-    }
-    InputDirection::None
-}
+// fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {
+//     let touches = touches();
+//     if let Some(touch) = touches.iter().next() {
+//         match touch.phase {
+//             TouchPhase::Started => { touch_state.insert(touch.id, touch.position); },
+//             TouchPhase::Moved => {
+//                 if let Some(start) = touch_state.get(&touch.id) {
+//                     let dx = touch.position.x - start.x;
+//                     let dy = touch.position.y - start.y;
+//                     let thresh = 0.05 * screen_width();
+//                     let mut dir = InputDirection::None;
+//                     if dx > thresh { dir = InputDirection::Right }
+//                     if dx < -thresh { dir = InputDirection::Left }
+//                     if dy > thresh { dir = InputDirection::Down }
+//                     if dy < -thresh { dir = InputDirection::Up }
+//                     if dir != InputDirection::None {
+//                         touch_state.insert(touch.id, touch.position);
+//                         return dir
+//                     }
+//                 }
+//             },
+//             TouchPhase::Ended => {
+//                 touch_state.remove(&touch.id);
+//             }
+//             _ => ()
+//         }
+//     }
+//     InputDirection::None
+// }

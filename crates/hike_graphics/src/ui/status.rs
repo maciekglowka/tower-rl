@@ -1,5 +1,6 @@
 use rogalik::{
-    math::vectors::Vector2F,
+    engine::{Color, GraphicsContext, Params2d},
+    math::vectors::Vector2f,
     storage::World
 };
 
@@ -9,10 +10,10 @@ use hike_game::{
     get_entities_at_position, get_player_position
 };
 
-use super::{GraphicsBackend, SpriteColor};
 use super::super::globals::{UI_GAP, UI_TEXT_GAP, UI_STATUS_TEXT_SIZE};
+use super::get_viewport_bounds;
 
-pub fn draw_status(world: &World, backend: &dyn GraphicsBackend, scale: f32) {
+pub fn draw_status(world: &World, context: &mut crate::Context_, scale: f32) {
     let query = world.query::<Player>().with::<Health>().build();
     let Some(board) = world.get_resource::<Board>() else { return };
 
@@ -29,12 +30,16 @@ pub fn draw_status(world: &World, backend: &dyn GraphicsBackend, scale: f32) {
     if let Some(dexterity) = world.get_component::<Dexterity>(query.single_entity().unwrap()) {
         text += &format!(" Dexterity({})", dexterity.0);
     }
+    let bounds = get_viewport_bounds(context);
 
-    backend.draw_ui_text(
+    context.graphics.draw_text(
         "default",
         &text,
-        Vector2F::new(scale * UI_GAP, scale * (UI_TEXT_GAP + UI_STATUS_TEXT_SIZE as f32)),
-        (UI_STATUS_TEXT_SIZE as f32 * scale) as u32,
-        SpriteColor(150, 128, 128, 255)
+        Vector2f::new(
+            bounds.0.x + scale * UI_GAP,
+            bounds.1.y - scale * (UI_TEXT_GAP + UI_STATUS_TEXT_SIZE as f32)
+        ),
+        UI_STATUS_TEXT_SIZE as f32 * scale,
+        Params2d { color: Color(150, 128, 128, 255), ..Default::default() }
     );
 }

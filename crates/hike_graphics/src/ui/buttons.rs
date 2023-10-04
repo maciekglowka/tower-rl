@@ -1,24 +1,27 @@
-use rogalik::math::vectors::Vector2F;
+use rogalik::{
+    engine::{Color, GraphicsContext},
+    math::vectors::Vector2f
+};
 
-use super::{GraphicsBackend, ButtonState, InputState, SpriteColor};
+use super::{ButtonState, InputState};
 use super::span::Span;
 use super::panels::Panel;
 use super::super::globals::BUTTON_COLOR_SELECTED;
 
 pub struct Button<'a> {
-    origin: Vector2F,
+    origin: Vector2f,
     w: f32,
     h: f32,
-    color: SpriteColor,
+    color: Color,
     span: Option<Span<'a>>
 }
 impl<'a> Button<'a> {
     pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
         Button { 
-            origin: Vector2F::new(x, y),
+            origin: Vector2f::new(x, y),
             w,
             h,
-            color: SpriteColor(255, 255, 255, 255),
+            color: Color(255, 255, 255, 255),
             span: None
         }
     }
@@ -29,21 +32,21 @@ impl<'a> Button<'a> {
         self.span = Some(span);
         self
     }
-    pub fn with_color(mut self, color: SpriteColor) -> Self {
+    pub fn with_color(mut self, color: Color) -> Self {
         self.color = color;
         self
     }
-    pub fn draw(&self, backend: &dyn GraphicsBackend) {
+    pub fn draw(&self, context: &mut crate::Context_) {
         let panel = Panel::new(self.origin, self.w, self.h)
             .with_color(self.color)
             .with_border_color(BUTTON_COLOR_SELECTED);
-        panel.draw(backend);
+        panel.draw(context);
         if let Some(span) = &self.span {
-            let span_offset = Vector2F::new(
-                0.5 * (self.w - span.width(backend)),
+            let span_offset = Vector2f::new(
+                0.5 * (self.w - span.width(context)),
                 self.h - (self.h - span.size as f32) / 2.
             );
-            span.draw(self.origin + span_offset, backend);
+            span.draw(self.origin + span_offset, context);
         }
     }
     pub fn clicked(&self, state: &InputState) -> bool {

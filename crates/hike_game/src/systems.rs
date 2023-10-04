@@ -1,5 +1,5 @@
 use rogalik::{
-    math::vectors::Vector2I,
+    math::vectors::Vector2i,
     storage::{Entity, World}
 };
 use std::collections::{HashMap, VecDeque};
@@ -12,11 +12,11 @@ use crate::components::{
     Actor, Consumable, ConsumableKind, Durability, Immune, Stunned, Health, Player, Position, Poisoned, Dexterity
 };
 use crate::globals::BOARD_SIZE;
-use crate::GameManager;
+use crate::GameEvents;
 use crate::player;
 use crate::utils::get_entities_at_position;
 
-pub fn board_start(world: &mut World, manager: &mut GameManager) {
+pub fn board_start(world: &mut World, events: &mut GameEvents) {
     // replace board resource
     let level = match world.get_resource::<Board>() {
         Some(b) => b.level,
@@ -34,7 +34,7 @@ pub fn board_start(world: &mut World, manager: &mut GameManager) {
     world.insert_resource(pending);
 
     player::spawn_player(world);
-    manager.action_events.publish(crate::ActionEvent::BoardReady);
+    events.action_events.publish(crate::ActionEvent::BoardReady);
 }
 
 pub fn board_end(world: &mut World) {
@@ -48,12 +48,12 @@ pub fn board_end(world: &mut World) {
     }
 }
 
-pub fn turn_step(world: &mut World, manager: &mut GameManager) {
+pub fn turn_step(world: &mut World, events: &mut GameEvents) {
     // hit_projectiles(world);
     update_visibility(world);
-    kill_units(world, manager);
+    kill_units(world, events);
     destroy_items(world);
-    if process_pending_action(world, manager) {
+    if process_pending_action(world, events) {
         // do not process the actor queue if the pending actions were executed
         return
     }
@@ -61,7 +61,7 @@ pub fn turn_step(world: &mut World, manager: &mut GameManager) {
         turn_end(world);
         return
     };
-    if process_actor(actor, world, manager) {
+    if process_actor(actor, world, events) {
         // if we reached this point it should be safe to unwrap
         // on the actor queue
         world.get_resource_mut::<ActorQueue>().unwrap().0.pop_front();
@@ -73,11 +73,11 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
     queue.0.get(0).map(|&e| e)
 }
 
-fn process_actor(entity: Entity, world: &mut World, manager: &mut GameManager) -> bool {
+fn process_actor(entity: Entity, world: &mut World, events: &mut GameEvents) -> bool {
     // returns true if the actor is done
     if process_stunned(world, entity) { return true };
     let Some(selected) = get_new_action(entity, world) else { return false };
-    execute_action(selected, world, manager).is_ok()
+    execute_action(selected, world, events).is_ok()
 }
 
 fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> {
@@ -99,18 +99,18 @@ fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> 
 fn execute_action(
     action: Box<dyn Action>,
     world: &mut World,
-    manager: &mut GameManager
+    events: &mut GameEvents
 ) -> Result<(), ()> {
     let res = action.execute(world);
     if let Ok(res) = res {
         world.get_resource_mut::<PendingActions>().unwrap().0.extend(res);
-        manager.action_events.publish(action.event());
+        events.action_events.publish(action.event());
         return Ok(())
     }
     Err(())
 }
 
-fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool {
+fn process_pending_action(world: &mut World, events: &mut GameEvents) -> bool {
     let Some(pending) = world.get_resource_mut::<PendingActions>()
             .unwrap()
             .0
@@ -118,7 +118,7 @@ fn process_pending_action(world: &mut World, manager: &mut GameManager) -> bool 
         else {
             return false
         };
-    let _ = execute_action(pending, world, manager);
+    let _ = execute_action(pending, world, events);
     true
 }
 
@@ -189,7 +189,7 @@ fn destroy_items(
     }
 }
 
-fn kill_units(world: &mut World, manager: &mut GameManager) {
+fn kill_units(world: &mut World, events: &mut GameEvents) {
     let query = world.query::<Health>().build();
     let entities = query.iter::<Health>().zip(query.entities())
         .filter(|(h, _)| h.0.current == 0)
@@ -200,7 +200,7 @@ fn kill_units(world: &mut World, manager: &mut GameManager) {
         let _ = execute_action(
             Box::new(DropLoot { entity }),
             world,
-            manager
+            events
         );
         world.despawn_entity(entity);
     }

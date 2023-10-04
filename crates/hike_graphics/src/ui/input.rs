@@ -1,4 +1,4 @@
-use rogalik::math::vectors::Vector2I;
+use rogalik::math::vectors::Vector2i;
 
 use hike_game::{
     actions::Pause,
@@ -29,10 +29,10 @@ pub fn handle_dir_input(
         return;
     }
     let dir = match state.direction {
-        InputDirection::Up => Vector2I::UP,
-        InputDirection::Down => Vector2I::DOWN,
-        InputDirection::Left => Vector2I::LEFT,
-        InputDirection::Right => Vector2I::RIGHT,
+        InputDirection::Up => Vector2i::UP,
+        InputDirection::Down => Vector2i::DOWN,
+        InputDirection::Left => Vector2i::LEFT,
+        InputDirection::Right => Vector2i::RIGHT,
         _ => return
     };
     set_player_action_from_dir(world, dir);

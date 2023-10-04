@@ -1,7 +1,7 @@
 use rand::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use rogalik::math::vectors::{Vector2I, ORTHO_DIRECTIONS, visible_tiles};
+use rogalik::math::vectors::{Vector2i, ORTHO_DIRECTIONS, visible_tiles};
 use::rogalik::storage::{Entity, World};
 
 use hike_data::GameData;
@@ -13,9 +13,9 @@ use crate::utils::{get_entities_at_position, spawn_with_position};
 #[derive(Default)]
 pub struct Board {
     pub level: u32,
-    pub tiles: HashMap<Vector2I, Entity>,
+    pub tiles: HashMap<Vector2i, Entity>,
     pub exit: bool,
-    pub visible: HashSet<Vector2I>
+    pub visible: HashSet<Vector2i>
 }
 impl Board {
     pub fn new(level: u32) -> Self {
@@ -26,8 +26,8 @@ impl Board {
     }
     pub fn generate(&mut self, world: &mut World) {
         let mut tile_pool = tile_range(
-            Vector2I::ZERO,
-            Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
+            Vector2i::ZERO,
+            Vector2i::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1)
         );
         for v in tile_pool.iter() {
             let entity = spawn_with_position(world, "Tile", *v).unwrap();
@@ -70,12 +70,12 @@ impl Board {
     }
 }
 
-fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
+fn create_bounds(world: &mut World) -> HashMap<Vector2i, Entity> {
     let mut entities = HashMap::new();
     for x in -1..=BOARD_SIZE as i32 {
         for y in -1..=BOARD_SIZE as i32 {
             if x >=0 && y >= 0 && x < BOARD_SIZE as i32 && y < BOARD_SIZE as i32 { continue }
-            let v = Vector2I::new(x, y);
+            let v = Vector2i::new(x, y);
             let entity = spawn_with_position(world, "Tile", v).unwrap();
             let _ = spawn_with_position(world, "Wall", v).unwrap();
             entities.insert(v, entity);
@@ -86,7 +86,7 @@ fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
 
 // fn spawn_npcs(
 //     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2I>,
+//     tile_pool: &mut HashSet<Vector2i>,
 //     level: u32
 // ) {
 //     let npc_pool = if let Some(data) = world.get_resource::<GameData>() {
@@ -103,7 +103,7 @@ fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
 
 // fn spawn_items(
 //     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2I>,
+//     tile_pool: &mut HashSet<Vector2i>,
 //     level: u32
 // ) {
 //     let item_pool = if let Some(data) = world.get_resource::<GameData>() {
@@ -120,7 +120,7 @@ fn create_bounds(world: &mut World) -> HashMap<Vector2I, Entity> {
 
 // fn spawn_fixtures(
 //     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2I>,
+//     tile_pool: &mut HashSet<Vector2i>,
 //     level: u32
 // ) {
 //     let mut rng = thread_rng();
@@ -153,22 +153,22 @@ pub fn update_visibility(world: &mut World) {
 }
 
 struct Room {
-    pub a: Vector2I,
-    pub b: Vector2I,
-    pub doors: Vec<Vector2I>
+    pub a: Vector2i,
+    pub b: Vector2i,
+    pub doors: Vec<Vector2i>
 }
 impl Room {
-    pub fn tiles(&self) -> HashSet<Vector2I> {
+    pub fn tiles(&self) -> HashSet<Vector2i> {
         tile_range(self.a, self.b)
     }
 }
 
-fn get_bsp_layout() -> (HashSet<Vector2I>, HashSet<Vector2I>) {
+fn get_bsp_layout() -> (HashSet<Vector2i>, HashSet<Vector2i>) {
     // return (walls, doors)
     'outer: loop {
         let base = Room {
-            a: Vector2I::ZERO,
-            b: Vector2I::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1),
+            a: Vector2i::ZERO,
+            b: Vector2i::new(BOARD_SIZE as i32 - 1, BOARD_SIZE as i32 - 1),
             doors: Vec::new()
         };
         let mut wall_tiles = base.tiles();
@@ -213,8 +213,8 @@ fn divide_room(r: Room) -> Vec<Room> {
             if r.doors.iter().any(|&v| v.y == split_val) { return vec![r] }
         }
 
-    let corner_a = if vertical { Vector2I::new(r.b.x, split_val - 1) } else { Vector2I::new(split_val - 1, r.b.y) };
-    let corner_b = if vertical { Vector2I::new(r.a.x, split_val + 1) } else { Vector2I::new(split_val + 1, r.a.y) };
+    let corner_a = if vertical { Vector2i::new(r.b.x, split_val - 1) } else { Vector2i::new(split_val - 1, r.b.y) };
+    let corner_b = if vertical { Vector2i::new(r.a.x, split_val + 1) } else { Vector2i::new(split_val + 1, r.a.y) };
 
     let mut doors = r.doors.clone();
     let door = get_bsp_door(vertical, split_val, r.a, r.b);
@@ -233,28 +233,28 @@ fn divide_room(r: Room) -> Vec<Room> {
     res
 }
 
-fn get_bsp_door(vertical: bool, split_val: i32, a: Vector2I, b: Vector2I) -> Vector2I {
+fn get_bsp_door(vertical: bool, split_val: i32, a: Vector2i, b: Vector2i) -> Vector2i {
     let mut rng = thread_rng();
-    if vertical { Vector2I::new(rng.gen_range(a.x..=b.x), split_val) }
-        else { Vector2I::new(split_val, rng.gen_range(a.y..=b.y))}
+    if vertical { Vector2i::new(rng.gen_range(a.x..=b.x), split_val) }
+        else { Vector2i::new(split_val, rng.gen_range(a.y..=b.y))}
 }
 
-fn tile_range(a: Vector2I, b: Vector2I) -> HashSet<Vector2I> {
+fn tile_range(a: Vector2i, b: Vector2i) -> HashSet<Vector2i> {
     (a.x..=b.x).map(
-            |x| (a.y..=b.y).map(move |y| Vector2I::new(x, y))
+            |x| (a.y..=b.y).map(move |y| Vector2i::new(x, y))
         )
         .flatten()
         .collect()
 }
 
-fn get_random_tile(pool: &mut HashSet<Vector2I>) -> Option<Vector2I> {
+fn get_random_tile(pool: &mut HashSet<Vector2i>) -> Option<Vector2i> {
     let mut rng = thread_rng();
     let v = *pool.iter().choose(&mut rng)?;
     pool.remove(&v);
     Some(v)
 }
 
-pub fn get_free_tile(world: &World) -> Option<Vector2I> {
+pub fn get_free_tile(world: &World) -> Option<Vector2i> {
     let mut rng = thread_rng();
     let board = world.get_resource::<Board>()?;
     let tiles = board.tiles.keys()
