@@ -17,7 +17,7 @@ use hike_game::{
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_TEXT_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
 };
-use super::{InputState, ButtonState};
+use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::span::Span;
 
@@ -27,7 +27,6 @@ pub fn handle_menu(
     world: &mut World,
     context: &mut crate::Context_,
     state: &InputState,
-    scale: f32
 ) -> bool {
     // true if clicked
     let Some(position) = get_player_position(world) else { return false };
@@ -50,26 +49,24 @@ pub fn handle_menu(
     let cur_idx = CONTEXT_IDX.load(Relaxed);
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
 
-    let viewport_size = context.get_physical_size();
-    let gap = scale * UI_GAP;
-    let height = scale * UI_BUTTON_HEIGHT;
-    let y = viewport_size.y - 2.0 * (height + gap);
+    let bounds = get_viewport_bounds(context);
+    let y = bounds.0.y + UI_BUTTON_HEIGHT + 2. * UI_GAP;
     let width = match entities.len() {
         0 => return false,
-        1 => viewport_size.x - 2.0 * gap,
-        _ => (viewport_size.x - 3.0 * gap) / 2.0
+        1 => bounds.1.x - bounds.0.x - 2.0 * UI_GAP,
+        _ => (bounds.1.x - bounds.0.x - 3.0 * UI_GAP) / 2.0
     };
 
     if entities.len() > 1 {
         // draw `next` button
         let button = Button::new(
-                2.0 * gap + width,
+                bounds.0.x + 2.0 * UI_GAP + width,
                 y,
                 width,
-                height
+                UI_BUTTON_HEIGHT
             )
             .with_color(BUTTON_COLOR)
-            .with_span(Span::new().with_text_borrowed("[MORE]").with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32));
+            .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
         button.draw(context);
         if button.clicked(state) {
             CONTEXT_IDX.store(cur_idx + 1, Relaxed);
@@ -85,20 +82,26 @@ pub fn handle_menu(
             e if world.get_component::<Interactive>(*e).is_some() =>
                 ("USE", Box::new(Interact { entity: *e}) as Box<dyn Action>),
             e if world.get_component::<Consumable>(*e).is_some() =>
-                ("USE", Box::new(Consume { entity: *e, consumer: player }) as Box<dyn Action>),
+                ("PICK", Box::new(Consume { entity: *e, consumer: player }) as Box<dyn Action>),
             e if world.get_component::<Item>(*e).is_some() =>
-                ("PICK", Box::new(AddToInventory { entity: *e }) as Box<dyn Action>),
+                ("WIELD", Box::new(AddToInventory { entity: *e }) as Box<dyn Action>),
             _ => continue
         };
 
-        draw_item_desc(world, *entity, context, scale);
+        draw_item_desc(
+            world,
+            *entity,
+            context,
+            Vector2f::new(bounds.0.x + UI_GAP, bounds.1.y - UI_GAP - UI_TEXT_GAP - 2. * UI_STATUS_TEXT_SIZE),
+            bounds.1.x - bounds.0.x
+        );
 
-        let span = Span::new().with_text_borrowed(text).with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
+        let span = Span::new().with_text_borrowed(text).with_size(UI_BUTTON_TEXT_SIZE);
         let button = Button::new(
-                gap,
+                bounds.0.x + UI_GAP,
                 y,
                 width,
-                height
+                UI_BUTTON_HEIGHT
             )
             .with_color(BUTTON_COLOR)
             .with_span(span);
@@ -125,29 +128,25 @@ fn get_item_desc(world: &World, entity: Entity) -> Option<Vec<String>> {
     Some(v)
 }
 
-fn draw_item_desc(world: &World, entity: Entity, context: &mut crate::Context_, scale: f32) {
+fn draw_item_desc(world: &World, entity: Entity, context: &mut crate::Context_, v: Vector2f, vw: f32) {
     if let Some(parts) = get_item_desc(world, entity) {
-        let gap = scale * UI_GAP;
-        let text_gap = scale * UI_TEXT_GAP;
-        let font_size = (scale * UI_STATUS_TEXT_SIZE as f32);
+        let space = context.graphics.text_dimensions("default", " ", UI_STATUS_TEXT_SIZE).x;
 
-        let space = context.graphics.text_dimensions("default", " ", font_size).x;
-
-        let mut y = 2.0 * (font_size as f32 + text_gap);
-        let mut x = gap;
+        let mut y = v.y;
+        let mut x = v.x;
 
         for (i, part) in parts.iter().enumerate() {
-            let width = context.graphics.text_dimensions("default", &part, font_size).x;
-            if x + width > context.get_physical_size().x - 2.0 * gap {
-                x = gap;
-                y += font_size as f32 + text_gap;
+            let width = context.graphics.text_dimensions("default", &part, UI_STATUS_TEXT_SIZE).x;
+            if x + width > vw - 2.0 * UI_GAP {
+                x = v.x;
+                y -= UI_STATUS_TEXT_SIZE + UI_TEXT_GAP;
             }
             let color = if i == 0 { Color(150, 128, 128, 255) } else { Color(98, 81, 81, 255) };
             context.graphics.draw_text(
                 "default",
                 &format!("{} ", part),
                 Vector2f::new(x, y),
-                font_size,
+                UI_STATUS_TEXT_SIZE,
                 Params2d { color, ..Default::default() }
             );
             x += width + space;

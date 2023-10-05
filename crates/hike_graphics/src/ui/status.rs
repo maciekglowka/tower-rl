@@ -13,7 +13,7 @@ use hike_game::{
 use super::super::globals::{UI_GAP, UI_TEXT_GAP, UI_STATUS_TEXT_SIZE};
 use super::get_viewport_bounds;
 
-pub fn draw_status(world: &World, context: &mut crate::Context_, scale: f32) {
+pub fn draw_status(world: &World, context: &mut crate::Context_) {
     let query = world.query::<Player>().with::<Health>().build();
     let Some(board) = world.get_resource::<Board>() else { return };
 
@@ -36,10 +36,10 @@ pub fn draw_status(world: &World, context: &mut crate::Context_, scale: f32) {
         "default",
         &text,
         Vector2f::new(
-            bounds.0.x + scale * UI_GAP,
-            bounds.1.y - scale * (UI_TEXT_GAP + UI_STATUS_TEXT_SIZE as f32)
+            bounds.0.x + UI_GAP,
+            bounds.1.y - UI_GAP - UI_STATUS_TEXT_SIZE,
         ),
-        UI_STATUS_TEXT_SIZE as f32 * scale,
+        UI_STATUS_TEXT_SIZE,
         Params2d { color: Color(150, 128, 128, 255), ..Default::default() }
     );
 }

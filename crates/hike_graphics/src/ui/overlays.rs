@@ -14,7 +14,7 @@ use crate::globals::{TILE_SIZE, PERSP_RATIO};
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
 
-const FONT_SIZE: f32 = 16.;
+const FONT_SIZE: f32 = 0.25;
 
 pub fn draw_overlays(
     world: &World,
@@ -37,7 +37,7 @@ pub fn draw_overlays(
         context.graphics.draw_text(
             "default",
             &text,
-            base.v + Vector2f::new(TILE_SIZE, TILE_SIZE * PERSP_RATIO) - Vector2f::new(size.x, 8.),
+            base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
             FONT_SIZE,
             Params2d { color: Color(195, 234, 254, 255), ..Default::default() }
         );

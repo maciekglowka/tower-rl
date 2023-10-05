@@ -7,7 +7,7 @@ use hike_data::{EntityData, GameData};
 use hike_game::components::{Name, Player};
 use hike_game::globals::INVENTORY_SIZE;
 
-use super::{InputState, ButtonState};
+use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::span::Span;
 use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
@@ -16,19 +16,15 @@ use super::utils::get_entity_icons;
 pub fn handle_inventory(
     world: &World,
     context: &mut crate::Context_,
-    state: &InputState,
-    scale: f32
+    state: &InputState
 ) -> Option<usize> {
     // return item index if clicked
     let query = world.query::<Player>().build();
     let player = query.single::<Player>()?;
 
-    let viewport_size = context.get_physical_size();
-
+    let bounds = get_viewport_bounds(context);
     let mut clicked = None;
-    let height = UI_BUTTON_HEIGHT * scale;
-    let gap = UI_GAP * scale;
-    let width = (viewport_size.x - gap) / INVENTORY_SIZE as f32 - gap;
+    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (INVENTORY_SIZE as f32) - UI_GAP;
 
     for i in 0..INVENTORY_SIZE {
         let color = if i == player.active_item {
@@ -37,13 +33,13 @@ pub fn handle_inventory(
             BUTTON_COLOR
         };
 
-        let offset = gap + i as f32 * (gap + width);
+        let offset = UI_GAP + i as f32 * (UI_GAP + width);
 
         let mut button = Button::new(
-                offset,
-                viewport_size.y - gap - height,
+                bounds.0.x + offset,
+                bounds.0.y + UI_GAP,
                 width,
-                height
+                UI_BUTTON_HEIGHT
             )
             .with_color(color);
 
@@ -52,25 +48,8 @@ pub fn handle_inventory(
         if let Some(entity) = player.items[i] {
             if let Some(name) = world.get_component::<Name>(entity) {
                 if let Some(data) = game_data.entities.get(&name.0) {
-                    // let mut span = Span::new()
-                    //     .with_sprite(
-                    //         &data.sprite.atlas_name,
-                    //         data.sprite.index
-                    //     )
-                    //     .with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32)
-                    //     .with_sprite_color(data.sprite.color)
-                    //     .with_text_color(SpriteColor(255, 255, 255, 255));
-
-                    // let attrs = world.get_entity_components(entity).iter()
-                    //     .map(|c| c.as_str())
-                    //     .filter(|s| s.len() > 0)
-                    //     .collect::<Vec<_>>()
-                    //     .join(" ");
-                    // if attrs.len() > 0 {
-                    //     span = span.with_text_owned(attrs);
-                    // }
                     let mut span = get_item_span(entity, world, data);
-                    span = span.with_size((scale * UI_BUTTON_TEXT_SIZE as f32) as u32);
+                    span = span.with_size(UI_BUTTON_TEXT_SIZE);
 
                     button = button.with_span(span);
 
@@ -79,8 +58,8 @@ pub fn handle_inventory(
         }
         button.draw(context);
         if button.clicked(state) {
-                clicked = Some(i)
-            }
+            clicked = Some(i)
+        }
     }
 
     if state.digits[1] == ButtonState::Pressed { clicked = Some(0) };

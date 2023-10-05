@@ -14,13 +14,13 @@ pub enum SpanItem<'a> {
 pub struct Span<'a> {
     text_color: Color,
     sprite_color: Color,
-    pub size: u32,
+    pub size: f32,
     items: Vec<SpanItem<'a>>,
 }
 impl<'a> Span<'a> {
     pub fn new() -> Self {
         Span {
-            size: 32,
+            size: 1.,
             sprite_color: Color(255, 255, 255, 255),
             text_color: Color(255, 255, 255, 255),
             items: Vec::new(),
@@ -58,7 +58,7 @@ impl<'a> Span<'a> {
         self.sprite_color = color;
         self
     }
-    pub fn with_size(mut self, size: u32) -> Self {
+    pub fn with_size(mut self, size: f32) -> Self {
         self.size = size;
         self
     }
@@ -76,14 +76,14 @@ impl<'a> Span<'a> {
 
     pub fn draw(&self, origin: Vector2f, context: &mut crate::Context_) {
         let mut offset = 0.;
-        let text_v_offset = -0.5 * (self.size as f32 - context.graphics.text_dimensions("default", "A", self.size as f32).y);
+        // let text_v_offset = -0.5 * (self.size as f32 - context.graphics.text_dimensions("default", "A", self.size as f32).y);
         for item in self.items.iter() {
             match item {
                 SpanItem::Text(text) => {
                     context.graphics.draw_text(
                         "default", 
                         text,
-                        origin + Vector2f::new(offset, text_v_offset), 
+                        origin + Vector2f::new(offset, -(self.size as f32)), 
                         self.size as f32, 
                         Params2d { color: self.text_color, ..Default::default() }
                     );

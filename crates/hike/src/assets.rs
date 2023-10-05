@@ -57,7 +57,7 @@ fn load_textures(state: &mut GameState, context: &mut Context_) {
     );
 
     context.graphics.load_font(
-        "default", include_bytes!("../../../assets/ui/pico.png"), 16, 16, Some((14., 14.))
+        "default", include_bytes!("../../../assets/ui/pico_ascii.png"), 16, 16, Some((12., 0.))
     );
 
 }

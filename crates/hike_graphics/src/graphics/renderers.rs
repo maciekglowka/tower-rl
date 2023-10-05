@@ -123,10 +123,10 @@ pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
     for (v, _) in board.tiles.iter() {
         let Some(wall) = get_wall_at(*v, world) else { continue };
         let mut offset = 0;
-        if get_wall_at(Vector2i::new(v.x, v.y + 1), world).is_none() && v.y < BOARD_SIZE as i32 {
+        if get_wall_at(Vector2i::new(v.x, v.y - 1), world).is_none() && v.y < BOARD_SIZE as i32 {
             offset += 1;
         }
-        if get_wall_at(Vector2i::new(v.x, v.y - 1), world).is_none() && v.y >= 0 {
+        if get_wall_at(Vector2i::new(v.x, v.y + 1), world).is_none() && v.y >= 0 {
             offset += 2;
         }
         if let Some(sprite) = get_entity_sprite_mut(wall, state) {

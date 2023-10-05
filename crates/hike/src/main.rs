@@ -35,7 +35,7 @@ impl Game<WgpuContext> for GameState {
         );
 
         self.camera_main = context.graphics.create_camera(
-            1., board_centre
+            64., board_centre
         );
         context.graphics.set_camera(self.camera_main);
     
@@ -53,18 +53,10 @@ impl Game<WgpuContext> for GameState {
         hike_graphics::ui::ui_update(
             &mut self.world,
             input::get_input_state(self.camera_main, &mut self.touch_state, context),
-            context,
-            UI_SCALE
+            context
         );
     }
 }
-
-
-#[cfg(not(target_os = "android"))]
-const UI_SCALE: f32 = 1.0;
-
-#[cfg(target_os = "android")]
-const UI_SCALE: f32 = 2.0;
 
 fn main() {
     std::env::set_var("WINIT_UNIX_BACKEND", "x11");

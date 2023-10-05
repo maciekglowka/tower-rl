@@ -60,15 +60,14 @@ pub fn ui_update(
     world: &mut World,
     input_state: InputState,
     context: &mut crate::Context_,
-    scale: f32
 ) {
-    status::draw_status(world, context, scale);
+    status::draw_status(world, context);
     let mut ui_click = false;
-    if let Some(clicked) = inventory::handle_inventory(world, context, &input_state, scale) {
+    if let Some(clicked) = inventory::handle_inventory(world, context, &input_state) {
         inventory::click_item(clicked, world);
         ui_click = true
     }
-    if context_menu::handle_menu(world, context, &input_state, scale) {
+    if context_menu::handle_menu(world, context, &input_state) {
         ui_click = true
     }
 
@@ -78,7 +77,8 @@ pub fn ui_update(
 }
 
 fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
-    let half_size = 0.5 * context.get_physical_size();
+    let scale = context.graphics.get_current_camera().get_scale();
+    let half_size = 0.5 * context.get_physical_size() / scale;
     let centre = (hike_game::globals::BOARD_SIZE as f32) * TILE_SIZE / 2.;
     (
         Vector2f::new(centre - half_size.x, centre - half_size.y),
