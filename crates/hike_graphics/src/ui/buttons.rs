@@ -51,7 +51,7 @@ impl<'a> Button<'a> {
     }
     pub fn clicked(&self, state: &InputState) -> bool {
         if let ButtonState::Released = state.mouse_button_left { 
-            let v = state.mouse_screen_position;
+            let v = state.mouse_world_position;
             return v.x >= self.origin.x && v.y >= self.origin.y &&
             v.x <= self.origin.x + self.w && v.y <= self.origin.y + self.h
         }

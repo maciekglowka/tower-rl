@@ -10,8 +10,8 @@ pub const TILE_Z: u32 = 50;
 
 pub const INACTIVE_FADE: f32 = 0.5;
 
-pub const MOVEMENT_SPEED: f32 = 0.1;
-pub const FADE_SPEED: f32 = 0.05;
+pub const MOVEMENT_SPEED: f32 = 10.;
+pub const FADE_SPEED: f32 = 5.;
 
 // ui
 pub const UI_BUTTON_HEIGHT: f32 = 1.;

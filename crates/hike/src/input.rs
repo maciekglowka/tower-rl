@@ -59,7 +59,7 @@ pub fn get_input_state(camera: ResourceId, touch_state: &mut HashMap<u64, Vector
         key_state(context, VirtualKeyCode::Key9),
     ];
 
-    let m = context.input.get_mouse_physical_position();
+    let mut m = context.input.get_mouse_physical_position();
     let mut w = Vector2f::ZERO;
     if let Some(camera) = context.graphics.get_camera(camera) {
         w = camera.camera_to_world(m);

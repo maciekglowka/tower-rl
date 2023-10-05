@@ -145,13 +145,13 @@ fn get_wall_at(v: Vector2i, world: &World) -> Option<Entity> {
         .next()
 }
 
-pub fn update_sprites(world: &World, state: &mut GraphicsState) -> bool {
-    update_added_sprites(state);
-    update_removed_sprites(state);
-    update_sprite_positions(world, state)
+pub fn update_sprites(world: &World, state: &mut GraphicsState, delta: f32) -> bool {
+    update_added_sprites(state, delta);
+    update_removed_sprites(state, delta);
+    update_sprite_positions(world, state, delta)
 }
 
-fn update_sprite_positions(world: &World, state: &mut GraphicsState) -> bool {
+fn update_sprite_positions(world: &World, state: &mut GraphicsState, delta: f32) -> bool {
     let Some(board) = world.get_resource::<Board>() else { return true };
     let mut ready = true;
     for sprite in state.sprites.iter_mut() {
@@ -162,7 +162,7 @@ fn update_sprite_positions(world: &World, state: &mut GraphicsState) -> bool {
         if !(board.visible.contains(&target_tile) || board.visible.contains(&source_tile)) { 
             sprite.v = *target;
         } else {
-            sprite.v = move_towards(sprite.v, *target, MOVEMENT_SPEED);
+            sprite.v = move_towards(sprite.v, *target, delta * MOVEMENT_SPEED);
         }
 
         if sprite.v == *target {
@@ -173,11 +173,11 @@ fn update_sprite_positions(world: &World, state: &mut GraphicsState) -> bool {
     ready
 }
 
-fn update_added_sprites(state: &mut GraphicsState) -> bool {
+fn update_added_sprites(state: &mut GraphicsState, delta: f32) -> bool {
     let mut ready = true;
     for sprite in state.sprites.iter_mut().filter(|a| a.state == SpriteState::Added) {
         ready = false;
-        sprite.fade += FADE_SPEED;
+        sprite.fade += delta * FADE_SPEED;
         if sprite.fade >= 1. {
             sprite.fade = 1.;
             sprite.state = SpriteState::Existing;
@@ -186,12 +186,12 @@ fn update_added_sprites(state: &mut GraphicsState) -> bool {
     ready
 }
 
-fn update_removed_sprites(state: &mut GraphicsState) -> bool {
+fn update_removed_sprites(state: &mut GraphicsState, delta: f32) -> bool {
     let mut ready = true;
     let mut to_remove = HashSet::new();
     for sprite in state.sprites.iter_mut().filter(|a| a.state == SpriteState::Removed) {
         ready = false;
-        sprite.fade -= FADE_SPEED;
+        sprite.fade -= delta * FADE_SPEED;
         if sprite.fade <= 0. {
             to_remove.insert(sprite.entity);
         }
