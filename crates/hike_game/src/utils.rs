@@ -1,7 +1,9 @@
+use rand::prelude::*;
 use rogalik::{
     math::vectors::{Vector2i, get_line},
     storage::{Entity, World}
 };
+use serde::{Deserialize, Deserializer};
 
 use hike_data::GameData;
 
@@ -49,4 +51,23 @@ pub fn spawn_with_position(
     insert_data_components(entity, world, &data.components);
 
     Some(entity)
+}
+
+pub fn deserialize_random_u32<'de, D>(d: D) -> Result<u32, D::Error>
+where D: Deserializer<'de> {
+    match serde_yaml::Value::deserialize(d)? {
+        serde_yaml::Value::Number(n) => 
+            Ok(n.as_u64().ok_or(serde::de::Error::custom("Wrong value!"))? as u32),
+        serde_yaml::Value::String(s) => {
+            let parts = s.split('-').collect::<Vec<_>>();
+            if parts.len() != 2 { Err(serde::de::Error::custom("Wrong value!")) }
+            else {
+                let mut rng = thread_rng();
+                let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
+                let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
+                Ok(rng.gen_range(a..=b))
+            }
+        }
+        _ => Err(serde::de::Error::custom("Wrong value!"))
+    }
 }

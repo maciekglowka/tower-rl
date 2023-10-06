@@ -11,12 +11,15 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
-    Obstacle, Position, Player, InteractionKind, Name, Poisoned,
-    Hit, Poison, Stun, Swing, Immune, Lunge, Dexterity
+    Obstacle, Position, Player, Name, Poisoned, Effects,
+    Swing, Immune, Lunge, Dexterity, Weapon, Collectable, Instant, Offensive
 };
-use crate::consumables::get_consume_action;
 use crate::events::ActionEvent;
 use crate::player::get_player_entity;
+use crate::structs::{
+    AttackKind, InteractionKind,
+    get_attack_action, get_effect_action
+};
 use crate::utils::{visibility, get_entities_at_position, spawn_with_position};
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
@@ -46,10 +49,12 @@ pub fn get_action_at_dir(
 
     let entities = get_entities_at_position(world, target);
 
-    let attackable = entities.iter()
-        .any(|&e| world.get_component::<Health>(e).is_some());
-    if attackable {
-        return Some(Box::new(Attack { entity, target }));
+    if world.get_component::<Offensive>(entity).is_some() {
+        let attackable = entities.iter()
+            .any(|&e| world.get_component::<Health>(e).is_some());
+        if attackable {
+            return Some(Box::new(AttackAction { entity, target }));
+        }
     }
 
     if let Some(door) = entities.iter()
@@ -127,16 +132,16 @@ impl Action for Walk {
     }
 }
 
-pub struct Attack {
+pub struct AttackAction {
     // base attack action used to dispatch specific attack types
     pub entity: Entity,
     pub target: Vector2i
 }
-impl Attack {
+impl AttackAction {
     fn get_offending_entity(&self, world: &World) -> Entity {
         if let Some(player) = world.get_component::<Player>(self.entity) {
-            if let Some(item) = player.items[player.active_item] {
-                return item
+            if let Some(weapon) = player.weapons[player.active_weapon] {
+                return weapon
             }
         }
         self.entity
@@ -159,37 +164,14 @@ impl Attack {
 
         output
     }
-    fn get_attack_actions(&self, entity: Entity, world: &World, v: Vector2i) -> Vec<Box<dyn Action>> {
-        let mut actions: Vec<Box<dyn Action>> = Vec::new();
-
-        if let Some(hit) = world.get_component::<Hit>(entity) {
-            actions.push(Box::new(HitAction { 
-                    entity: self.entity,
-                    target: v,
-                    value: hit.0
-                }
-            ));
-        }
-        if let Some(poison) = world.get_component::<Poison>(entity) {
-            actions.push(Box::new(PoisonAction { 
-                    entity: self.entity,
-                    target: v,
-                    value: poison.0
-                }
-            ));
-        }
-        if let Some(stun) = world.get_component::<Stun>(entity) {
-            actions.push(Box::new(StunAction { 
-                    entity: self.entity,
-                    target: v,
-                    value: stun.0
-                }
-            ));
-        }
-        actions
+    fn get_attack_actions(&self, entity: Entity, world: &World, target: Vector2i) -> Vec<Box<dyn Action>> {
+        let Some(offensive) = world.get_component::<Offensive>(entity) else { return Vec::new() };
+        offensive.attacks.iter()
+            .map(|a| get_attack_action(a, entity, target))
+            .collect()
     }
 }
-impl Action for Attack {
+impl Action for AttackAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let offending_entity = self.get_offending_entity(world);
@@ -198,9 +180,9 @@ impl Action for Attack {
             .flatten()
             .collect::<Vec<_>>();
         
-        if world.get_component::<Item>(offending_entity).is_some() {
+        if world.get_component::<Durability>(offending_entity).is_some() {
             actions.push(Box::new(
-                UseItem { entity: offending_entity, owner: self.entity }
+                TakeDurability { entity: offending_entity, owner: self.entity }
             ));
         }
         Ok(actions)
@@ -294,11 +276,11 @@ impl Action for Bump {
     }
 }
 
-pub struct UseItem {
+pub struct TakeDurability {
     pub entity: Entity,
     pub owner: Entity
 }
-impl Action for UseItem {
+impl Action for TakeDurability {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut durability) = world.get_component_mut::<Durability>(self.entity) {
@@ -316,18 +298,18 @@ impl Action for Pause {
     fn execute(&self, world: &mut World) -> ActionResult { Ok(Vec::new() )}
 }
 
-pub struct AddToInventory {
+pub struct WieldWeapon {
     pub entity: Entity
 }
-impl Action for AddToInventory {
+impl Action for WieldWeapon {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut current = None;
         if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
-            let active = player.active_item;
+            let active = player.active_weapon;
     
-            current = player.items[active];
-            player.items[active] = Some(self.entity);
+            current = player.weapons[active];
+            player.weapons[active] = Some(self.entity);
         };
 
         world.remove_component::<Position>(self.entity);
@@ -340,18 +322,22 @@ impl Action for AddToInventory {
     // no score - npcs do not pick
 }
 
-pub struct Consume {
+pub struct UseCollectable {
     pub entity: Entity,
     pub consumer: Entity
 }
-impl Action for Consume {
+impl Action for UseCollectable {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        if let Some(action) = get_consume_action(self.entity, self.consumer, world) {
-            world.despawn_entity(self.entity);
-            return Ok(vec![action]);
-        }
-        Ok(Vec::new())
+        let actions = if let Some(effects) = world.get_component::<Effects>(self.entity) {
+            effects.effects.iter()
+                .map(|e| get_effect_action(e, self.consumer))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        world.despawn_entity(self.entity);
+        Ok(actions)
     }
 }
 
@@ -449,20 +435,6 @@ impl Action for UpgradeHealth {
     // score is not implemented as it always should be a resulting action
 }
 
-// pub struct UpgradeOffensive {
-//     pub entity: Entity,
-//     pub value: u32
-// }
-// impl Action for UpgradeOffensive {
-//     fn as_any(&self) -> &dyn Any { self }
-//     fn execute(&self, world: &mut World) -> ActionResult {
-//         let mut offensive = world.get_component_mut::<Offensive>(self.entity).ok_or(())?;
-//         offensive.value += self.value;
-//         Ok(Vec::new())
-//     }
-//     // score is not implemented as it always should be a resulting action
-// }
-
 pub struct PickGold {
     pub value: u32
 }
@@ -512,7 +484,7 @@ impl Action for Interact {
         let action: Box<dyn Action> = match interactive.kind {
             InteractionKind::Ascend => Box::new(Ascend),
             InteractionKind::Repair(value) => {
-                Box::new(Repair { entity: player.items[player.active_item].ok_or(())?, value } )
+                Box::new(Repair { entity: player.weapons[player.active_weapon].ok_or(())?, value } )
             },
             // InteractionKind::UpgradeOffensive(value) => {
             //     let idx = world.query::<Player>().iter().next().ok_or(())?

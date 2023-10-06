@@ -12,10 +12,10 @@ use std::{
 pub mod actions;
 mod board;
 pub mod components;
-mod consumables;
 mod events;
 pub mod globals;
 mod player;
+pub mod structs;
 mod systems;
 mod utils;
 

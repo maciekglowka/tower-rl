@@ -9,7 +9,7 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Consumable, ConsumableKind, Durability, Immune, Stunned, Health, Player, Position, Poisoned, Dexterity
+    Actor, Durability, Immune, Stunned, Health, Player, Position, Poisoned, Dexterity
 };
 use crate::globals::BOARD_SIZE;
 use crate::GameEvents;
@@ -179,10 +179,16 @@ fn destroy_items(
     for entity in to_remove {
         world.despawn_entity(entity);
 
+        // TODO refactor?
         if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
-            for idx in 0..player.items.len() {
-                if player.items[idx] == Some(entity) {
-                    player.items[idx] = None;
+            for idx in 0..player.weapons.len() {
+                if player.weapons[idx] == Some(entity) {
+                    player.weapons[idx] = None;
+                }
+            }
+            for idx in 0..player.collectables.len() {
+                if player.collectables[idx] == Some(entity) {
+                    player.collectables[idx] = None;
                 }
             }
         }

@@ -1,74 +1,22 @@
-use rand::prelude::*;
 use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2i;
 use serde::{Deserialize, Deserializer};
 
 use crate::actions::Action;
-use crate::globals::INVENTORY_SIZE;
-// use crate::items::ItemKind;
+use crate::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
+use crate::structs::{Attack, Effect, InteractionKind, ValueMax};
+use crate::utils::deserialize_random_u32;
 
-// #[derive(Deserialize, PartialEq)]
-// pub enum AttackKind {
-//     Freeze,
-//     Hit,
-//     Poison
-// }
-
-#[derive(Deserialize)]
-pub enum ConsumableKind {
-    Gold,
-    Heal,
-    Immunity,
-    Dexterity
-}
-
-pub struct ValueMax {
-    pub current: u32,
-    pub max: u32
-}
-
-#[derive(Deserialize, PartialEq)]
-pub enum InteractionKind {
-    Ascend,
-    Repair(#[serde(deserialize_with="deserialize_random_u32")] u32),
-    // UpgradeOffensive(#[serde(deserialize_with="deserialize_random_u32")] u32),
-    UpgradeHealth(#[serde(deserialize_with="deserialize_random_u32")] u32),
-}
-impl InteractionKind {
-    pub fn to_str(&self) -> String {
-        match self {
-            InteractionKind::Ascend => "Ascend".to_string(),
-            InteractionKind::Repair(v) => format!("Repair({})", v),
-            InteractionKind::UpgradeHealth(v) => format!("Incr. HP({})", v),
-            // InteractionKind::UpgradeOffensive(v) => format!("Incr. A({})", v),
-        }
-    }
-}
 
 // deserialized components
 #[derive(Deserialize)]
 pub struct Actor;
 impl Component for Actor {}
 
-// deserialized components
-
+// marker for non-weapon items that can be put into inventory for later use
 #[derive(Deserialize)]
-pub struct Consumable {
-    pub kind: ConsumableKind,
-    #[serde(deserialize_with="deserialize_random_u32")]
-    pub value: u32
-}
-impl Component for Consumable {
-    fn as_str(&self) -> String {
-        let action = match self.kind {
-            ConsumableKind::Gold => "Gold",
-            ConsumableKind::Heal => "Heal",
-            ConsumableKind::Immunity => "Immune",
-            ConsumableKind::Dexterity => "Dexterity"
-        };
-        format!("{} ({})", action, self.value)
-    }
-}
+pub struct Collectable;
+impl Component for Collectable {}
 
 #[derive(Deserialize)]
 pub struct Durability(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
@@ -79,6 +27,12 @@ impl Component for Durability {
 }
 
 #[derive(Deserialize)]
+pub struct Effects {
+    pub effects: Vec<Effect>
+}
+impl Component for Effects {}
+
+#[derive(Deserialize)]
 // fixed tile furnishings
 pub struct Fixture;
 impl Component for Fixture {}
@@ -86,6 +40,11 @@ impl Component for Fixture {}
 #[derive(Deserialize)]
 pub struct Health(pub ValueMax);
 impl Component for Health {}
+
+// marker component for items used automatically upon walking on them
+#[derive(Deserialize)]
+pub struct Instant;
+impl Component for Instant {}
 
 #[derive(Deserialize)]
 pub struct Interactive{
@@ -103,6 +62,7 @@ impl Component for Interactive {
     }
 }
 
+// marker component for all item kinds (Weapon, Collectable, Instant)
 #[derive(Deserialize)]
 pub struct Item;
 impl Component for Item {}
@@ -120,16 +80,18 @@ pub struct Obstacle;
 impl Component for Obstacle {}
 
 #[derive(Deserialize)]
+pub struct Offensive {
+    pub attacks: Vec<Attack>
+}
+impl Component for Offensive {}
+
+#[derive(Deserialize)]
 pub struct Tile;
 impl Component for Tile {}
 
 #[derive(Deserialize)]
-pub struct Hit(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
-impl Component for Hit {
-    fn as_str(&self) -> String {
-        format!("Hit({})", self.0)
-    }
-}
+pub struct Weapon;
+impl Component for Weapon {}
 
 // #[derive(Deserialize)]
 // pub struct Immunity(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
@@ -144,22 +106,6 @@ pub struct Lunge;
 impl Component for Lunge {
     fn as_str(&self) -> String {
         "Lunge".to_string()
-    }
-}
-
-#[derive(Deserialize)]
-pub struct Poison(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
-impl Component for Poison {
-    fn as_str(&self) -> String {
-        format!("Poison({})", self.0)
-    }
-}
-
-#[derive(Deserialize)]
-pub struct Stun(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
-impl Component for Stun {
-    fn as_str(&self) -> String {
-        format!("Stun({})", self.0)
     }
 }
 
@@ -184,8 +130,9 @@ impl Component for Name {}
 #[derive(Default)]
 pub struct Player {
     pub action: Option<Box<dyn Action>>,
-    pub items: [Option<Entity>; INVENTORY_SIZE],
-    pub active_item: usize,
+    pub collectables: [Option<Entity>; MAX_COLLECTABLES],
+    pub weapons: [Option<Entity>; MAX_WEAPONS],
+    pub active_weapon: usize,
     pub gold: u32
 }
 impl Component for Player {}
@@ -222,21 +169,20 @@ pub fn insert_data_components(
         let Some(name) = name.as_str() else { continue };
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
-            "Consumable" => insert_single::<Consumable>(entity, world, component_data),
+            "Collectable" => insert_single::<Collectable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
-            // "Immunity" => insert_single::<Immunity>(entity, world, component_data),
+            "Instant" => insert_single::<Instant>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
             "Loot" => insert_single::<Loot>(entity, world, component_data),
             "Lunge" => insert_single::<Lunge>(entity, world, component_data),
-            "Hit" => insert_single::<Hit>(entity, world, component_data),
-            "Poison" => insert_single::<Poison>(entity, world, component_data),
-            "Stun" => insert_single::<Stun>(entity, world, component_data),
             "Swing" => insert_single::<Swing>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
+            "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
+            "Weapon" => insert_single::<Weapon>(entity, world, component_data),
             "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),
             a => panic!("Unknown component {a}")
         };
@@ -250,25 +196,6 @@ fn insert_single<T>(
 ) where for<'de> T: 'static + Component + Deserialize<'de> {
     let component = serde_yaml::from_value::<T>(data.clone()).expect(&format!("Could not parse {:?}", data));
     let _ =world.insert_component(entity, component);
-}
-
-fn deserialize_random_u32<'de, D>(d: D) -> Result<u32, D::Error>
-where D: Deserializer<'de> {
-    match serde_yaml::Value::deserialize(d)? {
-        serde_yaml::Value::Number(n) => 
-            Ok(n.as_u64().ok_or(serde::de::Error::custom("Wrong value!"))? as u32),
-        serde_yaml::Value::String(s) => {
-            let parts = s.split('-').collect::<Vec<_>>();
-            if parts.len() != 2 { Err(serde::de::Error::custom("Wrong value!")) }
-            else {
-                let mut rng = thread_rng();
-                let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
-                let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
-                Ok(rng.gen_range(a..=b))
-            }
-        }
-        _ => Err(serde::de::Error::custom("Wrong value!"))
-    }
 }
 
 impl<'de> Deserialize<'de> for ValueMax {

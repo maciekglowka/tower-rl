@@ -6,7 +6,7 @@ use rogalik::{
 use crate::actions::{Action, get_action_at_dir};
 use crate::board::get_free_tile;
 use crate::components::{Position, Player};
-use crate::globals::INVENTORY_SIZE;
+// use crate::globals::INVENTORY_SIZE;
 use crate::utils::spawn_with_position;
 
 pub fn spawn_player(world: &mut World) {

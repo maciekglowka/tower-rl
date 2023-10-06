@@ -6,8 +6,8 @@ use rogalik::{
 use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 
 use hike_game::{
-    actions::{Action, Consume, Interact, AddToInventory, Pause},
-    components::{Consumable, Interactive, Item, Name, Hit, Poison, Stun},
+    actions::{Action, Interact, WieldWeapon, Pause},
+    components::{Interactive, Collectable, Item, Name, Weapon},
     get_player_position,
     get_player_entity,
     set_player_action,
@@ -81,10 +81,10 @@ pub fn handle_menu(
         let (text, action) = match entity {
             e if world.get_component::<Interactive>(*e).is_some() =>
                 ("USE", Box::new(Interact { entity: *e}) as Box<dyn Action>),
-            e if world.get_component::<Consumable>(*e).is_some() =>
-                ("PICK", Box::new(Consume { entity: *e, consumer: player }) as Box<dyn Action>),
+            // e if world.get_component::<Collectable>(*e).is_some() =>
+            //     ("PICK", Box::new(Consume { entity: *e, consumer: player }) as Box<dyn Action>),
             e if world.get_component::<Item>(*e).is_some() =>
-                ("WIELD", Box::new(AddToInventory { entity: *e }) as Box<dyn Action>),
+                ("WIELD", Box::new(WieldWeapon { entity: *e }) as Box<dyn Action>),
             _ => continue
         };
 

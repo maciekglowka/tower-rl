@@ -5,7 +5,7 @@ use rogalik::{
 
 use hike_data::{EntityData, GameData};
 use hike_game::components::{Name, Player};
-use hike_game::globals::INVENTORY_SIZE;
+use hike_game::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
 
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
@@ -24,10 +24,10 @@ pub fn handle_inventory(
 
     let bounds = get_viewport_bounds(context);
     let mut clicked = None;
-    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (INVENTORY_SIZE as f32) - UI_GAP;
+    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (MAX_WEAPONS as f32) - UI_GAP;
 
-    for i in 0..INVENTORY_SIZE {
-        let color = if i == player.active_item {
+    for i in 0..MAX_WEAPONS {
+        let color = if i == player.active_weapon {
             BUTTON_COLOR_SELECTED
         } else {
             BUTTON_COLOR
@@ -45,7 +45,7 @@ pub fn handle_inventory(
 
         let game_data = world.get_resource::<GameData>().unwrap();
 
-        if let Some(entity) = player.items[i] {
+        if let Some(entity) = player.weapons[i] {
             if let Some(name) = world.get_component::<Name>(entity) {
                 if let Some(data) = game_data.entities.get(&name.0) {
                     let mut span = get_item_span(entity, world, data);
@@ -73,13 +73,13 @@ pub fn click_item(index: usize, world: &World) {
     world.query::<Player>().build()
         .single_mut::<Player>()
         .unwrap()
-        .active_item = index;
+        .active_weapon = index;
 }
 
 pub fn handle_shift_input(world: &World, state: &InputState) {
     if state.shift == ButtonState::Pressed {
         if let Some(player) = world.query::<Player>().build().single::<Player>() {
-            click_item((player.active_item + 1) % INVENTORY_SIZE, world);
+            click_item((player.active_weapon + 1) % MAX_WEAPONS, world);
         }
     }
 }
