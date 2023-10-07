@@ -4,8 +4,10 @@ use rogalik::{
     storage::{Entity, World}
 };
 
+use hike_game::actions::UseCollectable;
 use hike_game::components::{Name, Player};
 use hike_game::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
+use hike_game::set_player_action;
 
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
@@ -18,32 +20,39 @@ pub fn handle_inventory(
     context: &mut crate::Context_,
     state: &InputState
 ) {
-    // if let Some(clicked) = inventory::handle_inventory_buttons(world, context, &input_state) {
-    //     inventory::click_weapon(clicked, world);
-    //     ui_click = true
-    // }
-    let query = world.query::<Player>().build();
-    let Some(player) = query.single::<Player>() else { return };
-    handle_inventory_buttons(
-        world,
-        0,
-        &player.weapons.to_vec(),
-        Some(player.active_weapon),
-        context,
-        state
-    );
-    handle_inventory_buttons(
-        world,
-        1,
-        &(0..MAX_COLLECTABLES).map(|i| player.collectables.get(i).map(|a| *a)).collect(),
-        None,
-        context,
-        state
-    );
+    let mut click = (None, None);
 
-    // if state.digits[1] == ButtonState::Pressed { clicked = Some(0) };
-    // if state.digits[2] == ButtonState::Pressed { clicked = Some(1) };
-    // if state.digits[3] == ButtonState::Pressed { clicked = Some(2) };
+    {
+        let query = world.query::<Player>().build();
+        let Some(player) = query.single::<Player>() else { return };
+        click.0 = handle_inventory_buttons(
+            world,
+            0,
+            &player.weapons.to_vec(),
+            Some(player.active_weapon),
+            context,
+            state
+        );
+        click.1 = handle_inventory_buttons(
+            world,
+            1,
+            &(0..MAX_COLLECTABLES).map(|i| player.collectables.get(i).map(|a| *a)).collect(),
+            None,
+            context,
+            state
+        );
+    }
+
+    if state.digits[1] == ButtonState::Pressed { click.0 = Some(0) };
+    if state.digits[2] == ButtonState::Pressed { click.0 = Some(1) };
+    if state.digits[3] == ButtonState::Pressed { click.0 = Some(2) };
+
+    if let Some(click) = click.0 {
+        click_weapon(click, world);
+    }
+    if let Some(click) = click.1 {
+        click_item(click, world);
+    }
 }
 
 fn handle_inventory_buttons(
@@ -55,7 +64,6 @@ fn handle_inventory_buttons(
     state: &InputState,
 ) -> Option<usize> {
     // return item index if clicked
-
     let bounds = get_viewport_bounds(context);
     let mut clicked = None;
     let width = (bounds.1.x - bounds.0.x - UI_GAP) / (entities.len() as f32) - UI_GAP;
@@ -93,11 +101,20 @@ fn handle_inventory_buttons(
     clicked
 }
 
-pub fn click_weapon(index: usize, world: &World) {
+fn click_weapon(index: usize, world: &World) {
     world.query::<Player>().build()
         .single_mut::<Player>()
         .unwrap()
         .active_weapon = index;
+}
+
+fn click_item(index: usize, world: &World) {
+    let entity = if let Some(player) = world.query::<Player>().build().single::<Player>() {
+        player.collectables.get(index).map(|&e| e)
+    } else { return };
+    if let Some(entity) = entity {
+        set_player_action(world, Box::new(UseCollectable { entity }));
+    }
 }
 
 // pub fn handle_shift_input(world: &World, state: &InputState) {

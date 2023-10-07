@@ -341,21 +341,26 @@ impl Action for PickCollectable {
     // no score - npcs do not pick
 }
 
-pub struct UseEffects {
-    pub entity: Entity,
-    pub consumer: Entity
+pub struct UseCollectable {
+    pub entity: Entity
 }
-impl Action for UseEffects {
+impl Action for UseCollectable {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        let actions = if let Some(effects) = world.get_component::<Effects>(self.entity) {
-            effects.effects.iter()
-                .map(|e| get_effect_action(e, self.consumer))
-                .collect()
-        } else {
-            Vec::new()
+        let mut actions: Vec<Box<dyn Action>> = Vec::new();
+        let player_query = world.query::<Player>().build();
+        let Some(player_entity) = player_query.single_entity() else { return Err(()) };
+        if let Some(effects) = world.get_component::<Effects>(self.entity) {
+            actions.extend(
+                effects.effects.iter()
+                    .map(|e| get_effect_action(e, player_entity))
+            );
+        }
+        if let Some(mut player) = player_query.single_mut::<Player>() {
+            player.collectables.retain(|&e| e != self.entity);
         };
         world.despawn_entity(self.entity);
+
         Ok(actions)
     }
 }

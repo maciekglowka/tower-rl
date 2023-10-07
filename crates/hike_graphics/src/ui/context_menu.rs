@@ -6,7 +6,7 @@ use rogalik::{
 use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 
 use hike_game::{
-    actions::{Action, Interact, WieldWeapon, Pause, PickCollectable, UseEffects},
+    actions::{Action, Interact, WieldWeapon, PickCollectable},
     components::{Interactive, Collectable, Item, Name, Weapon},
     get_player_position,
     get_player_entity,

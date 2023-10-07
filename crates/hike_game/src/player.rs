@@ -43,7 +43,7 @@ pub fn set_player_action_from_dir(
 }
 
 pub fn set_player_action(
-    world: &mut World,
+    world: &World,
     action: Box<dyn Action>
 ) {
     if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
