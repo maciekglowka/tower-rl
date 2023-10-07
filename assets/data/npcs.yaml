@@ -5,13 +5,15 @@ Rat:
     color: [195, 234, 254, 255]
   components:
     Actor:
-    Hit: 1
     Health: 2
     Loot:
       items:
         - Gold
       chance: 0.5
     Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 1 }
   score: 1
 
 Snake:

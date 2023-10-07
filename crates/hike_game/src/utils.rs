@@ -9,13 +9,13 @@ use hike_data::GameData;
 
 use crate::components::{Actor, Name, Player, Position, ViewBlocker, insert_data_components};
 
-pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
-    if world.get_component::<Player>(source).is_some() {
-        return world.get_component::<Player>(target).is_none()
-    } else {
-        return world.get_component::<Player>(target).is_some()
-    }
-}
+// pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
+//     if world.get_component::<Player>(source).is_some() {
+//         return world.get_component::<Player>(target).is_none()
+//     } else {
+//         return world.get_component::<Player>(target).is_some()
+//     }
+// }
 
 pub fn visibility(world: &World, a: Vector2i, b: Vector2i) -> bool {
     let line = get_line(a, b);

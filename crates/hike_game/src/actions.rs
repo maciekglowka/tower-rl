@@ -12,8 +12,9 @@ use crate::board::Board;
 use crate::components::{
     Durability, Stunned, Health, Interactive, Loot, Item,
     Obstacle, Position, Player, Name, Poisoned, Effects,
-    Swing, Immune, Lunge, Dexterity, Weapon, Collectable, Instant, Offensive
+    Swing, Immune, Lunge, Weapon, Collectable, Instant, Offensive
 };
+use crate::globals::MAX_COLLECTABLES;
 use crate::events::ActionEvent;
 use crate::player::get_player_entity;
 use crate::structs::{
@@ -284,9 +285,7 @@ impl Action for TakeDurability {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut durability) = world.get_component_mut::<Durability>(self.entity) {
-            if world.get_component::<Dexterity>(self.owner).is_none() {
-                durability.0 = durability.0.saturating_sub(1);
-            }
+            durability.0 = durability.0.saturating_sub(1);
         }
         Ok(Vec::new())
     }
@@ -322,11 +321,31 @@ impl Action for WieldWeapon {
     // no score - npcs do not pick
 }
 
-pub struct UseCollectable {
+pub struct PickCollectable {
+    pub entity: Entity
+}
+impl Action for PickCollectable {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
+            if player.collectables.len() >= MAX_COLLECTABLES {
+                return Err(())
+            }
+        
+            player.collectables.push(self.entity);
+        };
+        world.remove_component::<Position>(self.entity);
+
+        Ok(Vec::new())
+    }
+    // no score - npcs do not pick
+}
+
+pub struct UseEffects {
     pub entity: Entity,
     pub consumer: Entity
 }
-impl Action for UseCollectable {
+impl Action for UseEffects {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let actions = if let Some(effects) = world.get_component::<Effects>(self.entity) {
@@ -385,23 +404,6 @@ impl Action for GiveImmunity {
         }
 
         let _ = world.insert_component(self.entity, Immune(self.value));
-        Ok(Vec::new())
-    }
-}
-
-pub struct GiveDexterity {
-    pub entity: Entity,
-    pub value: u32
-}
-impl Action for GiveDexterity {
-    fn as_any(&self) -> &dyn Any { self }
-    fn execute(&self, world: &mut World) -> ActionResult {
-        if let Some(mut dexterity)  = world.get_component_mut::<Dexterity>(self.entity) {
-            dexterity.0 += self.value;
-            return Ok(Vec::new());
-        }
-
-        let _ = world.insert_component(self.entity, Dexterity(self.value));
         Ok(Vec::new())
     }
 }

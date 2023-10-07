@@ -1,9 +1,9 @@
 use rogalik::{
     engine::{Color, GraphicsContext},
+    math::vectors::Vector2f,
     storage::{Entity, World}
 };
 
-use hike_data::{EntityData, GameData};
 use hike_game::components::{Name, Player};
 use hike_game::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
 
@@ -11,23 +11,57 @@ use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::span::Span;
 use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
-use super::utils::get_entity_icons;
+use super::utils::get_item_span;
 
 pub fn handle_inventory(
     world: &World,
     context: &mut crate::Context_,
     state: &InputState
+) {
+    // if let Some(clicked) = inventory::handle_inventory_buttons(world, context, &input_state) {
+    //     inventory::click_weapon(clicked, world);
+    //     ui_click = true
+    // }
+    let query = world.query::<Player>().build();
+    let Some(player) = query.single::<Player>() else { return };
+    handle_inventory_buttons(
+        world,
+        0,
+        &player.weapons.to_vec(),
+        Some(player.active_weapon),
+        context,
+        state
+    );
+    handle_inventory_buttons(
+        world,
+        1,
+        &(0..MAX_COLLECTABLES).map(|i| player.collectables.get(i).map(|a| *a)).collect(),
+        None,
+        context,
+        state
+    );
+
+    // if state.digits[1] == ButtonState::Pressed { clicked = Some(0) };
+    // if state.digits[2] == ButtonState::Pressed { clicked = Some(1) };
+    // if state.digits[3] == ButtonState::Pressed { clicked = Some(2) };
+}
+
+fn handle_inventory_buttons(
+    world: &World,
+    row: u32,
+    entities: &Vec<Option<Entity>>,
+    active: Option<usize>,
+    context: &mut crate::Context_,
+    state: &InputState,
 ) -> Option<usize> {
     // return item index if clicked
-    let query = world.query::<Player>().build();
-    let player = query.single::<Player>()?;
 
     let bounds = get_viewport_bounds(context);
     let mut clicked = None;
-    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (MAX_WEAPONS as f32) - UI_GAP;
+    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (entities.len() as f32) - UI_GAP;
 
-    for i in 0..MAX_WEAPONS {
-        let color = if i == player.active_weapon {
+    for (i, entity) in entities.iter().enumerate() {
+        let color = if Some(i) == active {
             BUTTON_COLOR_SELECTED
         } else {
             BUTTON_COLOR
@@ -37,68 +71,39 @@ pub fn handle_inventory(
 
         let mut button = Button::new(
                 bounds.0.x + offset,
-                bounds.0.y + UI_GAP,
+                bounds.0.y + UI_GAP + row as f32 * (UI_GAP + UI_BUTTON_HEIGHT),
                 width,
                 UI_BUTTON_HEIGHT
             )
             .with_color(color);
 
-        let game_data = world.get_resource::<GameData>().unwrap();
-
-        if let Some(entity) = player.weapons[i] {
-            if let Some(name) = world.get_component::<Name>(entity) {
-                if let Some(data) = game_data.entities.get(&name.0) {
-                    let mut span = get_item_span(entity, world, data);
-                    span = span.with_size(UI_BUTTON_TEXT_SIZE);
-
-                    button = button.with_span(span);
-
-                }
-            }
+        if let Some(entity) = entity {
+            let mut span = get_item_span(*entity, world);
+            span = span.with_size(UI_BUTTON_TEXT_SIZE);
+    
+            button = button.with_span(span);
         }
+
         button.draw(context);
         if button.clicked(state) {
             clicked = Some(i)
         }
     }
 
-    if state.digits[1] == ButtonState::Pressed { clicked = Some(0) };
-    if state.digits[2] == ButtonState::Pressed { clicked = Some(1) };
-    if state.digits[3] == ButtonState::Pressed { clicked = Some(2) };
-
     clicked
 }
 
-pub fn click_item(index: usize, world: &World) {
+pub fn click_weapon(index: usize, world: &World) {
     world.query::<Player>().build()
         .single_mut::<Player>()
         .unwrap()
         .active_weapon = index;
 }
 
-pub fn handle_shift_input(world: &World, state: &InputState) {
-    if state.shift == ButtonState::Pressed {
-        if let Some(player) = world.query::<Player>().build().single::<Player>() {
-            click_item((player.active_weapon + 1) % MAX_WEAPONS, world);
-        }
-    }
-}
-
-fn get_item_span<'a>(entity: Entity, world: &World, data: &'a EntityData) -> Span<'a> {
-    let mut span = Span::new()
-        .with_text_color(Color(255, 255, 255, 255));
-
-    let icons = get_entity_icons(entity, world);
-    let mut it = icons.iter().peekable();
-    while let Some((idx, val)) = it.next() {
-        span = span.with_sprite("icons", *idx);
-        if let Some(val) = val {
-            span = span.with_text_owned(format!("{}", val));
-        }
-        if it.peek().is_some() {
-            // non-last element
-            span = span.with_spacer(0.2);
-        }
-    }
-    span
-}
+// pub fn handle_shift_input(world: &World, state: &InputState) {
+//     if state.shift == ButtonState::Pressed {
+//         if let Some(player) = world.query::<Player>().build().single::<Player>() {
+//             click_item((player.active_weapon + 1) % MAX_WEAPONS, world);
+//         }
+//     }
+// }

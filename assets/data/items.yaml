@@ -4,9 +4,10 @@ Healing_Potion:
     index: 4
     color: [255, 255, 255, 255]
   components:
-    Consumable:
-      kind: !Heal
-      value: 1-3
+    Collectable:
+    Effects:
+      effects:
+        - { kind: Heal, value: 1-3 }
     Item:
 
 Scroll_of_Immunity:
@@ -22,28 +23,16 @@ Scroll_of_Immunity:
   spawn_chance: 0.25
   min_level: 7
 
-Scroll_of_Dexterity:
-  sprite:
-    atlas_name: items
-    index: 6
-    color: [255, 255, 255, 255]
-  components:
-    Consumable:
-      kind: !Dexterity
-      value: 8-14
-    Item:
-  spawn_chance: 0.25
-  min_level: 7
-
 Gold:
   sprite:
     atlas_name: items
     index: 2
     color: [255, 191, 102, 255]
   components:
-    Consumable:
-      kind: !Gold
-      value: 1-3
+    Instant:
+    Effects:
+      effects:
+        - { kind: Gold, value: 1-3 }
     Item:
   spawn_chance: 0.5
 
@@ -53,9 +42,12 @@ Sword:
     index: 0
     color: [255, 255, 255, 255]
   components:
-    Hit: 2-5
     Durability: 5-15
     Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2-5 }
 
 Axe:
   sprite:

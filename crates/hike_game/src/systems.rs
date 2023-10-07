@@ -9,7 +9,7 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Durability, Immune, Stunned, Health, Player, Position, Poisoned, Dexterity
+    Actor, Durability, Immune, Stunned, Health, Player, Position, Poisoned
 };
 use crate::globals::BOARD_SIZE;
 use crate::GameEvents;
@@ -186,11 +186,7 @@ fn destroy_items(
                     player.weapons[idx] = None;
                 }
             }
-            for idx in 0..player.collectables.len() {
-                if player.collectables[idx] == Some(entity) {
-                    player.collectables[idx] = None;
-                }
-            }
+            player.collectables.retain(|&e| e != entity);
         }
     }
 }
@@ -264,24 +260,9 @@ fn process_immune(world: &mut World) {
     }
 }
 
-fn process_dexterity(world: &mut World) {
-    let mut to_remove = Vec::new();
-    let query = world.query::<Dexterity>().build();
-    for (mut dexterity, &entity) in query.iter_mut::<Dexterity>().zip(query.entities()) {
-        dexterity.0 = dexterity.0.saturating_sub(1);
-        if dexterity.0 <= 0 {
-            to_remove.push(entity);
-        }
-    }
-    for entity in to_remove {
-        world.remove_component::<Dexterity>(entity);
-    }
-}
-
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
     process_poisoned(world);
     process_immune(world);
-    process_dexterity(world);
 }

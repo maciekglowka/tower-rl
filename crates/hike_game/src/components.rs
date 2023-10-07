@@ -130,7 +130,7 @@ impl Component for Name {}
 #[derive(Default)]
 pub struct Player {
     pub action: Option<Box<dyn Action>>,
-    pub collectables: [Option<Entity>; MAX_COLLECTABLES],
+    pub collectables: Vec<Entity>,
     pub weapons: [Option<Entity>; MAX_WEAPONS],
     pub active_weapon: usize,
     pub gold: u32
@@ -139,9 +139,6 @@ impl Component for Player {}
 
 pub struct Immune(pub u32);
 impl Component for Immune {}
-
-pub struct Dexterity(pub u32);
-impl Component for Dexterity {}
 
 pub struct Stunned(pub u32);
 impl Component for Stunned {}
@@ -171,6 +168,7 @@ pub fn insert_data_components(
             "Actor" => insert_single::<Actor>(entity, world, component_data),
             "Collectable" => insert_single::<Collectable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
+            "Effects" => insert_single::<Effects>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
