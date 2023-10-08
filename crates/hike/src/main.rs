@@ -35,7 +35,7 @@ impl Game<WgpuContext> for GameState {
         );
 
         self.camera_main = context.graphics.create_camera(
-            64., board_centre
+            48., board_centre + Vector2f::new(0., hike_graphics::globals::BOARD_V_OFFSET)
         );
         context.graphics.set_camera(self.camera_main);
     
@@ -43,13 +43,13 @@ impl Game<WgpuContext> for GameState {
         self.touch_state = HashMap::new();
     }
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
+        // println!("{}", 1. / context.time.get_delta());
         if self.graphics_ready {
             hike_game::game_update(&mut self.world, &mut self.events);
         }
 
         self.graphics_ready = hike_graphics::graphics_update(&self.world, &mut self.graphics_state, context);
         hike_graphics::ui::draw_world_ui(&self.world, context, &self.graphics_state);
-
         hike_graphics::ui::ui_update(
             &mut self.world,
             input::get_input_state(self.camera_main, &mut self.touch_state, context),
@@ -82,7 +82,7 @@ fn run() {
     };
     let engine = EngineBuilder::new()
         .with_title("Tower RL".to_string())
-        .with_logical_size(600., 960.)
+        .with_logical_size(600., 800.)
         .build(game_state);
     engine.run();
 }

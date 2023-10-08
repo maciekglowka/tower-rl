@@ -1,5 +1,5 @@
 use rogalik::{
-    engine::{Color, GraphicsContext},
+    engine::{Color, GraphicsContext, Params2d},
     math::vectors::Vector2f,
     storage::{Entity, World}
 };
@@ -11,8 +11,10 @@ use hike_game::set_player_action;
 
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
-use super::span::Span;
-use super::super::globals::{UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, BUTTON_COLOR_SELECTED};
+use super::super::globals::{
+    UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR,
+    BUTTON_COLOR_SELECTED, UI_BOTTOM_PANEL_HEIGHT
+};
 use super::utils::get_item_span;
 
 pub fn handle_inventory(
@@ -20,24 +22,50 @@ pub fn handle_inventory(
     context: &mut crate::Context_,
     state: &InputState
 ) {
-    let mut click = (None, None);
+    let bounds = get_viewport_bounds(context);
 
+    draw_inventory_panel(bounds.0, bounds.1.x - bounds.0.x, context);
+    
+    context.graphics.draw_text(
+        "default",
+        "Weapons",
+        bounds.0 + Vector2f::new(UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
+        UI_BUTTON_TEXT_SIZE,
+        Params2d { color: BUTTON_COLOR, ..Default::default() }
+    );
+    context.graphics.draw_text(
+        "default",
+        "Inventory",
+        bounds.0 + Vector2f::new(UI_GAP, 2.5 * UI_GAP + 2. * UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE),
+        UI_BUTTON_TEXT_SIZE,
+        Params2d { color: BUTTON_COLOR, ..Default::default() }
+    );
+    
+    let mut click = (None, None);
     {
         let query = world.query::<Player>().build();
         let Some(player) = query.single::<Player>() else { return };
         click.0 = handle_inventory_buttons(
-            world,
-            0,
+            bounds.0 + Vector2f::new(
+                0.,
+                UI_GAP
+            ),
+            bounds.1.x - bounds.0.x,
             &player.weapons.to_vec(),
             Some(player.active_weapon),
+            world,
             context,
             state
         );
         click.1 = handle_inventory_buttons(
-            world,
-            1,
+            bounds.0 + Vector2f::new(
+                0.,
+                2. * UI_GAP + UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE
+            ),
+            bounds.1.x - bounds.0.x,
             &(0..MAX_COLLECTABLES).map(|i| player.collectables.get(i).map(|a| *a)).collect(),
             None,
+            world,
             context,
             state
         );
@@ -56,34 +84,29 @@ pub fn handle_inventory(
 }
 
 fn handle_inventory_buttons(
-    world: &World,
-    row: u32,
+    v: Vector2f,
+    width: f32,    
     entities: &Vec<Option<Entity>>,
     active: Option<usize>,
+    world: &World,
     context: &mut crate::Context_,
     state: &InputState,
 ) -> Option<usize> {
     // return item index if clicked
-    let bounds = get_viewport_bounds(context);
     let mut clicked = None;
-    let width = (bounds.1.x - bounds.0.x - UI_GAP) / (entities.len() as f32) - UI_GAP;
+    let single_width = (width - UI_GAP) / (entities.len() as f32) - UI_GAP;
 
     for (i, entity) in entities.iter().enumerate() {
-        let color = if Some(i) == active {
-            BUTTON_COLOR_SELECTED
-        } else {
-            BUTTON_COLOR
-        };
-
-        let offset = UI_GAP + i as f32 * (UI_GAP + width);
+        let idx = if Some(i) == active { 1 } else { 0 };
+        let offset = UI_GAP + i as f32 * (UI_GAP + single_width);
 
         let mut button = Button::new(
-                bounds.0.x + offset,
-                bounds.0.y + UI_GAP + row as f32 * (UI_GAP + UI_BUTTON_HEIGHT),
-                width,
+                v.x + offset,
+                v.y,
+                single_width,
                 UI_BUTTON_HEIGHT
             )
-            .with_color(color);
+            .with_sprite("ui", idx);
 
         if let Some(entity) = entity {
             let mut span = get_item_span(*entity, world);
@@ -97,7 +120,6 @@ fn handle_inventory_buttons(
             clicked = Some(i)
         }
     }
-
     clicked
 }
 
@@ -117,10 +139,16 @@ fn click_item(index: usize, world: &World) {
     }
 }
 
-// pub fn handle_shift_input(world: &World, state: &InputState) {
-//     if state.shift == ButtonState::Pressed {
-//         if let Some(player) = world.query::<Player>().build().single::<Player>() {
-//             click_item((player.active_weapon + 1) % MAX_WEAPONS, world);
-//         }
-//     }
-// }
+fn draw_inventory_panel(
+    v: Vector2f,
+    width: f32,    
+    context: &mut crate::Context_,
+) {
+    context.graphics.draw_atlas_sprite(
+        "ui",
+        0,
+        v,
+        Vector2f::new(width, UI_BOTTOM_PANEL_HEIGHT),
+        Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
+    );
+}

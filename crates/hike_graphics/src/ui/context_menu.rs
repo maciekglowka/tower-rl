@@ -15,7 +15,7 @@ use hike_game::{
 };
 
 use super::super::globals::{
-    UI_BUTTON_HEIGHT, UI_GAP, UI_TEXT_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR, UI_STATUS_TEXT_SIZE
+    UI_BUTTON_HEIGHT, UI_GAP, UI_TEXT_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT, UI_STATUS_TEXT_SIZE
 };
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
@@ -30,7 +30,6 @@ pub fn handle_menu(
 ) -> bool {
     // true if clicked
     let Some(position) = get_player_position(world) else { return false };
-    let player = get_player_entity(world).unwrap();
 
     let mut entities = get_entities_at_position(world, position)
         .iter()
@@ -50,7 +49,7 @@ pub fn handle_menu(
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
 
     let bounds = get_viewport_bounds(context);
-    let y = bounds.0.y + UI_BUTTON_HEIGHT + 2. * UI_GAP;
+    let y = bounds.0.y + UI_BOTTOM_PANEL_HEIGHT + UI_GAP;
     let width = match entities.len() {
         0 => return false,
         1 => bounds.1.x - bounds.0.x - 2.0 * UI_GAP,
@@ -65,7 +64,7 @@ pub fn handle_menu(
                 width,
                 UI_BUTTON_HEIGHT
             )
-            .with_color(BUTTON_COLOR)
+            .with_sprite("ui", 0)
             .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
         button.draw(context);
         if button.clicked(state) {
@@ -103,7 +102,7 @@ pub fn handle_menu(
                 width,
                 UI_BUTTON_HEIGHT
             )
-            .with_color(BUTTON_COLOR)
+            .with_sprite("ui", 0)
             .with_span(span);
         button.draw(context);
         if button.clicked(state) || state.action == ButtonState::Pressed {
