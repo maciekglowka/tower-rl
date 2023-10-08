@@ -16,9 +16,10 @@ Scroll_of_Immunity:
     index: 6
     color: [255, 255, 255, 255]
   components:
-    Consumable:
-      kind: !Immunity
-      value: 8-14
+    Collectable:
+    Effects:
+      effects:
+        - { kind: Immunity, value: 3-5 }
     Item:
   spawn_chance: 0.25
   min_level: 7
@@ -55,10 +56,13 @@ Axe:
     index: 5
     color: [255, 255, 255, 255]
   components:
-    Hit: 4-7
     Swing:
     Durability: 5-15
     Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 4-7 }
   spawn_chance: 0
 
 Spear:
@@ -67,10 +71,13 @@ Spear:
     index: 8
     color: [255, 255, 255, 255]
   components:
-    Hit: 4-7
     Lunge:
     Durability: 5-15
     Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 4-7 }
   spawn_chance: 0
 
 Stun_Wand:
@@ -79,9 +86,12 @@ Stun_Wand:
     index: 1
     color: [134, 241, 249, 255]
   components:
-    Stun: 2-5
     Durability: 5-15
     Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Stun, value: 3-6 }
   min_level: 5
 
 Poisoned_Dagger:
@@ -90,10 +100,13 @@ Poisoned_Dagger:
     index: 3
     color: [255, 255, 255, 255]
   components:
-    Hit: 1-2
-    Poison: 5-8
     Durability: 5-15
     Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2 }
+        - { kind: Poison, value: 5-8 }
   min_level: 3
 
 Crate:

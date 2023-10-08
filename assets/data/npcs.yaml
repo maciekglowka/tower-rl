@@ -23,13 +23,15 @@ Snake:
     color: [145, 200, 185, 255]
   components:
     Actor:
-    Poison: 2
     Health: 2
     Loot:
       items:
         - Gold
       chance: 0.25
     Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Poison, value: 1 }
   score: 2
   min_level: 3
 
@@ -40,7 +42,6 @@ Novice:
     color: [145, 125, 185, 255]
   components:
     Actor:
-    Hit: 1
     Health: 4
     Loot:
       items:
@@ -48,6 +49,9 @@ Novice:
         - Gold
       chance: 0.3
     Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 1 }
   min_level: 5
   score: 2
 
@@ -58,7 +62,6 @@ Monk:
     color: [245, 125, 185, 255]
   components:
     Actor:
-    Hit: 3
     Health: 6
     Loot:
       items:
@@ -66,6 +69,9 @@ Monk:
         - Spear
       chance: 0.3
     Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 3 }
   min_level: 8
   score: 4
 
@@ -76,7 +82,6 @@ Viper:
     color: [145, 125, 185, 255]
   components:
     Actor:
-    Poison: 4
     Health: 4
     Loot:
       items:
@@ -84,5 +89,8 @@ Viper:
         - Poisoned_Dagger
       chance: 0.25
     Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Poison, value: 4 }
   score: 6
   min_level: 10
