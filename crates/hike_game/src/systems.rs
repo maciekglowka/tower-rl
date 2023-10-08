@@ -5,13 +5,12 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, Damage, DropLoot, PendingActions, get_npc_action,
+    Action, ActorQueue, Damage, DropLoot, PendingActions, UseInstant, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Durability, Immune, Stunned, Health, Player, Position, Poisoned
+    Actor, Durability, Immune, Instant, Stunned, Health, Player, Position, Poisoned
 };
-use crate::globals::BOARD_SIZE;
 use crate::GameEvents;
 use crate::player;
 use crate::utils::get_entities_at_position;
@@ -53,6 +52,7 @@ pub fn turn_step(world: &mut World, events: &mut GameEvents) {
     update_visibility(world);
     kill_units(world, events);
     destroy_items(world);
+    handle_instant(world);
     if process_pending_action(world, events) {
         // do not process the actor queue if the pending actions were executed
         return
@@ -152,20 +152,19 @@ fn process_pending_action(world: &mut World, events: &mut GameEvents) -> bool {
 //     }
 // }
 
-// fn handle_consumable(
-//     world: &mut World
-// ) {
-//     let Some(player_v) = player::get_player_position(world) else { return };
-//     let player = world.query::<Player>().iter().next().unwrap().entity;
+fn handle_instant(
+    world: &mut World
+) {
+    let Some(player_v) = player::get_player_position(world) else { return };
 
-//     let actions = get_entities_at_position(world, player_v).iter()
-//         .filter(|e| world.get_component::<Consumable>(**e).is_some())
-//         .map(|&entity| Box::new(Consume { entity, consumer: player }) as Box<dyn Action> )
-//         .collect::<Vec<_>>();
-//     if let Some(mut pending) = world.get_resource_mut::<PendingActions>() {
-//         pending.0.extend(actions);
-//     }
-// }
+    let actions = get_entities_at_position(world, player_v).iter()
+        .filter(|e| world.get_component::<Instant>(**e).is_some())
+        .map(|&entity| Box::new(UseInstant { entity }) as Box<dyn Action> )
+        .collect::<Vec<_>>();
+    if let Some(mut pending) = world.get_resource_mut::<PendingActions>() {
+        pending.0.extend(actions);
+    }
+}
 
 fn destroy_items(
     world: &mut World

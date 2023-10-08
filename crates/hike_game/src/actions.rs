@@ -365,6 +365,25 @@ impl Action for UseCollectable {
     }
 }
 
+pub struct UseInstant {
+    pub entity: Entity
+}
+impl Action for UseInstant {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut actions: Vec<Box<dyn Action>> = Vec::new();
+        let player_entity = world.query::<Player>().build().single_entity().ok_or(())?;
+        if let Some(effects) = world.get_component::<Effects>(self.entity) {
+            actions.extend(
+                effects.effects.iter()
+                    .map(|e| get_effect_action(e, player_entity))
+            );
+        }
+        world.despawn_entity(self.entity);
+        Ok(actions)
+    }
+}
+
 pub struct Damage {
     pub entity: Entity,
     pub value: u32
