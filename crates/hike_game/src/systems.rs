@@ -49,10 +49,6 @@ pub fn board_end(world: &mut World) {
 
 pub fn turn_step(world: &mut World, events: &mut GameEvents) {
     // hit_projectiles(world);
-    update_visibility(world);
-    kill_units(world, events);
-    destroy_items(world);
-    handle_instant(world);
     if process_pending_action(world, events) {
         // do not process the actor queue if the pending actions were executed
         return
@@ -66,6 +62,10 @@ pub fn turn_step(world: &mut World, events: &mut GameEvents) {
         // on the actor queue
         world.get_resource_mut::<ActorQueue>().unwrap().0.pop_front();
     }
+    update_visibility(world);
+    kill_units(world, events);
+    destroy_items(world);
+    handle_instant(world);
 }
 
 fn get_current_actor(world: &mut World) -> Option<Entity> {

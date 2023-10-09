@@ -3,12 +3,21 @@ name = "tower"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate_type=["cdylib"]
+
+[[bin]]
+path = "src/lib.rs"
+name = "tower"
+
 [package.metadata.android]
-assets = "../../assets/"
+# Specifies the array of targets to build for.
+build_targets = [ "aarch64-linux-android" ]
 
 [package.metadata.android.activity_attributes]
-"android:exported" =  "true"
+# "android:exported" =  "true"
 "android:screenOrientation" = "userPortrait"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,4 +27,3 @@ rogalik = { workspace = true }
 hike_data = { path = "../hike_data" }
 hike_game = { path = "../hike_game" }
 hike_graphics = { path = "../hike_graphics" }
-

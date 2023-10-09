@@ -1,5 +1,6 @@
 [workspace]
 members = ["crates/*"]
+# workspace.resolver = "2"`
 
 [workspace.dependencies]
 rogalik = { path = "../rogalik" }

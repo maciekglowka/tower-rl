@@ -31,7 +31,7 @@ Snake:
     Obstacle:
     Offensive: 
       attacks:
-        - { kind: Poison, value: 1 }
+        - { kind: Poison, value: 2 }
   score: 2
   min_level: 3
 

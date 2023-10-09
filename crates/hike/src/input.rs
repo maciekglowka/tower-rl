@@ -1,7 +1,7 @@
 use rogalik::{
     engine::{
         GraphicsContext, ResourceId,
-        input::{MouseButton, VirtualKeyCode}
+        input::{MouseButton, VirtualKeyCode, TouchPhase}
     },
     math::vectors::Vector2f
 };
@@ -38,8 +38,7 @@ pub fn get_input_state(camera: ResourceId, touch_state: &mut HashMap<u64, Vector
     let action = key_state(context, VirtualKeyCode::Space);
     let pause = key_state(context, VirtualKeyCode::P);
 
-    // let mut direction = handle_touches(touch_state);
-    let mut direction = InputDirection::None;
+    let mut direction = handle_touches(context, touch_state);
     if context.input.is_key_pressed(VirtualKeyCode::W) { direction = InputDirection::Up }
     if context.input.is_key_pressed(VirtualKeyCode::S) { direction = InputDirection::Down }
     if context.input.is_key_pressed(VirtualKeyCode::A) { direction = InputDirection::Left }
@@ -81,32 +80,31 @@ fn key_state(context: &Context_, code: VirtualKeyCode) -> ButtonState {
     if context.input.is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
 }
 
-// fn handle_touches(touch_state: &mut HashMap<u64, Vec2>) -> InputDirection {
-//     let touches = touches();
-//     if let Some(touch) = touches.iter().next() {
-//         match touch.phase {
-//             TouchPhase::Started => { touch_state.insert(touch.id, touch.position); },
-//             TouchPhase::Moved => {
-//                 if let Some(start) = touch_state.get(&touch.id) {
-//                     let dx = touch.position.x - start.x;
-//                     let dy = touch.position.y - start.y;
-//                     let thresh = 0.05 * screen_width();
-//                     let mut dir = InputDirection::None;
-//                     if dx > thresh { dir = InputDirection::Right }
-//                     if dx < -thresh { dir = InputDirection::Left }
-//                     if dy > thresh { dir = InputDirection::Down }
-//                     if dy < -thresh { dir = InputDirection::Up }
-//                     if dir != InputDirection::None {
-//                         touch_state.insert(touch.id, touch.position);
-//                         return dir
-//                     }
-//                 }
-//             },
-//             TouchPhase::Ended => {
-//                 touch_state.remove(&touch.id);
-//             }
-//             _ => ()
-//         }
-//     }
-//     InputDirection::None
-// }
+fn handle_touches(context: &Context_, touch_state: &mut HashMap<u64, Vector2f>) -> InputDirection {
+    for (id, touch) in context.input.get_touches().iter() {
+        match touch.phase {
+            TouchPhase::Started => { touch_state.insert(*id, touch.position); },
+            TouchPhase::Moved => {
+                if let Some(start) = touch_state.get(&id) {
+                    let dx = touch.position.x - start.x;
+                    let dy = touch.position.y - start.y;
+                    let thresh = 0.075 * context.get_physical_size().x;
+                    let mut dir = InputDirection::None;
+                    if dx > thresh { dir = InputDirection::Right }
+                    if dx < -thresh { dir = InputDirection::Left }
+                    if dy > thresh { dir = InputDirection::Up }
+                    if dy < -thresh { dir = InputDirection::Down }
+                    if dir != InputDirection::None {
+                        touch_state.insert(*id, touch.position);
+                        return dir
+                    }
+                }
+            },
+            TouchPhase::Ended => {
+                touch_state.remove(&id);
+            }
+            _ => ()
+        }
+    }
+    InputDirection::None
+}

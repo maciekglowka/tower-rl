@@ -62,7 +62,7 @@ Axe:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 4-7 }
+        - { kind: Hit, value: 3-5 }
   spawn_chance: 0
 
 Spear:
@@ -77,7 +77,7 @@ Spear:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 4-7 }
+        - { kind: Hit, value: 3-5 }
   spawn_chance: 0
 
 Stun_Wand:

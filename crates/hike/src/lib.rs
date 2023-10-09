@@ -6,8 +6,10 @@ use rogalik::{
 };
 use std::{
     collections::HashMap,
-    time::{Duration, Instant}
 };
+
+#[cfg(target_os = "android")]
+use rogalik::engine::AndroidApp;
 
 mod assets;
 mod input;
@@ -56,6 +58,21 @@ impl Game<WgpuContext> for GameState {
             context
         );
     }
+    #[cfg(target_os = "android")]
+    fn resize(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
+        let scale = 16. * (context.get_physical_size().x as u32 / 10 / 16) as f32;
+        if let Some(camera) = context.graphics.get_camera_mut(self.camera_main) {
+            camera.set_scale(scale);
+        }
+    }
+}
+
+#[cfg(target_os = "android")]
+#[no_mangle]
+fn android_main(app: AndroidApp) {
+    let engine = EngineBuilder::new()
+        .build_android(game_state(), app);
+    engine.run();
 }
 
 fn main() {
@@ -64,7 +81,15 @@ fn main() {
 }
 
 #[cfg_attr(target_arch="wasm32", wasm_bindgen(start))]
-fn run() {
+pub fn run() {
+    let engine = EngineBuilder::new()
+        .with_title("Tower RL".to_string())
+        .with_logical_size(600., 800.)
+        .build(game_state());
+    engine.run();
+}
+
+fn game_state() -> GameState {
     let mut world = World::new();
     let mut events = hike_game::GameEvents::new();
     let graphics_state = hike_graphics::GraphicsState::new(
@@ -72,17 +97,12 @@ fn run() {
         &mut events
     );
 
-    let game_state = GameState {
+    GameState {
         camera_main: ResourceId::default(),
         events,
         graphics_ready: false,
         graphics_state,
         touch_state: HashMap::new(),
         world
-    };
-    let engine = EngineBuilder::new()
-        .with_title("Tower RL".to_string())
-        .with_logical_size(600., 800.)
-        .build(game_state);
-    engine.run();
+    }
 }

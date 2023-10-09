@@ -23,7 +23,7 @@ pub fn get_item_span<'a>(entity: Entity, world: &World) -> Span<'a> {
         }
         if it.peek().is_some() {
             // non-last element
-            span = span.with_spacer(0.2);
+            // span = span.with_spacer(0.1);
         }
     }
     span
