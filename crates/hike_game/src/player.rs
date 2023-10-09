@@ -3,7 +3,7 @@ use rogalik::{
     storage::{Entity, World}
 };
 
-use crate::actions::{Action, get_action_at_dir};
+use crate::actions::{Action, ActorQueue, get_action_at_dir};
 use crate::board::get_free_tile;
 use crate::components::{Position, Player};
 // use crate::globals::INVENTORY_SIZE;
@@ -39,16 +39,24 @@ pub fn set_player_action_from_dir(
 ) {
     let query = world.query::<Player>().build();
     let Some(entity) = query.single_entity() else { return };
-    query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir);
+    if let Some(queue) = world.get_resource::<ActorQueue>() {
+        if queue.0.get(0).map(|&e| e) == Some(entity) {
+            query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir);
+        }
+    }
 }
 
 pub fn set_player_action(
     world: &World,
     action: Box<dyn Action>
 ) {
-    if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
-        player.action = Some(action);
-    };
+    let query = world.query::<Player>().build();
+    let Some(entity) = query.single_entity() else { return };
+    if let Some(queue) = world.get_resource::<ActorQueue>() {
+        if queue.0.get(0).map(|&e| e) == Some(entity) {
+            query.single_mut::<Player>().unwrap().action = Some(action);
+        }
+    }
 }
 
 pub fn turn_end(world: &mut World) {
