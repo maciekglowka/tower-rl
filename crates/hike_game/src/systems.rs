@@ -9,11 +9,11 @@ use crate::actions::{
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Durability, Immune, Instant, Stunned, Health, Player, Position, Poisoned
+    Actor, Durability, Immune, Instant, Stunned, Health, Player, Position, Poisoned, Transition
 };
 use crate::GameEvents;
 use crate::player;
-use crate::utils::get_entities_at_position;
+use crate::utils::{get_entities_at_position, spawn_with_position};
 
 pub fn board_start(world: &mut World, events: &mut GameEvents) {
     // replace board resource
@@ -259,9 +259,29 @@ fn process_immune(world: &mut World) {
     }
 }
 
+fn process_transition(world: &mut World) {
+    let query = world.query::<Transition>().with::<Position>().build();
+    let mut to_despawn = Vec::new();
+    let mut to_spawn = Vec::new();
+    for ((transition, position), &entity) in query.iter::<Transition>()
+        .zip(query.iter::<Position>())
+        .zip(query.entities())
+    {
+        to_despawn.push(entity);
+        to_spawn.push((position.0, transition.next.clone()));
+    }
+    for entity in to_despawn {
+        world.despawn_entity(entity);
+    }
+    for (v, name) in to_spawn {
+        spawn_with_position(world, &name, v);
+    }
+}
+
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
     process_poisoned(world);
     process_immune(world);
+    process_transition(world);
 }

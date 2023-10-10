@@ -90,6 +90,12 @@ pub struct Tile;
 impl Component for Tile {}
 
 #[derive(Deserialize)]
+pub struct Transition {
+    pub next: String
+}
+impl Component for Transition {}
+
+#[derive(Deserialize)]
 pub struct Weapon;
 impl Component for Weapon {}
 
@@ -180,6 +186,7 @@ pub fn insert_data_components(
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
+            "Transition" => insert_single::<Transition>(entity, world, component_data),
             "Weapon" => insert_single::<Weapon>(entity, world, component_data),
             "ViewBlocker" => insert_single::<ViewBlocker>(entity, world, component_data),
             a => panic!("Unknown component {a}")
