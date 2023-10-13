@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 use hike_game::{
-    components::{Durability, Effects, Lunge, Offensive, Swing},
+    components::{Durability, Effects, Lunge, Offensive, Push, Swing},
     structs::{Attack, AttackKind, Effect, EffectKind},
 };
 use crate::ui::span::Span;
@@ -53,6 +53,9 @@ fn get_entity_icons(entity: Entity, world: &World) -> Vec<(u32, Option<u32>)> {
     }
     if let Some(_) = world.get_component::<Lunge>(entity) {
         output.push((9, None));
+    }
+    if let Some(_) = world.get_component::<Push>(entity) {
+        output.push((10, None));
     }
     output
 }

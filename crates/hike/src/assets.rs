@@ -47,7 +47,7 @@ fn load_textures(state: &mut GameState, context: &mut Context_) {
         "tiles", include_bytes!("../../../assets/sprites/tiles.png"), 4, 4, None
     );
     context.graphics.load_sprite_atlas(
-        "items", include_bytes!("../../../assets/sprites/items.png"), 4, 4, None
+        "items", include_bytes!("../../../assets/sprites/items.png"), 8, 8, None
     );
     context.graphics.load_sprite_atlas(
         "icons", include_bytes!("../../../assets/sprites/icons.png"), 8, 8, None

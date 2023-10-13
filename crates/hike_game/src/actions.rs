@@ -10,9 +10,9 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    Durability, Stunned, Health, Interactive, Loot, Item,
+    Actor, Durability, Stunned, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects,
-    Swing, Immune, Lunge, Weapon, Collectable, Instant, Offensive
+    Swing, Immune, Lunge, Push, Offensive
 };
 use crate::globals::MAX_COLLECTABLES;
 use crate::events::ActionEvent;
@@ -96,6 +96,10 @@ pub struct Walk {
 impl Action for Walk {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
+        if get_entities_at_position(world, self.target).iter()
+            .any(|&e| world.get_component::<Obstacle>(e).is_some()) {
+                return Err(())
+            }
         let mut position = world.get_component_mut::<Position>(self.entity).ok_or(())?;
         position.0 = self.target;
 
@@ -171,13 +175,29 @@ impl AttackAction {
             .map(|a| get_attack_action(a, entity, target))
             .collect()
     }
+    fn get_attack_side_effects(&self, entity: Entity, world: &World, target: Vector2i)  -> Vec<Box<dyn Action>> {
+        let mut actions: Vec<Box<dyn Action>> = Vec::new();
+
+        if world.get_component::<Push>(entity).is_some() {
+            if let Some(position) = world.get_component::<Position>(self.entity) {
+                actions.push(Box::new(
+                    PushAction { source: position.0, target }
+                ));
+            }
+        }
+        actions
+    }
 }
 impl Action for AttackAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let offending_entity = self.get_offending_entity(world);
         let mut actions = self.get_attack_targets(offending_entity, world).iter()
-            .map(|&v| self.get_attack_actions(offending_entity, world, v))
+            .map(|&v| 
+                self.get_attack_actions(offending_entity, world, v)
+                .into_iter()
+                .chain(self.get_attack_side_effects(offending_entity, world, v))
+            )
             .flatten()
             .collect::<Vec<_>>();
         
@@ -260,6 +280,26 @@ impl Action for PoisonAction {
             let _ = world.insert_component(entity, Poisoned(self.value));
         }
         Ok(Vec::new())
+    }
+}
+
+pub struct PushAction {
+    pub source: Vector2i,
+    pub target: Vector2i
+}
+impl Action for PushAction {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if self.source.manhattan(self.target) > 1 {
+            return Err(())
+        }
+        let dir = self.target - self.source;
+
+        let actions = get_entities_at_position(world, self.target).iter()
+            .filter(|&e| world.get_component::<Actor>(*e).is_some())
+            .map(|&e| Box::new(Walk { entity: e, target: self.target + dir }) as Box<dyn Action>)
+            .collect::<Vec<_>>();
+        Ok(actions)
     }
 }
 

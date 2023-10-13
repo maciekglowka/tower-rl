@@ -124,6 +124,14 @@ impl Component for Swing {
 }
 
 #[derive(Deserialize)]
+pub struct Push;
+impl Component for Push {
+    fn as_str(&self) -> String {
+        "Push".to_string()
+    }
+}
+
+#[derive(Deserialize)]
 pub struct ViewBlocker;
 impl Component for ViewBlocker {}
 
@@ -185,6 +193,7 @@ pub fn insert_data_components(
             "Swing" => insert_single::<Swing>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
+            "Push" => insert_single::<Push>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "Transition" => insert_single::<Transition>(entity, world, component_data),
             "Weapon" => insert_single::<Weapon>(entity, world, component_data),

@@ -1,7 +1,7 @@
 Healing_Potion:
   sprite:
     atlas_name: items
-    index: 4
+    index: 16
     color: [255, 255, 255, 255]
   components:
     Collectable:
@@ -13,7 +13,7 @@ Healing_Potion:
 Scroll_of_Immunity:
   sprite:
     atlas_name: items
-    index: 6
+    index: 18
     color: [255, 255, 255, 255]
   components:
     Collectable:
@@ -27,7 +27,7 @@ Scroll_of_Immunity:
 Gold:
   sprite:
     atlas_name: items
-    index: 2
+    index: 19
     color: [255, 191, 102, 255]
   components:
     Instant:
@@ -53,7 +53,7 @@ Sword:
 Axe:
   sprite:
     atlas_name: items
-    index: 5
+    index: 4
     color: [255, 255, 255, 255]
   components:
     Swing:
@@ -68,7 +68,7 @@ Axe:
 Spear:
   sprite:
     atlas_name: items
-    index: 8
+    index: 2
     color: [255, 255, 255, 255]
   components:
     Lunge:
@@ -94,6 +94,21 @@ Stun_Wand:
         - { kind: Stun, value: 3-6 }
   min_level: 5
 
+Warhammer:
+  sprite:
+    atlas_name: items
+    index: 5
+    color: [255, 255, 255, 255]
+  components:
+    Durability: 5-15
+    Item:
+    Weapon:
+    Push:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 1 }
+  min_level: 5
+
 Poisoned_Dagger:
   sprite:
     atlas_name: items
@@ -112,7 +127,7 @@ Poisoned_Dagger:
 Crate:
   sprite:
     atlas_name: items
-    index: 9
+    index: 25
     color: [255, 255, 255, 255]
   components:
     Health: 1
