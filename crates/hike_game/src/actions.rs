@@ -96,10 +96,6 @@ pub struct Walk {
 impl Action for Walk {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        if get_entities_at_position(world, self.target).iter()
-            .any(|&e| world.get_component::<Obstacle>(e).is_some()) {
-                return Err(())
-            }
         let mut position = world.get_component_mut::<Position>(self.entity).ok_or(())?;
         position.0 = self.target;
 
@@ -181,7 +177,7 @@ impl AttackAction {
         if world.get_component::<Push>(entity).is_some() {
             if let Some(position) = world.get_component::<Position>(self.entity) {
                 actions.push(Box::new(
-                    PushAction { source: position.0, target }
+                    PushAction { source: position.0, target, distance: 2 }
                 ));
             }
         }
@@ -285,7 +281,25 @@ impl Action for PoisonAction {
 
 pub struct PushAction {
     pub source: Vector2i,
-    pub target: Vector2i
+    pub target: Vector2i,
+    pub distance: u32
+}
+impl PushAction {
+    fn get_furthest_walkable(&self, world: &World, dir: Vector2i) -> Option<Vector2i> {
+        let obstacle_positions = world.query::<Obstacle>()
+            .with::<Position>()
+            .build()
+            .iter::<Position>()
+            .map(|a| a.0)
+            .collect::<Vec<_>>();
+        let mut result = self.target;
+        for _ in 1..=self.distance {
+            let t = result + dir;
+            if obstacle_positions.contains(&t) { break };
+            result = t;
+        }
+        if result == self.target { None } else { Some(result) }
+    }
 }
 impl Action for PushAction {
     fn as_any(&self) -> &dyn Any { self }
@@ -294,11 +308,14 @@ impl Action for PushAction {
             return Err(())
         }
         let dir = self.target - self.source;
-
-        let actions = get_entities_at_position(world, self.target).iter()
-            .filter(|&e| world.get_component::<Actor>(*e).is_some())
-            .map(|&e| Box::new(Walk { entity: e, target: self.target + dir }) as Box<dyn Action>)
-            .collect::<Vec<_>>();
+        let actions = if let Some(tile) = self.get_furthest_walkable(world, dir) {
+            get_entities_at_position(world, self.target).iter()
+                .filter(|&e| world.get_component::<Actor>(*e).is_some())
+                .map(|&e| Box::new(Walk { entity: e, target: tile }) as Box<dyn Action>)
+                .collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        };
         Ok(actions)
     }
 }
