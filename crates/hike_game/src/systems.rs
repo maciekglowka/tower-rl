@@ -5,11 +5,12 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, Damage, DropLoot, PendingActions, UseInstant, get_npc_action,
+    Action, ActorQueue, AttackAction, Damage, DropLoot, PendingActions, UseInstant, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Durability, Immune, Instant, Stunned, Health, Player, Position, Poisoned, Transition
+    Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive,
+    Player, Position, Poisoned, Transition
 };
 use crate::GameEvents;
 use crate::player;
@@ -259,6 +260,20 @@ fn process_immune(world: &mut World) {
     }
 }
 
+fn process_offensive_fixtures(world: &mut World) {
+    let query = world.query::<Fixture>()
+        .with::<Offensive>()
+        .with::<Position>()
+        .build();
+
+    let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
+    for (&entity, position) in query.entities().zip(query.iter::<Position>()) {
+        pending.0.push_back(
+            Box::new(AttackAction { entity, target: position.0 })
+        );
+    }
+}
+
 fn process_transition(world: &mut World) {
     let query = world.query::<Transition>().with::<Position>().build();
     let mut to_despawn = Vec::new();
@@ -284,4 +299,6 @@ fn turn_end(world: &mut World) {
     process_poisoned(world);
     process_immune(world);
     process_transition(world);
+    process_offensive_fixtures(world);
 }
+

@@ -60,3 +60,6 @@ Spikes:
     Fixture:
     Transition:
       next: Hidden_Spikes
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 1 }
