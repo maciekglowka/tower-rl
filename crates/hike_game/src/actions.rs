@@ -10,7 +10,7 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    Actor, Durability, Stunned, Health, Interactive, Loot,
+    Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects,
     Swing, Immune, Lunge, Push, Offensive
 };
@@ -105,6 +105,13 @@ impl Action for Walk {
         ActionEvent::Travel(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
+        if get_entities_at_position(world, self.target)
+            .iter()
+            .any(|&e| world.get_component::<Offensive>(e).is_some() &&
+                world.get_component::<Fixture>(e).is_some()
+            ) {
+                return -10
+            };
         let mut rng = thread_rng();
         let r = rng.gen_range(0..4);
         let Some(position) = world.get_component::<Position>(self.entity) else { return r };
@@ -267,15 +274,19 @@ pub struct PoisonAction {
 impl Action for PoisonAction {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
+        let mut actions = Vec::new();
         for entity in get_entities_at_position(world, self.target) {
             if world.get_component::<Health>(entity).is_none() { continue }
-            if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(entity) {
-                poisoned.0 += self.value;
-                continue
-            };
-            let _ = world.insert_component(entity, Poisoned(self.value));
+            actions.push(Box::new(
+                ApplyPoison { entity, value: self.value }
+             ) as Box<dyn Action>);
+            // if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(entity) {
+            //     poisoned.0 += self.value;
+            //     continue
+            // };
+            // let _ = world.insert_component(entity, Poisoned(self.value));
         }
-        Ok(Vec::new())
+        Ok(actions)
     }
 }
 
@@ -415,6 +426,12 @@ impl Action for UseCollectable {
         }
         if let Some(mut player) = player_query.single_mut::<Player>() {
             player.collectables.retain(|&e| e != self.entity);
+
+            if world.get_component::<Discoverable>(self.entity).is_some() {
+                if let Some(name) = world.get_component::<Name>(self.entity) {
+                    player.discovered.insert(name.0.clone());
+                }
+            }
         };
         world.despawn_entity(self.entity);
 
@@ -467,6 +484,24 @@ impl Action for Heal {
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0.current = health.0.max.min(health.0.current + self.value);
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+pub struct ApplyPoison {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for ApplyPoison {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(self.entity) {
+            poisoned.0 += self.value;
+            return Ok(Vec::new())
+        };
+        
+        let _ = world.insert_component(self.entity, Poisoned(self.value));
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action

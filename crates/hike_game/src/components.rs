@@ -1,6 +1,7 @@
 use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2i;
 use serde::{Deserialize, Deserializer};
+use std::collections::HashSet;
 
 use crate::actions::Action;
 use crate::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
@@ -25,6 +26,10 @@ impl Component for Durability {
         format!("Durability({})", self.0)
     }
 }
+
+#[derive(Deserialize)]
+pub struct Discoverable;
+impl Component for Discoverable {}
 
 #[derive(Deserialize)]
 pub struct Effects {
@@ -144,6 +149,7 @@ impl Component for Name {}
 #[derive(Default)]
 pub struct Player {
     pub action: Option<Box<dyn Action>>,
+    pub discovered: HashSet<String>,
     pub collectables: Vec<Entity>,
     pub weapons: [Option<Entity>; MAX_WEAPONS],
     pub active_weapon: usize,
@@ -181,6 +187,7 @@ pub fn insert_data_components(
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
             "Collectable" => insert_single::<Collectable>(entity, world, component_data),
+            "Discoverable" => insert_single::<Discoverable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Effects" => insert_single::<Effects>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),

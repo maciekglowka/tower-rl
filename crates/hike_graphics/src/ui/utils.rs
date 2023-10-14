@@ -3,14 +3,41 @@ use rogalik::{
     storage::{Entity, World}
 };
 
+use hike_data::GameData;
 use hike_game::{
-    components::{Durability, Effects, Lunge, Offensive, Push, Swing},
+    components::{Durability, Discoverable, Effects, Lunge, Name, Offensive, Player, Push, Swing},
     structs::{Attack, AttackKind, Effect, EffectKind},
+    get_player_entity
 };
 use crate::ui::span::Span;
 
 
+fn needs_discovery(entity: Entity, world: &World) -> Option<(&str, Color)> {
+    if world.get_component::<Discoverable>(entity).is_none() { return None };
+    let name = world.get_component::<Name>(entity)?.0.clone();
+    let player_entity = get_player_entity(world)?;
+    let player = world.get_component::<Player>(player_entity)?;
+    if player.discovered.contains(&name) { return None };
+    let data = world.get_resource::<GameData>()?;
+    data.discoverable_colors.get(&name).map(|&a| a)
+}
+
+
+pub fn get_item_name(entity: Entity, world: &World) -> Option<String> {
+    if let Some(color) = needs_discovery(entity, world) {
+        return Some(format!("Unidentified {} item", color.0));
+    }
+    Some(world.get_component::<Name>(entity)?.0.clone().replace("_", " "))
+}
+
+
 pub fn get_item_span<'a>(entity: Entity, world: &World) -> Span<'a> {
+    if let Some(color) = needs_discovery(entity, world) {
+        return Span::new()
+            .with_text_color(color.1)
+            .with_text_borrowed("?")
+    }
+
     let mut span = Span::new()
         .with_text_color(Color(255, 255, 255, 255));
 
@@ -74,6 +101,7 @@ fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
         EffectKind::Gold => 16,
         EffectKind::Heal => 17,
         EffectKind::Immunity => 18,
+        EffectKind::Poison => 1
     };
     (icon, Some(effect.value))
 }

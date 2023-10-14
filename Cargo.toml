@@ -4,3 +4,4 @@ members = ["crates/*"]
 
 [workspace.dependencies]
 rogalik = { path = "../rogalik" }
+rand = "0.8"

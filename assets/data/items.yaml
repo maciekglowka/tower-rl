@@ -1,29 +1,3 @@
-Healing_Potion:
-  sprite:
-    atlas_name: items
-    index: 16
-    color: [255, 255, 255, 255]
-  components:
-    Collectable:
-    Effects:
-      effects:
-        - { kind: Heal, value: 1-3 }
-    Item:
-
-Scroll_of_Immunity:
-  sprite:
-    atlas_name: items
-    index: 18
-    color: [255, 255, 255, 255]
-  components:
-    Collectable:
-    Effects:
-      effects:
-        - { kind: Immunity, value: 3-5 }
-    Item:
-  spawn_chance: 0.25
-  min_level: 7
-
 Gold:
   sprite:
     atlas_name: items

@@ -9,6 +9,6 @@ edition = "2021"
 hike_data = { path = "../hike_data" }
 rogalik = { workspace = true }
 
-rand = "0.8"
+rand = { workspace = true }
 serde = { version = "1.0", features = ["derive"]}
 serde_yaml = "0.9"

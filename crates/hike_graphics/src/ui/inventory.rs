@@ -5,7 +5,7 @@ use rogalik::{
 };
 
 use hike_game::actions::UseCollectable;
-use hike_game::components::{Name, Player};
+use hike_game::components::Player;
 use hike_game::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
 use hike_game::set_player_action;
 

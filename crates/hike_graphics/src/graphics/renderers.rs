@@ -10,7 +10,7 @@ use hike_data::GameData;
 use hike_game::{
     ActionEvent,
     Board,
-    components::{Actor, Fixture, Item, Name, Stunned, Position, Projectile, Tile},
+    components::{Actor, Discoverable, Fixture, Item, Name, Stunned, Position, Projectile, Tile},
     globals::BOARD_SIZE,
     get_entities_at_position
 };
@@ -269,15 +269,20 @@ fn get_sprite_renderer(
         &format!("No data found for {}", name.0)
     );
 
+    let color = match world.get_component::<Discoverable>(entity) {
+        Some(_) => game_data.discoverable_colors.get(&name.0)
+            .expect(&format!("No color assigned for {}!", name.0)).1,
+        None => data.sprite.color
+    };
+
     SpriteRenderer { 
         entity: entity,
-        // v: position.0.as_f32() * TILE_SIZE,
         v: tile_to_world(position.0),
         path: VecDeque::new(),
         atlas_name: data.sprite.atlas_name.clone(),
         index: data.sprite.index,
         z_index,
-        color: data.sprite.color,
+        color,
         fade: 0.,
         state: SpriteState::Added
     }

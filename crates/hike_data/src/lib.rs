@@ -1,17 +1,23 @@
+use rand::prelude::*;
 use serde::{Deserialize, Deserializer};
 use serde_yaml;
 use std::collections::HashMap;
 
 use rogalik::engine::Color;
 
+pub mod colors;
+
 #[derive(Default)]
 pub struct GameData {
     // all entity data, by name
     pub entities: HashMap<String, EntityData>,
     pub levels: HashMap<u32, LevelData>,
+    pub discoverables: Vec<String>,
     pub items: Vec<String>,
     pub npcs: Vec<String>,
     pub fixtures: Vec<String>,
+    pub traps: Vec<String>,
+    pub discoverable_colors: HashMap<String,  (&'static str, Color)>
 }
 impl GameData {
     pub fn new() -> Self {
@@ -35,6 +41,18 @@ impl GameData {
     pub fn add_level_data_from_str(&mut self, s: String) {
         self.levels = serde_yaml::from_str(&s).expect("Invalid level data!");
     }
+    pub fn assign_discoverables(&mut self) {
+        let mut rng = thread_rng();
+        self.discoverable_colors = HashMap::new();
+        let mut pool = colors::COLORS.to_vec();
+        if pool.len() < self.discoverables.len() { panic!("Not enough colors in the pool!")};
+
+        for name in self.discoverables.iter() {
+            let i = rng.gen_range(0..pool.len());
+            let color = pool.remove(i);
+            self.discoverable_colors.insert(name.to_string(), color);
+        };
+    }
 }
 
 #[derive(Clone, Deserialize)]
@@ -52,6 +70,7 @@ pub struct EntityData {
 pub struct SpriteData {
     pub atlas_name: String,
     pub index: u32,
+    #[serde(default)]
     #[serde(deserialize_with="deserialize_color")]
     pub color: Color
 }

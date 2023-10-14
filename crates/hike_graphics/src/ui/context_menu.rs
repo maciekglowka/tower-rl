@@ -20,7 +20,7 @@ use super::super::globals::{
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::span::Span;
-use super::utils::get_item_span;
+use super::utils::{get_item_name, get_item_span};
 
 static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
 
@@ -114,21 +114,9 @@ pub fn handle_menu(
     false
 }
 
-
-// fn get_item_desc(world: &World, entity: Entity) -> Option<Vec<String>> {
-//     if world.get_component::<Item>(entity).is_none()
-//         && world.get_component::<Interactive>(entity).is_none() { return None };
-
-//     let mut v = vec![world.get_component::<Name>(entity)?.0.clone().replace("_", " ")];
-//     v.extend(world.get_entity_components(entity).iter()
-//             .map(|c| c.as_str())
-//             .filter(|s| s.len() > 0)
-//         );
-//     Some(v)
-// }
-
 fn get_desc_spans(world: &World, entity: Entity) -> Option<Vec<Span>> {
-    let name = world.get_component::<Name>(entity)?.0.clone().replace("_", " ");
+    // let name = world.get_component::<Name>(entity)?.0.clone().replace("_", " ");
+    let name = get_item_name(entity, world)?;
     let name_span = Span::new()
         .with_text_owned(name)
         .with_text_color(Color(150, 128, 128, 255))
@@ -153,29 +141,6 @@ fn get_desc_spans(world: &World, entity: Entity) -> Option<Vec<Span>> {
 }
 
 fn draw_item_desc(world: &World, entity: Entity, context: &mut crate::Context_, v: Vector2f) {
-    // if let Some(parts) = get_item_desc(world, entity) {
-    //     let space = context.graphics.text_dimensions("default", " ", UI_STATUS_TEXT_SIZE).x;
-
-    //     let mut y = v.y;
-    //     let mut x = v.x;
-
-    //     for (i, part) in parts.iter().enumerate() {
-    //         let width = context.graphics.text_dimensions("default", &part, UI_STATUS_TEXT_SIZE).x;
-    //         if x + width > vw - 2.0 * UI_GAP {
-    //             x = v.x;
-    //             y -= UI_STATUS_TEXT_SIZE + UI_TEXT_GAP;
-    //         }
-    //         let color = if i == 0 { Color(150, 128, 128, 255) } else { Color(98, 81, 81, 255) };
-    //         context.graphics.draw_text(
-    //             "default",
-    //             &format!("{} ", part),
-    //             Vector2f::new(x, y),
-    //             UI_STATUS_TEXT_SIZE,
-    //             Params2d { color, ..Default::default() }
-    //         );
-    //         x += width + space;
-    //     }
-    // }
     if let Some(spans) = get_desc_spans(world, entity) {
         let space = context.graphics.text_dimensions("default", " ", UI_STATUS_TEXT_SIZE).x;
         let mut offset = 0.;
