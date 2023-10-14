@@ -496,12 +496,28 @@ pub struct ApplyPoison {
 impl Action for ApplyPoison {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
-        if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(self.entity) {
+        if let Some(mut poisoned) = world.get_component_mut::<Poisoned>(self.entity) {
             poisoned.0 += self.value;
             return Ok(Vec::new())
         };
-        
+
         let _ = world.insert_component(self.entity, Poisoned(self.value));
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
+}
+
+
+pub struct HealPoison {
+    pub entity: Entity,
+}
+impl Action for HealPoison {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if world.get_component_mut::<Poisoned>(self.entity).is_none() {
+            return Err(())
+        };
+        let _ = world.remove_component::<Poisoned>(self.entity);
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action

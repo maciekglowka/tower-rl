@@ -9,6 +9,7 @@ Healing_Potion:
       effects:
         - { kind: Heal, value: 1-3 }
     Item:
+  min_level: 2
 
 Potion_of_Immunity:
   sprite:
@@ -22,7 +23,7 @@ Potion_of_Immunity:
         - { kind: Immunity, value: 3-5 }
     Item:
   spawn_chance: 0.25
-  min_level: 3
+  min_level: 4
 
 Potion_of_Poison:
   sprite:
@@ -33,5 +34,19 @@ Potion_of_Poison:
     Discoverable:
     Effects:
       effects:
-        - { kind: Poison, value: 1-3 }
+        - { kind: Poison, value: 2-4 }
     Item:
+  min_level: 2
+
+Potion_of_Heal_Poison:
+  sprite:
+    atlas_name: items
+    index: 16
+  components:
+    Collectable:
+    Discoverable:
+    Effects:
+      effects:
+        - { kind: HealPoison, value: 0 }
+    Item:
+  min_level: 2

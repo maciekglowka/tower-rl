@@ -100,8 +100,9 @@ fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
     let icon = match effect.kind {
         EffectKind::Gold => 16,
         EffectKind::Heal => 17,
+        EffectKind::HealPoison => 19,
         EffectKind::Immunity => 18,
         EffectKind::Poison => 1
     };
-    (icon, Some(effect.value))
+    (icon, if effect.value > 0 { Some(effect.value) } else { None })
 }

@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 use crate::actions::{
     Action, Heal, PickGold, GiveImmunity,
-    HitAction, StunAction, PoisonAction, ApplyPoison
+    HitAction, StunAction, PoisonAction, ApplyPoison, HealPoison
 };
 use crate::utils::deserialize_random_u32;
 
@@ -28,6 +28,7 @@ pub struct Attack {
 pub enum EffectKind {
     Gold,
     Heal,
+    HealPoison,
     Immunity,
     Poison,
 }
@@ -70,6 +71,9 @@ pub fn get_effect_action(
         ),
         EffectKind::Heal => Box::new(
             Heal { entity, value: effect.value }
+        ),
+        EffectKind::HealPoison => Box::new(
+            HealPoison { entity }
         ),
         EffectKind::Immunity => Box::new(
             GiveImmunity { entity, value: effect.value }
