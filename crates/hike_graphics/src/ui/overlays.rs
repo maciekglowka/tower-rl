@@ -14,7 +14,7 @@ use crate::globals::{TILE_SIZE, PERSP_RATIO};
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
 
-const FONT_SIZE: f32 = 0.25;
+const FONT_SIZE: f32 = 0.4;
 
 pub fn draw_overlays(
     world: &World,

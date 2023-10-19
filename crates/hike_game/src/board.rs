@@ -50,9 +50,7 @@ impl Board {
         tile_pool.retain(|v| !layout.1.iter().any(|d| d.manhattan(*v) <= 1));
 
         let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool).unwrap());
-        // spawn_npcs(world, &mut tile_pool, self.level);
-        // spawn_items(world, &mut tile_pool, self.level);
-        // spawn_fixtures(world, &mut tile_pool, self.level);
+
         let pieces = if let Some(data) = world.get_resource::<GameData>() {
             get_board_pieces(self.level, &data) 
         } else { return };
@@ -310,6 +308,13 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     if fixtures.len() == 0 && level % 2 != 1 {
         let pool = get_entity_pool(&data, &data.fixtures, level);
         fixtures.push(pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone())
+    }
+
+    // traps
+    let trap_pool = get_entity_pool(&data, &data.traps, level);
+    let trap_count = rng.gen_range(0..6);
+    for _ in 0..trap_count {
+        output.push(trap_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
     }
 
     output.extend(fixtures);

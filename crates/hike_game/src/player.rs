@@ -36,27 +36,31 @@ pub fn get_player_entity(world: &World) -> Option<Entity> {
 pub fn set_player_action_from_dir(
     world: &mut World,
     dir: Vector2i
-) {
+) -> bool {
     let query = world.query::<Player>().build();
-    let Some(entity) = query.single_entity() else { return };
+    let Some(entity) = query.single_entity() else { return false };
     if let Some(queue) = world.get_resource::<ActorQueue>() {
         if queue.0.get(0).map(|&e| e) == Some(entity) {
             query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir);
+            return true;
         }
     }
+    false
 }
 
 pub fn set_player_action(
     world: &World,
     action: Box<dyn Action>
-) {
+) -> bool {
     let query = world.query::<Player>().build();
-    let Some(entity) = query.single_entity() else { return };
+    let Some(entity) = query.single_entity() else { return false };
     if let Some(queue) = world.get_resource::<ActorQueue>() {
         if queue.0.get(0).map(|&e| e) == Some(entity) {
             query.single_mut::<Player>().unwrap().action = Some(action);
+            return true
         }
     }
+    false
 }
 
 pub fn turn_end(world: &mut World) {

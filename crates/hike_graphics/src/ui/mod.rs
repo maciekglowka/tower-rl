@@ -16,19 +16,20 @@ mod span;
 mod status;
 mod utils;
 
-#[derive(Default)]
+#[derive(Clone, Copy, Default)]
 pub struct InputState {
     pub mouse_world_position: Vector2f,
     pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
+    pub direction_buffer: Option<InputDirection>,
     pub shift: ButtonState,
     pub action: ButtonState,
     pub pause: ButtonState,
     pub digits: [ButtonState; 10]
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq)]
 pub enum InputDirection {
     #[default]
     None,
@@ -39,7 +40,7 @@ pub enum InputDirection {
     Still
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq)]
 pub enum ButtonState {
     #[default]
     Up,
@@ -58,19 +59,19 @@ pub fn draw_world_ui(
 
 pub fn ui_update(
     world: &mut World,
-    input_state: InputState,
+    input_state: &mut InputState,
     context: &mut crate::Context_,
 ) {
     status::draw_status(world, context);
     let mut ui_click = false;
 
-    inventory::handle_inventory(world, context, &input_state);
+    inventory::handle_inventory(world, context, input_state);
 
-    if context_menu::handle_menu(world, context, &input_state) {
+    if context_menu::handle_menu(world, context, input_state) {
         ui_click = true
     }
     if ui_click { return };
-    input::handle_dir_input(world, &input_state);
+    input::handle_dir_input(world, input_state);
 }
 
 fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {

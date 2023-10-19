@@ -1,8 +1,16 @@
-Hidden_Spikes:
+Spikes_Hidden:
   sprite:
-    atlas_name: ascii
-    index: 30
-    color: [0, 0, 0, 255]
+    atlas_name: tiles
+    index: 16
+  components:
+    Fixture:
+    Transition:
+      next: Spikes_Half
+
+Spikes_Half:
+  sprite:
+    atlas_name: tiles
+    index: 17
   components:
     Fixture:
     Transition:
@@ -10,13 +18,12 @@ Hidden_Spikes:
 
 Spikes:
   sprite:
-    atlas_name: ascii
-    index: 30
-    color: [128, 128, 128, 255]
+    atlas_name: tiles
+    index: 18
   components:
     Fixture:
     Transition:
-      next: Hidden_Spikes
+      next: Spikes_Hidden
     Offensive: 
       attacks:
         - { kind: Hit, value: 1 }

@@ -36,6 +36,7 @@ Potion_of_Poison:
       effects:
         - { kind: Poison, value: 2-4 }
     Item:
+  spawn_chance: 0.25
   min_level: 2
 
 Potion_of_Heal_Poison:
@@ -49,4 +50,5 @@ Potion_of_Heal_Poison:
       effects:
         - { kind: HealPoison, value: 0 }
     Item:
+  spawn_chance: 0.5
   min_level: 2

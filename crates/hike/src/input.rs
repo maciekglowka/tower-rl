@@ -22,7 +22,12 @@ use super::Context_;
 //     Vector2f::new(v.x, v.y)
 // }
 
-pub fn get_input_state(camera: ResourceId, touch_state: &mut HashMap<u64, Vector2f>, context: &Context_) -> InputState {
+pub fn get_input_state(
+    camera: ResourceId,
+    touch_state: &mut HashMap<u64, Vector2f>,
+    context: &Context_,
+    prev_state: InputState
+) -> InputState {
     let mut left = ButtonState::Up;
     if context.input.is_mouse_button_down(MouseButton::Left) {
         left = ButtonState::Down
@@ -72,7 +77,8 @@ pub fn get_input_state(camera: ResourceId, touch_state: &mut HashMap<u64, Vector
         shift,
         action,
         pause,
-        digits
+        digits,
+        direction_buffer: prev_state.direction_buffer
     }
 }
 

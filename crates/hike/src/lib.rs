@@ -21,6 +21,7 @@ pub struct GameState {
     events: hike_game::GameEvents,
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
+    input_state: hike_graphics::ui::InputState,
     touch_state: HashMap<u64, Vector2f>,
     world: World
 }
@@ -51,10 +52,11 @@ impl Game<WgpuContext> for GameState {
         }
 
         self.graphics_ready = hike_graphics::graphics_update(&self.world, &mut self.graphics_state, context);
+        self.input_state = input::get_input_state(self.camera_main, &mut self.touch_state, context, self.input_state);
         hike_graphics::ui::draw_world_ui(&self.world, context, &self.graphics_state);
         hike_graphics::ui::ui_update(
             &mut self.world,
-            input::get_input_state(self.camera_main, &mut self.touch_state, context),
+            &mut self.input_state,
             context
         );
     }
@@ -102,6 +104,7 @@ fn game_state() -> GameState {
         events,
         graphics_ready: false,
         graphics_state,
+        input_state: hike_graphics::ui::InputState::default(),
         touch_state: HashMap::new(),
         world
     }
