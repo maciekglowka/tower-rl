@@ -34,12 +34,12 @@ pub fn draw_overlays(
         let tile = world_to_tile(base.v);
         if !board.visible.contains(&tile) { continue; }
 
-        let _ =context.graphics.draw_text(
+        let _ = context.graphics.draw_text(
             "default",
             &text,
             base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
             FONT_SIZE,
-            Params2d { color: Color(255, 0, 71, 255), ..Default::default() }
+            Params2d { color: Color(255, 255, 255, 255), ..Default::default() }
         );
     }
 }

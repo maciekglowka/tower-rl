@@ -15,7 +15,7 @@ Sword:
   sprite:
     atlas_name: items
     index: 0
-    color: [195, 234, 254, 255]
+    color: [189, 200, 220, 255]
   components:
     Durability: 5-15
     Item:
@@ -28,7 +28,7 @@ Axe:
   sprite:
     atlas_name: items
     index: 4
-    color: [195, 234, 254, 255]
+    color: [189, 200, 220, 255]
   components:
     Swing:
     Durability: 5-15
@@ -43,7 +43,7 @@ Spear:
   sprite:
     atlas_name: items
     index: 2
-    color: [195, 234, 254, 255]
+    color: [255, 191, 102, 255]
   components:
     Lunge:
     Durability: 5-15

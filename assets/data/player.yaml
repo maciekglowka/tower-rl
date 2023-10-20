@@ -1,8 +1,8 @@
 Player:
   sprite:
-    atlas_name: ascii
-    index: 64
-    color: [195, 234, 254, 255]
+    atlas_name: units
+    index: 0
+    color: [255, 255, 255, 255]
   components:
     Actor:
     Health: 8
