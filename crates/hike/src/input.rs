@@ -94,7 +94,7 @@ fn handle_touches(context: &Context_, touch_state: &mut HashMap<u64, Vector2f>) 
                 if let Some(start) = touch_state.get(&id) {
                     let dx = touch.position.x - start.x;
                     let dy = touch.position.y - start.y;
-                    let thresh = 0.025 * context.get_physical_size().x;
+                    let thresh = 0.05 * context.get_physical_size().x;
                     let mut dir = InputDirection::None;
                     if dx > thresh { dir = InputDirection::Right }
                     if dx < -thresh { dir = InputDirection::Left }

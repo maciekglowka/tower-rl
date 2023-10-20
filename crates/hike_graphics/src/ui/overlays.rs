@@ -10,7 +10,7 @@ use hike_game::{
 };
 
 use crate::GraphicsState;
-use crate::globals::{TILE_SIZE, PERSP_RATIO};
+use crate::globals::TILE_SIZE;
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
 
@@ -34,12 +34,12 @@ pub fn draw_overlays(
         let tile = world_to_tile(base.v);
         if !board.visible.contains(&tile) { continue; }
 
-        context.graphics.draw_text(
+        let _ =context.graphics.draw_text(
             "default",
             &text,
             base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
             FONT_SIZE,
-            Params2d { color: Color(195, 234, 254, 255), ..Default::default() }
+            Params2d { color: Color(255, 0, 71, 255), ..Default::default() }
         );
     }
 }

@@ -311,11 +311,11 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     }
 
     // traps
-    let trap_pool = get_entity_pool(&data, &data.traps, level);
-    let trap_count = rng.gen_range(0..6);
-    for _ in 0..trap_count {
-        output.push(trap_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
-    }
+    // let trap_pool = get_entity_pool(&data, &data.traps, level);
+    // let trap_count = rng.gen_range(0..6);
+    // for _ in 0..trap_count {
+    //     output.push(trap_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
+    // }
 
     output.extend(fixtures);
     output

@@ -3,7 +3,7 @@ use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 
 use super::GraphicsState;
-use super::globals::{TILE_SIZE, BOARD_V_OFFSET};
+use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
 mod buttons;
 mod context_menu;
@@ -14,6 +14,7 @@ mod overlays;
 // mod panels;
 mod span;
 mod status;
+mod text_box;
 mod utils;
 
 #[derive(Clone, Copy, Default)]
@@ -80,6 +81,6 @@ fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
     let centre = (hike_game::globals::BOARD_SIZE as f32) * TILE_SIZE / 2.;
     (
         Vector2f::new(centre - half_size.x, centre - half_size.y + BOARD_V_OFFSET),
-        Vector2f::new(centre + half_size.x, centre + half_size.y + BOARD_V_OFFSET)
+        Vector2f::new(centre + half_size.x, centre + half_size.y + BOARD_V_OFFSET - UI_TOP_OFFSET)
     )
 }

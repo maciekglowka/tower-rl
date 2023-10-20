@@ -76,11 +76,11 @@ impl<'a> Span<'a> {
 
     pub fn draw(&self, origin: Vector2f, context: &mut crate::Context_) {
         let mut offset = 0.;
-        // let text_v_offset = -0.5 * (self.size as f32 - context.graphics.text_dimensions("default", "A", self.size as f32).y);
+
         for item in self.items.iter() {
             match item {
                 SpanItem::Text(text) => {
-                    context.graphics.draw_text(
+                    let _ = context.graphics.draw_text(
                         "default", 
                         text,
                         origin + Vector2f::new(offset, -(self.size as f32)), 
@@ -90,7 +90,7 @@ impl<'a> Span<'a> {
                     offset += context.graphics.text_dimensions("default", text, self.size as f32).x;
                 },
                 &SpanItem::Sprite(atlas, index) => {
-                    context.graphics.draw_atlas_sprite(
+                    let _ = context.graphics.draw_atlas_sprite(
                         atlas,
                         index as usize,
                         origin + Vector2f::new(offset, -(self.size as f32)),

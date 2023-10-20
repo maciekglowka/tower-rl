@@ -15,7 +15,7 @@ Sword:
   sprite:
     atlas_name: items
     index: 0
-    color: [255, 255, 255, 255]
+    color: [195, 234, 254, 255]
   components:
     Durability: 5-15
     Item:
@@ -28,7 +28,7 @@ Axe:
   sprite:
     atlas_name: items
     index: 4
-    color: [255, 255, 255, 255]
+    color: [195, 234, 254, 255]
   components:
     Swing:
     Durability: 5-15
@@ -43,7 +43,7 @@ Spear:
   sprite:
     atlas_name: items
     index: 2
-    color: [255, 255, 255, 255]
+    color: [195, 234, 254, 255]
   components:
     Lunge:
     Durability: 5-15
@@ -72,7 +72,7 @@ Warhammer:
   sprite:
     atlas_name: items
     index: 5
-    color: [255, 255, 255, 255]
+    color: [255, 126, 102, 255]
   components:
     Durability: 5-15
     Item:
@@ -87,7 +87,7 @@ Poisoned_Dagger:
   sprite:
     atlas_name: items
     index: 3
-    color: [255, 255, 255, 255]
+    color: [145, 200, 185, 255]
   components:
     Durability: 5-15
     Item:
