@@ -11,6 +11,22 @@ use hike_game::{
 };
 use crate::ui::span::Span;
 
+pub const ICON_HIT: u32 = 0;
+pub const ICON_POISON: u32 = 1;
+pub const ICON_DURABILITY: u32 = 2;
+pub const ICON_STUN: u32 = 3;
+
+pub const ICON_SWING: u32 = 8;
+pub const ICON_LUNGE: u32 = 9;
+pub const ICON_PUSH: u32 = 10;
+
+pub const ICON_GOLD: u32 = 16;
+pub const ICON_HEAL: u32 = 17;
+pub const ICON_IMMUNITY: u32 = 18;
+pub const ICON_HEAL_POISON: u32 = 19;
+
+pub const ICON_LEVEL: u32 = 24;
+
 
 fn needs_discovery(entity: Entity, world: &World) -> Option<(&str, Color)> {
     if world.get_component::<Discoverable>(entity).is_none() { return None };
@@ -48,10 +64,10 @@ pub fn get_item_span<'a>(entity: Entity, world: &World) -> Span<'a> {
         if let Some(val) = val {
             span = span.with_text_owned(format!("{}", val));
         }
-        if it.peek().is_some() {
-            // non-last element
-            // span = span.with_spacer(0.1);
-        }
+        // if it.peek().is_some() {
+        //     // non-last element
+        //     // span = span.with_spacer(0.1);
+        // }
     }
     span
 }
@@ -73,36 +89,36 @@ fn get_entity_icons(entity: Entity, world: &World) -> Vec<(u32, Option<u32>)> {
         );
     }
     if let Some(durability) = world.get_component::<Durability>(entity) {
-        output.push((2, Some(durability.0)));
+        output.push((ICON_DURABILITY, Some(durability.0)));
     }
     if let Some(_) = world.get_component::<Swing>(entity) {
-        output.push((8, None));
+        output.push((ICON_SWING, None));
     }
     if let Some(_) = world.get_component::<Lunge>(entity) {
-        output.push((9, None));
+        output.push((ICON_LUNGE, None));
     }
     if let Some(_) = world.get_component::<Push>(entity) {
-        output.push((10, None));
+        output.push((ICON_PUSH, None));
     }
     output
 }
 
 fn get_attack_icon(attack: &Attack) -> (u32, Option<u32>) {
     let icon = match attack.kind {
-        AttackKind::Hit => 0,
-        AttackKind::Poison => 1,
-        AttackKind::Stun => 3,
+        AttackKind::Hit => ICON_HIT,
+        AttackKind::Poison => ICON_POISON,
+        AttackKind::Stun => ICON_STUN,
     };
     (icon, Some(attack.value))
 }
 
 fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
     let icon = match effect.kind {
-        EffectKind::Gold => 16,
-        EffectKind::Heal => 17,
-        EffectKind::HealPoison => 19,
-        EffectKind::Immunity => 18,
-        EffectKind::Poison => 1
+        EffectKind::Gold => ICON_GOLD,
+        EffectKind::Heal => ICON_HEAL,
+        EffectKind::HealPoison => ICON_HEAL_POISON,
+        EffectKind::Immunity => ICON_IMMUNITY,
+        EffectKind::Poison => ICON_POISON
     };
     (icon, if effect.value > 0 { Some(effect.value) } else { None })
 }

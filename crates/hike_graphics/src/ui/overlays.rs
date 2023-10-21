@@ -10,7 +10,7 @@ use hike_game::{
 };
 
 use crate::GraphicsState;
-use crate::globals::TILE_SIZE;
+use crate::globals::{TILE_SIZE, UI_OVERLAY_Z};
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
 
@@ -38,6 +38,7 @@ pub fn draw_overlays(
             "default",
             &text,
             base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
+            UI_OVERLAY_Z,
             FONT_SIZE,
             Params2d { color: Color(255, 255, 255, 255), ..Default::default() }
         );

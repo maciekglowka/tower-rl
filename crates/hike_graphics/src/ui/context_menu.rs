@@ -36,7 +36,8 @@ pub fn handle_menu(
     let mut entities = get_entities_at_position(world, position)
         .iter()
         .filter(|&&e| world.get_component::<Interactive>(e).is_some() ||
-            world.get_component::<Item>(e).is_some()
+            world.get_component::<Weapon>(e).is_some() ||
+            world.get_component::<Collectable>(e).is_some()
         )
         .map(|&e| e)
         .collect::<Vec<_>>();

@@ -20,7 +20,7 @@ use super::super::{
 };
 use super::utils::move_towards;
 use crate::globals::{
-    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z,
+    TILE_SIZE, ACTOR_Z, FIXTURE_Z, ITEM_Z, PROJECTILE_Z, TILE_Z, FOG_Z,
     MOVEMENT_SPEED, INACTIVE_FADE, FADE_SPEED, BACKGROUND_COLOR
 };
 
@@ -38,7 +38,7 @@ pub struct SpriteRenderer {
     pub path: VecDeque<Vector2f>,
     pub atlas_name: String,
     pub index: u32,
-    pub z_index: u32,
+    pub z_index: i32,
     pub color: Color,
     pub fade: f32,
     pub state: SpriteState,
@@ -50,7 +50,7 @@ pub fn handle_world_events(
     world: &World,
     state: &mut GraphicsState
 ) {
-    let mut sprites_updated = false;
+    // let mut sprites_updated = false;
     for ev in state.ev_world.read().iter().flatten() {
         match ev {
             WorldEvent::ComponentRemoved(entity, type_id) => {
@@ -75,13 +75,13 @@ pub fn handle_world_events(
                         state.sprites.push(
                             get_sprite_renderer(*entity, world)
                         );
-                        sprites_updated = true;
+                        // sprites_updated = true;
                     },
                     a if a == TypeId::of::<Projectile>() => {
                         state.sprites.push(
                             get_projectile_renderer(*entity, world)
                         );
-                        sprites_updated = true;
+                        // sprites_updated = true;
                     },
                     a if a == TypeId::of::<Stunned>() => {
                         fade_sprite(*entity, state, INACTIVE_FADE)
@@ -92,9 +92,9 @@ pub fn handle_world_events(
             _ => continue
         }
     }
-    if sprites_updated {
-        state.sort_sprites();
-    }
+    // if sprites_updated {
+    //     state.sort_sprites();
+    // }
 }
 
 pub fn handle_action_events(
@@ -225,6 +225,7 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, context: &mut Context_
             &sprite.atlas_name,
             (sprite.index + sprite.frame) as usize,
             sprite.v,
+            sprite.z_index,
             Vector2f::new(TILE_SIZE, TILE_SIZE),
             Params2d { color, ..Default::default() }
         );
@@ -242,6 +243,7 @@ pub fn draw_fog(world: &World, state: &GraphicsState, context: &mut Context_) {
                 "fog",
                 0,
                 tile_to_world(vi) - Vector2f::new(0.5, 0.5) * TILE_SIZE,
+                FOG_Z,
                 Vector2f::new(TILE_SIZE, TILE_SIZE) * 2.0,
                 Params2d { color: BACKGROUND_COLOR, ..Default::default() }
             );

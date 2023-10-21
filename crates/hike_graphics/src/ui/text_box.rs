@@ -4,6 +4,8 @@ use rogalik::{
     math::vectors::Vector2f
 };
 
+use crate::globals::UI_TEXT_Z;
+
 pub struct TextBox<'a> {
     text: Cow<'a, str>,
     size: f32,
@@ -49,6 +51,7 @@ impl<'a> TextBox<'a> {
                     "default", 
                     word,
                     origin + Vector2f::new(line_width, -(self.size as f32) - v_offset), 
+                    UI_TEXT_Z,
                     self.size as f32, 
                     Params2d { color: self.color, ..Default::default() }
                 );

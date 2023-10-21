@@ -34,6 +34,10 @@ pub fn handle_dir_input(
         }
     }
 
+    if input_state.direction != InputDirection::None {
+        ui_state.direction_buffer = Some(input_state.direction);
+    }
+
     if let Some(buffer) = ui_state.direction_buffer {
         let dir = match buffer {
             InputDirection::Up => Vector2i::UP,
@@ -46,9 +50,5 @@ pub fn handle_dir_input(
             ui_state.direction_buffer = None;
             return
         }
-    }
-    // println!("Setting buffer to {:?}", state.direction);
-    if input_state.direction != InputDirection::None {
-        ui_state.direction_buffer = Some(input_state.direction);
     }
 }

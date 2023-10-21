@@ -3,11 +3,17 @@ pub const PERSP_RATIO: f32 = 1.0;
 pub const BOARD_V_OFFSET: f32 = -2.;
 pub const BACKGROUND_COLOR: super::Color = super::Color(38, 18, 34, 255);
 
-pub const ACTOR_Z: u32 = 200;
-pub const FIXTURE_Z: u32 = 100;
-pub const ITEM_Z: u32 = 150;
-pub const PROJECTILE_Z: u32 = 250;
-pub const TILE_Z: u32 = 50;
+pub const ACTOR_Z: i32 = 200;
+pub const FIXTURE_Z: i32 = 100;
+pub const FOG_Z: i32 = 300;
+pub const ITEM_Z: i32 = 150;
+pub const PROJECTILE_Z: i32 = 250;
+pub const TILE_Z: i32 = 50;
+
+pub const UI_OVERLAY_Z: i32 = 400;
+pub const UI_BG_Z: i32 = 500;
+pub const UI_BUTTON_Z: i32 = 550;
+pub const UI_TEXT_Z: i32 = 600;
 
 pub const INACTIVE_FADE: f32 = 0.5;
 pub const ANIMATION_TICK: f32 = 1.;

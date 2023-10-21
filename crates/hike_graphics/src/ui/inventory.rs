@@ -13,7 +13,7 @@ use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR,
-    BUTTON_COLOR_SELECTED, UI_BOTTOM_PANEL_HEIGHT
+    UI_BOTTOM_PANEL_HEIGHT, UI_BG_Z, UI_TEXT_Z
 };
 use super::utils::get_item_span;
 
@@ -30,6 +30,7 @@ pub fn handle_inventory(
         "default",
         "Weapons",
         bounds.0 + Vector2f::new(UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
+        UI_TEXT_Z,
         UI_BUTTON_TEXT_SIZE,
         Params2d { color: BUTTON_COLOR, ..Default::default() }
     );
@@ -37,6 +38,7 @@ pub fn handle_inventory(
         "default",
         "Inventory",
         bounds.0 + Vector2f::new(UI_GAP, 2.5 * UI_GAP + 2. * UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE),
+        UI_TEXT_Z,
         UI_BUTTON_TEXT_SIZE,
         Params2d { color: BUTTON_COLOR, ..Default::default() }
     );
@@ -149,6 +151,7 @@ fn draw_inventory_panel(
         "ui",
         0,
         v,
+        UI_BG_Z,
         Vector2f::new(width, UI_BOTTOM_PANEL_HEIGHT),
         Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
     );

@@ -6,7 +6,7 @@ use rogalik::{
 use super::{ButtonState, InputState};
 use super::span::Span;
 // use super::panels::Panel;
-use super::super::globals::BUTTON_COLOR_SELECTED;
+use super::super::globals::UI_BUTTON_Z;
 
 pub struct Button<'a> {
     origin: Vector2f,
@@ -42,6 +42,7 @@ impl<'a> Button<'a> {
                 atlas,
                 index,
                 self.origin,
+                UI_BUTTON_Z,
                 Vector2f::new(self.w, self.h),
                 Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
             );

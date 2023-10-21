@@ -6,6 +6,7 @@ use rogalik::{
 
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT,
+    UI_BG_Z
 };
 use super::{UiState, UiMode, InputState, get_viewport_bounds};
 use super::buttons::Button;
@@ -22,16 +23,27 @@ pub fn handle_help_menu(
     let height = bounds.1.y - bounds.0.y - 3. * UI_GAP - UI_BUTTON_HEIGHT;
     let origin = bounds.0 + Vector2f::new(UI_GAP, 2. * UI_GAP + UI_BUTTON_HEIGHT);
 
-    let button_width = (width - 3. * UI_GAP) / 4.;
+    let button_count = 4;
+    let button_width = (width - (button_count - 1) as f32 * UI_GAP) / button_count as f32;
 
     let _ = context.graphics.draw_atlas_sprite(
         "ui",
         0,
         origin,
+        UI_BG_Z,
         Vector2f::new(width, height),
         Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
     );
 
+    if draw_menu_button(origin, button_width, 0, context, input_state) {
+        ui_state.mode = UiMode::Game;
+    }
+    if draw_menu_button(origin, button_width, 1, context, input_state) {
+        ui_state.mode = UiMode::Game;
+    }
+    if draw_menu_button(origin, button_width, 2, context, input_state) {
+        ui_state.mode = UiMode::Game;
+    }
     if draw_menu_button(origin, button_width, 3, context, input_state) {
         ui_state.mode = UiMode::Game;
     }

@@ -4,6 +4,8 @@ use rogalik::{
     math::vectors::Vector2f
 };
 
+use crate::globals::UI_TEXT_Z;
+
 
 pub enum SpanItem<'a> {
     Sprite(&'a str, u32),
@@ -84,6 +86,7 @@ impl<'a> Span<'a> {
                         "default", 
                         text,
                         origin + Vector2f::new(offset, -(self.size as f32)), 
+                        UI_TEXT_Z,
                         self.size as f32, 
                         Params2d { color: self.text_color, ..Default::default() }
                     );
@@ -94,6 +97,7 @@ impl<'a> Span<'a> {
                         atlas,
                         index as usize,
                         origin + Vector2f::new(offset, -(self.size as f32)),
+                        UI_TEXT_Z,
                         Vector2f::new(self.size as f32, self.size as f32),
                         Params2d { color: self.sprite_color, ..Default::default() }
                     );
