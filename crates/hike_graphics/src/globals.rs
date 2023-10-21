@@ -10,6 +10,7 @@ pub const PROJECTILE_Z: u32 = 250;
 pub const TILE_Z: u32 = 50;
 
 pub const INACTIVE_FADE: f32 = 0.5;
+pub const ANIMATION_TICK: f32 = 1.;
 
 pub const MOVEMENT_SPEED: f32 = 10.;
 pub const FADE_SPEED: f32 = 5.;

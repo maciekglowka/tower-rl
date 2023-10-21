@@ -72,7 +72,8 @@ pub struct SpriteData {
     pub index: u32,
     #[serde(default)]
     #[serde(deserialize_with="deserialize_color")]
-    pub color: Color
+    pub color: Color,
+    pub frames: Option<u32>
 }
 
 #[derive(Clone, Debug, Deserialize)]

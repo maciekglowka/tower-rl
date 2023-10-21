@@ -44,11 +44,12 @@ impl Game<WgpuContext> for GameState {
     
         hike_game::init(&mut self.world, &mut self.events);
         self.touch_state = HashMap::new();
+        self.graphics_state.animation_timer = context.time.add_timer(hike_graphics::globals::ANIMATION_TICK);
     }
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
         // println!("{}", 1. / context.time.get_delta());
         if self.graphics_ready {
-            hike_game::game_update(&mut self.world, &mut self.events);
+            let _ = hike_game::game_update(&mut self.world, &mut self.events);
         }
 
         self.graphics_ready = hike_graphics::graphics_update(&self.world, &mut self.graphics_state, context);
@@ -59,6 +60,7 @@ impl Game<WgpuContext> for GameState {
             &mut self.input_state,
             context
         );
+        // std::thread::sleep(std::time::Duration::from_millis(5));
     }
     #[cfg(target_os = "android")]
     fn resize(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
@@ -86,7 +88,7 @@ fn main() {
 pub fn run() {
     let engine = EngineBuilder::new()
         .with_title("Tower RL".to_string())
-        .with_logical_size(600., 800.)
+        .with_logical_size(600., 760.)
         .build(game_state());
     engine.run();
 }

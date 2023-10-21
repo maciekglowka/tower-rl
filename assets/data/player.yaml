@@ -3,6 +3,7 @@ Player:
     atlas_name: units
     index: 0
     color: [255, 255, 255, 255]
+    frames: 2
   components:
     Actor:
     Health: 8

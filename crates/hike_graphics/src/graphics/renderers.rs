@@ -41,7 +41,9 @@ pub struct SpriteRenderer {
     pub z_index: u32,
     pub color: Color,
     pub fade: f32,
-    pub state: SpriteState
+    pub state: SpriteState,
+    pub frame: u32,
+    pub frame_count: u32
 }
 
 pub fn handle_world_events(
@@ -145,10 +147,17 @@ fn get_wall_at(v: Vector2i, world: &World) -> Option<Entity> {
         .next()
 }
 
-pub fn update_sprites(world: &World, state: &mut GraphicsState, delta: f32) -> bool {
+pub fn update_sprites(world: &World, state: &mut GraphicsState, tick: bool, delta: f32) -> bool {
     update_added_sprites(state, delta);
     update_removed_sprites(state, delta);
+    if tick { update_sprite_frames(state) };
     update_sprite_positions(world, state, delta)
+}
+
+fn update_sprite_frames(state: &mut GraphicsState) {
+    for sprite in state.sprites.iter_mut().filter(|s| s.frame_count > 1) {
+        sprite.frame = (sprite.frame + 1) % sprite.frame_count
+    }
 }
 
 fn update_sprite_positions(world: &World, state: &mut GraphicsState, delta: f32) -> bool {
@@ -212,9 +221,9 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, context: &mut Context_
             sprite.color.2,
             (sprite.color.3 as f32 * sprite.fade) as u8,
         );
-        context.graphics.draw_atlas_sprite(
+        let _ = context.graphics.draw_atlas_sprite(
             &sprite.atlas_name,
-            sprite.index as usize,
+            (sprite.index + sprite.frame) as usize,
             sprite.v,
             Vector2f::new(TILE_SIZE, TILE_SIZE),
             Params2d { color, ..Default::default() }
@@ -229,7 +238,7 @@ pub fn draw_fog(world: &World, state: &GraphicsState, context: &mut Context_) {
             let vi = Vector2i::new(x, y);
             if board.visible.contains(&vi) { continue; }
 
-            context.graphics.draw_atlas_sprite(
+            let _ = context.graphics.draw_atlas_sprite(
                 "fog",
                 0,
                 tile_to_world(vi) - Vector2f::new(0.5, 0.5) * TILE_SIZE,
@@ -275,6 +284,11 @@ fn get_sprite_renderer(
         None => data.sprite.color
     };
 
+    let frame_count = match data.sprite.frames {
+        Some(a) => a,
+        None => 1
+    };
+
     SpriteRenderer { 
         entity: entity,
         v: tile_to_world(position.0),
@@ -284,7 +298,9 @@ fn get_sprite_renderer(
         z_index,
         color,
         fade: 0.,
-        state: SpriteState::Added
+        state: SpriteState::Added,
+        frame: 0,
+        frame_count
     }
 }
 
@@ -305,7 +321,9 @@ fn get_projectile_renderer(
         z_index: PROJECTILE_Z,
         color: Color(0, 0, 0, 255),
         fade: 1.,
-        state: SpriteState::Existing
+        state: SpriteState::Existing,
+        frame: 0,
+        frame_count: 1
     }
 }
 
