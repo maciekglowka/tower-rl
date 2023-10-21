@@ -1,6 +1,6 @@
 pub const TILE_SIZE: f32 = 1.;
 pub const PERSP_RATIO: f32 = 1.0;
-pub const BOARD_V_OFFSET: f32 = -1.5;
+pub const BOARD_V_OFFSET: f32 = -2.;
 pub const BACKGROUND_COLOR: super::Color = super::Color(38, 18, 34, 255);
 
 pub const ACTOR_Z: u32 = 200;

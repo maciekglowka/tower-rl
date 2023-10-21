@@ -7,11 +7,11 @@ use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
 mod buttons;
 mod context_menu;
+mod help;
 mod input;
 mod inventory;
 mod modal;
 mod overlays;
-// mod panels;
 mod span;
 mod status;
 mod text_box;
@@ -23,11 +23,24 @@ pub struct InputState {
     pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
-    pub direction_buffer: Option<InputDirection>,
+    // pub direction_buffer: Option<InputDirection>,
     pub shift: ButtonState,
     pub action: ButtonState,
     pub pause: ButtonState,
     pub digits: [ButtonState; 10]
+}
+
+#[derive(Default)]
+pub struct UiState {
+    pub direction_buffer: Option<InputDirection>,
+    mode: UiMode
+}
+
+#[derive(Default)]
+pub enum UiMode {
+    #[default]
+    Game,
+    HelpMenu
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -61,6 +74,19 @@ pub fn draw_world_ui(
 pub fn ui_update(
     world: &mut World,
     input_state: &mut InputState,
+    ui_state: &mut UiState,
+    context: &mut crate::Context_,
+) {
+    match ui_state.mode {
+        UiMode::Game => update_game_ui(world, input_state, ui_state, context),
+        UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state)
+    }
+}
+
+fn update_game_ui(
+    world: &mut World,
+    input_state: &mut InputState,
+    ui_state: &mut UiState,
     context: &mut crate::Context_,
 ) {
     status::draw_status(world, context);
@@ -71,8 +97,11 @@ pub fn ui_update(
     if context_menu::handle_menu(world, context, input_state) {
         ui_click = true
     }
+    if help::handle_help_button(context, input_state, ui_state) {
+        ui_click = true
+    }
     if ui_click { return };
-    input::handle_dir_input(world, input_state);
+    input::handle_dir_input(world, input_state, ui_state);
 }
 
 fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {

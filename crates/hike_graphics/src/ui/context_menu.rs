@@ -3,7 +3,7 @@ use rogalik::{
     math::vectors::Vector2f,
     storage::{Entity, World}
 };
-use core::sync::atomic::{AtomicUsize, Ordering::Relaxed};
+use core::sync::atomic::{AtomicUsize, AtomicBool, Ordering::Relaxed};
 
 use hike_game::{
     actions::{Action, Interact, WieldWeapon, PickCollectable},
@@ -23,6 +23,7 @@ use super::span::Span;
 use super::utils::{get_item_name, get_item_span};
 
 static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
+pub static CONTEXT_VISIBLE: AtomicBool = AtomicBool::new(false);
 
 pub fn handle_menu(
     world: &mut World,
@@ -40,15 +41,17 @@ pub fn handle_menu(
         .map(|&e| e)
         .collect::<Vec<_>>();
 
-    if entities.len() == 0 { 
-        return false 
+    if entities.len() == 0 {
+        CONTEXT_VISIBLE.store(false, Relaxed);
+        return false;
     };
-
+    
     entities.sort_by_key(|a| (a.version, a.id));
-
+    
     let cur_idx = CONTEXT_IDX.load(Relaxed);
     CONTEXT_IDX.store(cur_idx % entities.len(), Relaxed);
-
+    CONTEXT_VISIBLE.store(true, Relaxed);
+    
     let bounds = get_viewport_bounds(context);
     let y = bounds.0.y + UI_BOTTOM_PANEL_HEIGHT + UI_GAP;
     let width = match entities.len() {

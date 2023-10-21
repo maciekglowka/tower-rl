@@ -24,7 +24,8 @@ pub struct GraphicsState {
     sprites: Vec<graphics::renderers::SpriteRenderer>,
     ev_world: SubscriberHandle<WorldEvent>,
     ev_actions: SubscriberHandle<ActionEvent>,
-    pub animation_timer: ResourceId
+    pub animation_timer: ResourceId,
+    pub ui_state: ui::UiState
 }
 impl GraphicsState {
     pub fn new(world: &mut World, events: &mut GameEvents) -> Self {
@@ -32,7 +33,8 @@ impl GraphicsState {
             sprites: Vec::new(),
             ev_world: world.events.subscribe(),
             ev_actions: events.action_events.subscribe(),
-            animation_timer: ResourceId::default()
+            animation_timer: ResourceId::default(),
+            ui_state: ui::UiState::default()
         }
     }
     pub fn sort_sprites(&mut self) {
