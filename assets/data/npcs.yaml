@@ -82,7 +82,7 @@ Monk:
 Viper:
   sprite:
     atlas_name: units
-    index: 2
+    index: 4
     color: [145, 125, 185, 255]
   components:
     Actor:
