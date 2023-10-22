@@ -15,7 +15,7 @@ Sword:
   sprite:
     atlas_name: items
     index: 0
-    color: [189, 200, 220, 255]
+    color: [195, 234, 254, 255]
   components:
     Durability: 5-15
     Item:

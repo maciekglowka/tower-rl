@@ -1,8 +1,8 @@
-Workshop:
+Forge:
   sprite:
     atlas_name: tiles
-    index: 8
-    color: [148, 160, 184, 255]
+    index: 10
+    frames: 2
   components:
     Fixture:
     Interactive:
@@ -10,14 +10,14 @@ Workshop:
       # next: Empty_Workshop
       cost: 5
 
-Empty_Workshop:
-  sprite:
-    atlas_name: ascii
-    index: 22
-    color: [100, 100, 100, 255]
-  components:
-    Fixture:
-  spawn_chance: 0.
+# Empty_Workshop:
+#   sprite:
+#     atlas_name: ascii
+#     index: 22
+#     color: [100, 100, 100, 255]
+#   components:
+#     Fixture:
+#   spawn_chance: 0.
 
 # Blacksmith:
 #   sprite:
@@ -30,11 +30,11 @@ Empty_Workshop:
 #       kind: !UpgradeOffensive 1-3
 #       cost: 5
 
-Herbalist:
+Alchemist:
   sprite:
     atlas_name: tiles
     index: 8
-    color: [145, 200, 185, 255]
+    frames: 2
   components:
     Fixture:
     Interactive:
