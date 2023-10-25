@@ -95,7 +95,7 @@ Poisoned_Dagger:
     Offensive: 
       attacks:
         - { kind: Hit, value: 2 }
-        - { kind: Poison, value: 5-8 }
+        - { kind: Poison, value: 2-4 }
   min_level: 3
 
 Crate:

@@ -52,3 +52,18 @@ Potion_of_Heal_Poison:
     Item:
   spawn_chance: 0.5
   min_level: 2
+
+
+Potion_of_Teleport:
+  sprite:
+    atlas_name: items
+    index: 16
+  components:
+    Collectable:
+    Discoverable:
+    Effects:
+      effects:
+        - { kind: Teleport, value: 0 }
+    Item:
+  spawn_chance: 0.5
+  min_level: 5

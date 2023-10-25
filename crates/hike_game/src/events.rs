@@ -9,6 +9,5 @@ pub enum ActionEvent {
     BoardReady,
     Bump(Entity, Vector2i),
     Attack(Entity, Vector2i),
-    // Melee(Entity, Vector2i, u32),
-    Travel(Entity, Vector2i)
+    Travel(Entity, bool) // bool: is_animated
 }

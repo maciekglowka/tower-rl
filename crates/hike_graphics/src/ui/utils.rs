@@ -24,6 +24,7 @@ pub const ICON_GOLD: u32 = 16;
 pub const ICON_HEAL: u32 = 17;
 pub const ICON_IMMUNITY: u32 = 18;
 pub const ICON_HEAL_POISON: u32 = 19;
+pub const ICON_TELEPORT: u32 = 20;
 
 pub const ICON_LEVEL: u32 = 24;
 
@@ -118,7 +119,8 @@ fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
         EffectKind::Heal => ICON_HEAL,
         EffectKind::HealPoison => ICON_HEAL_POISON,
         EffectKind::Immunity => ICON_IMMUNITY,
-        EffectKind::Poison => ICON_POISON
+        EffectKind::Poison => ICON_POISON,
+        EffectKind::Teleport => ICON_TELEPORT,
     };
     (icon, if effect.value > 0 { Some(effect.value) } else { None })
 }

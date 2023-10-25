@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer};
 use std::collections::HashSet;
 
 use crate::actions::Action;
-use crate::globals::{MAX_COLLECTABLES, MAX_WEAPONS};
+use crate::globals::MAX_WEAPONS;
 use crate::structs::{Attack, Effect, InteractionKind, ValueMax};
 use crate::utils::deserialize_random_u32;
 

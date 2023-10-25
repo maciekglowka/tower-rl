@@ -110,9 +110,15 @@ pub fn handle_action_events(
                     sprite.path.push_back(sprite.v);
                 }
             },
-            ActionEvent::Travel(entity, target) => {
+            ActionEvent::Travel(entity, is_animated) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
-                    sprite.path.push_back(tile_to_world(*target));
+                    if let Some(target) = world.get_component::<Position>(*entity) {
+                        if *is_animated {
+                            sprite.path.push_back(tile_to_world(target.0));
+                        } else {
+                            sprite.v = tile_to_world(target.0);
+                        }
+                    }
                 }
             },
             _ => continue

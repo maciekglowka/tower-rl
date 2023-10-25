@@ -26,7 +26,7 @@ pub fn handle_inventory(
 
     draw_inventory_panel(bounds.0, bounds.1.x - bounds.0.x, context);
     
-    context.graphics.draw_text(
+    let _ = context.graphics.draw_text(
         "default",
         "Weapons",
         bounds.0 + Vector2f::new(UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
@@ -34,7 +34,7 @@ pub fn handle_inventory(
         UI_BUTTON_TEXT_SIZE,
         Params2d { color: BUTTON_COLOR, ..Default::default() }
     );
-    context.graphics.draw_text(
+    let _ = context.graphics.draw_text(
         "default",
         "Inventory",
         bounds.0 + Vector2f::new(UI_GAP, 2.5 * UI_GAP + 2. * UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE),
@@ -152,7 +152,7 @@ fn draw_inventory_panel(
     width: f32,    
     context: &mut crate::Context_,
 ) {
-    context.graphics.draw_atlas_sprite(
+    let _ = context.graphics.draw_atlas_sprite(
         "ui",
         0,
         v,

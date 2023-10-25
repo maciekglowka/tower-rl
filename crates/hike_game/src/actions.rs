@@ -12,7 +12,7 @@ use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects,
-    Swing, Immune, Lunge, Push, Offensive
+    Swing, Immune, Lunge, Push, Offensive, Tile
 };
 use crate::globals::MAX_COLLECTABLES;
 use crate::events::ActionEvent;
@@ -102,7 +102,7 @@ impl Action for Walk {
         Ok(Vec::new())
     }
     fn event(&self) -> ActionEvent {
-        ActionEvent::Travel(self.entity, self.target)
+        ActionEvent::Travel(self.entity, true)
     }
     fn score(&self, world: &World) -> i32 {
         if get_entities_at_position(world, self.target)
@@ -684,6 +684,43 @@ impl Action for DropLoot {
         let name = loot.items.choose(&mut rng).ok_or(())?.to_string();
         drop(loot);
         spawn_with_position(world, &name, position);
+        Ok(Vec::new())
+    }
+}
+
+pub struct Teleport {
+    pub entity: Entity
+}
+impl Action for Teleport {
+    fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Travel(self.entity, false)
+    }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let position = if let Some(position) = world.get_component::<Position>(self.entity) {
+            position.0
+        } else {
+            return Err(());
+        };
+
+        let query = world.query::<Tile>().with::<Position>().build();
+        let pool = query.iter::<Position>()
+            .filter(|p| !get_entities_at_position(world, p.0)
+                .iter()
+                .any(|&e| world.get_component::<Obstacle>(e).is_some())
+            )
+            .map(|p| {
+                let d = position.manhattan(p.0);
+                (d, p.0)
+            })
+            .collect::<Vec<_>>();
+
+        let mut rng = thread_rng();
+        let target = pool.choose_weighted(&mut rng, |a| a.0).unwrap();
+
+        let mut position = world.get_component_mut::<Position>(self.entity).ok_or(())?;
+        position.0 = target.1;
+
         Ok(Vec::new())
     }
 }
