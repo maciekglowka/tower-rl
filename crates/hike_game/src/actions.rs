@@ -74,6 +74,25 @@ pub fn get_action_at_dir(
     Some(Box::new(Walk { entity, target }))
 }
 
+fn is_shooting_range(
+    source: Vector2i,
+    target: Vector2i,
+    distance: u32,
+    world: &World
+) -> bool {
+    let d = (target - source).clamped();
+    if d.x != 0 && d.y != 0 { return false } // only ORTHO
+    println!("d: {:?}", d);
+    for i in 1..=distance as i32 {
+        let v = source + i * d;
+        if v == target { return true };
+        if get_entities_at_position(world, v).iter()
+            .any(|&e| world.get_component::<Obstacle>(e).is_some())
+            { break }
+    }
+    false
+}
+
 fn get_ranged_action(
     entity: Entity,
     world: &World,
@@ -84,17 +103,8 @@ fn get_ranged_action(
     let player_v = get_player_position(world)?;
 
     if player_v.manhattan(position.0) > ranged.distance as i32 { return None }
-    let d = (player_v - position.0).clamped();
-    if d.x != 0 && d.y != 0 { return None } // only ORTHO
 
-    for i in 1..ranged.distance as i32 {
-        let v = position.0 + i * d;
-        if v == player_v { break };
-        if get_entities_at_position(world, v).iter()
-            .any(|&e| world.get_component::<Obstacle>(e).is_some())
-            { return None }
-    }
-
+    if !is_shooting_range(position.0, player_v, ranged.distance, world) { return None };
     Some(Box::new(Shoot {entity, target: player_v }))
 }
 
@@ -152,6 +162,13 @@ impl Action for Walk {
         if !visibility(world, position.0, player_position) {
             return r;
         }
+
+        if let Some(ranged) = world.get_component::<Ranged>(self.entity) {
+            if is_shooting_range(self.target, player_position, ranged.distance, world) {
+                return 50;
+            }
+        }
+
         let Some(board) = world.get_resource::<Board>() else { return r };
         let blockers = world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
             .map(|p| p.0)
