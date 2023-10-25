@@ -109,7 +109,7 @@ pub fn handle_menu(
             .with_sprite("ui", 0)
             .with_span(span);
         button.draw(context);
-        if button.clicked(state) || state.action == ButtonState::Pressed {
+        if button.clicked(state) || state.interact == ButtonState::Pressed {
             set_player_action(world, action);
             return true;
         }

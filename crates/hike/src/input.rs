@@ -38,9 +38,8 @@ pub fn get_input_state(
         left = ButtonState::Pressed
     }
 
-    let shift = key_state(context, VirtualKeyCode::O);
-    let action = key_state(context, VirtualKeyCode::Space);
-    let pause = key_state(context, VirtualKeyCode::P);
+    let interact = key_state(context, VirtualKeyCode::E);
+    let pause = key_state(context, VirtualKeyCode::Space);
 
     let mut direction = handle_touches(context, touch_state);
     if context.input.is_key_pressed(VirtualKeyCode::W) { direction = InputDirection::Up }
@@ -61,6 +60,12 @@ pub fn get_input_state(
         key_state(context, VirtualKeyCode::Key8),
         key_state(context, VirtualKeyCode::Key9),
     ];
+    let item_action = [
+        key_state(context, VirtualKeyCode::Z),
+        key_state(context, VirtualKeyCode::X),
+        key_state(context, VirtualKeyCode::C),
+        key_state(context, VirtualKeyCode::V),
+    ];
 
     let mut m = context.input.get_mouse_physical_position();
     let mut w = Vector2f::ZERO;
@@ -73,10 +78,10 @@ pub fn get_input_state(
         mouse_world_position: w,
         mouse_button_left: left,
         direction,
-        shift,
-        action,
+        interact,
         pause,
         digits,
+        item_action
     }
 }
 

@@ -78,6 +78,11 @@ pub fn handle_inventory(
     if state.digits[3] == ButtonState::Pressed { click.0 = Some(2) };
     if state.digits[4] == ButtonState::Pressed { click.0 = Some(3) };
 
+    if state.item_action[0] == ButtonState::Pressed { click.1 = Some(0) };
+    if state.item_action[1] == ButtonState::Pressed { click.1 = Some(1) };
+    if state.item_action[2] == ButtonState::Pressed { click.1 = Some(2) };
+    if state.item_action[3] == ButtonState::Pressed { click.1 = Some(3) };
+
     if let Some(click) = click.0 {
         click_weapon(click, world);
     }

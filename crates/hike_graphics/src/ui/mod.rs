@@ -1,6 +1,7 @@
 use rogalik::engine::{Color, GraphicsContext};
 use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
+// use std::collections::HashMap;
 
 use super::GraphicsState;
 use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
@@ -23,11 +24,10 @@ pub struct InputState {
     pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
-    // pub direction_buffer: Option<InputDirection>,
-    pub shift: ButtonState,
-    pub action: ButtonState,
+    pub interact: ButtonState,
     pub pause: ButtonState,
-    pub digits: [ButtonState; 10]
+    pub digits: [ButtonState; 10],
+    pub item_action: [ButtonState; 4] // ZXCV
 }
 
 #[derive(Default)]
