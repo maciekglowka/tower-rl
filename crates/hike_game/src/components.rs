@@ -85,10 +85,18 @@ pub struct Obstacle;
 impl Component for Obstacle {}
 
 #[derive(Deserialize)]
+// close distance: melee / traps
 pub struct Offensive {
     pub attacks: Vec<Attack>
 }
 impl Component for Offensive {}
+
+#[derive(Deserialize)]
+pub struct Ranged {
+    pub attacks: Vec<Attack>,
+    pub distance: u32
+}
+impl Component for Ranged {}
 
 #[derive(Deserialize)]
 pub struct Tile;
@@ -167,7 +175,7 @@ pub struct Poisoned(pub u32);
 impl Component for Poisoned {}
 
 pub struct Projectile {
-    pub damage: u32,
+    pub attacks: Vec<Attack>,
     pub source: Vector2i,
     pub target: Vector2i
 }
@@ -200,6 +208,7 @@ pub fn insert_data_components(
             "Swing" => insert_single::<Swing>(entity, world, component_data),
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
+            "Ranged" => insert_single::<Ranged>(entity, world, component_data),
             "Push" => insert_single::<Push>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "Transition" => insert_single::<Transition>(entity, world, component_data),

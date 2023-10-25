@@ -10,14 +10,14 @@ use crate::actions::{
 };
 use crate::utils::deserialize_random_u32;
 
-#[derive(Deserialize)]
+#[derive(Clone, Copy, Deserialize)]
 pub enum AttackKind {
     Hit,
     Poison,
     Stun
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Copy, Deserialize)]
 pub struct Attack {
     pub kind: AttackKind,
     #[serde(deserialize_with="deserialize_random_u32")]
@@ -90,18 +90,18 @@ pub fn get_effect_action(
 
 pub fn get_attack_action(
     attack: &Attack,
-    entity: Entity,
+    // entity: Entity,
     target: Vector2i
 ) -> Box<dyn Action> {
     match attack.kind {
         AttackKind::Hit => Box::new(
-            HitAction { entity, target, value: attack.value }
+            HitAction { target, value: attack.value }
         ),
         AttackKind::Poison => Box::new(
-            PoisonAction { entity, target, value: attack.value }
+            PoisonAction { target, value: attack.value }
         ),
         AttackKind::Stun => Box::new(
-            StunAction { entity, target, value: attack.value }
+            StunAction { target, value: attack.value }
         ),
     }
 }

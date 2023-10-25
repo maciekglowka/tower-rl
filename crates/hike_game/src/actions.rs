@@ -11,12 +11,12 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
-    Obstacle, Position, Player, Name, Poisoned, Effects,
-    Swing, Immune, Lunge, Push, Offensive, Tile
+    Obstacle, Position, Player, Name, Poisoned, Effects, Projectile,
+    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile
 };
 use crate::globals::MAX_COLLECTABLES;
 use crate::events::ActionEvent;
-use crate::player::get_player_entity;
+use crate::player::{get_player_entity, get_player_position};
 use crate::structs::{
     AttackKind, InteractionKind,
     get_attack_action, get_effect_action
@@ -74,6 +74,30 @@ pub fn get_action_at_dir(
     Some(Box::new(Walk { entity, target }))
 }
 
+fn get_ranged_action(
+    entity: Entity,
+    world: &World,
+) -> Option<Box<dyn Action>> {
+    // for now only the player can be attacked this way
+    let ranged = world.get_component::<Ranged>(entity)?;
+    let position = world.get_component::<Position>(entity)?;
+    let player_v = get_player_position(world)?;
+
+    if player_v.manhattan(position.0) > ranged.distance as i32 { return None }
+    let d = (player_v - position.0).clamped();
+    if d.x != 0 && d.y != 0 { return None } // only ORTHO
+
+    for i in 1..ranged.distance as i32 {
+        let v = position.0 + i * d;
+        if v == player_v { break };
+        if get_entities_at_position(world, v).iter()
+            .any(|&e| world.get_component::<Obstacle>(e).is_some())
+            { return None }
+    }
+
+    Some(Box::new(Shoot {entity, target: player_v }))
+}
+
 pub fn get_npc_action(
     entity: Entity,
     world: &World
@@ -81,6 +105,10 @@ pub fn get_npc_action(
     let mut possible_actions = ORTHO_DIRECTIONS.iter()
        .filter_map(|dir| get_action_at_dir(entity, world, *dir))
        .collect::<Vec<_>>();
+
+    if let Some(action) = get_ranged_action(entity, world) {
+        possible_actions.push(action);
+    }
 
    possible_actions.sort_by(|a, b| a.score(world).cmp(&b.score(world)));
    match possible_actions.pop() {
@@ -175,7 +203,7 @@ impl AttackAction {
     fn get_attack_actions(&self, entity: Entity, world: &World, target: Vector2i) -> Vec<Box<dyn Action>> {
         let Some(offensive) = world.get_component::<Offensive>(entity) else { return Vec::new() };
         offensive.attacks.iter()
-            .map(|a| get_attack_action(a, entity, target))
+            .map(|a| get_attack_action(a, target))
             .collect()
     }
     fn get_attack_side_effects(&self, entity: Entity, world: &World, target: Vector2i)  -> Vec<Box<dyn Action>> {
@@ -226,7 +254,7 @@ impl Action for AttackAction {
 }
 
 pub struct HitAction {
-    pub entity: Entity,
+    // pub entity: Entity,
     pub target: Vector2i,
     pub value: u32
 }
@@ -247,7 +275,7 @@ impl Action for HitAction {
 }
 
 pub struct StunAction {
-    pub entity: Entity,
+    // pub entity: Entity,
     pub target: Vector2i,
     pub value: u32
 }
@@ -267,7 +295,7 @@ impl Action for StunAction {
 }
 
 pub struct PoisonAction {
-    pub entity: Entity,
+    // pub entity: Entity,
     pub target: Vector2i,
     pub value: u32
 }
@@ -279,12 +307,7 @@ impl Action for PoisonAction {
             if world.get_component::<Health>(entity).is_none() { continue }
             actions.push(Box::new(
                 ApplyPoison { entity, value: self.value }
-             ) as Box<dyn Action>);
-            // if let Some(mut poisoned)  = world.get_component_mut::<Poisoned>(entity) {
-            //     poisoned.0 += self.value;
-            //     continue
-            // };
-            // let _ = world.insert_component(entity, Poisoned(self.value));
+            ) as Box<dyn Action>);
         }
         Ok(actions)
     }
@@ -722,5 +745,41 @@ impl Action for Teleport {
         position.0 = target.1;
 
         Ok(Vec::new())
+    }
+}
+
+pub struct Shoot {
+    entity: Entity,
+    target: Vector2i
+}
+impl Action for Shoot {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let attacks = world.get_component::<Ranged>(self.entity)
+            .ok_or(())?
+            .attacks.clone();
+        let source = world.get_component::<Position>(self.entity)
+            .ok_or(())?
+            .0;
+
+        let projectile_entity = world.spawn_entity();
+        let _ = world.insert_component(
+            projectile_entity,
+            Projectile {
+                attacks,
+                source,
+                target: self.target
+            }
+        );
+        Ok(Vec::new())
+    }
+    fn score(&self, world: &World) -> i32 {
+        if get_entities_at_position(world, self.target).iter().any(
+            |e| world.get_component::<Player>(*e).is_some()
+        ) {
+            200
+        } else {
+            -50
+        }
     }
 }

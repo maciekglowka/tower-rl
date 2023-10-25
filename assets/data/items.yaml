@@ -98,7 +98,7 @@ Poisoned_Dagger:
         - { kind: Poison, value: 2-4 }
   min_level: 3
 
-Crate:
+Small_Vase:
   sprite:
     atlas_name: items
     index: 25

@@ -37,6 +37,26 @@ Snake:
   score: 2
   min_level: 3
 
+Viper:
+  sprite:
+    atlas_name: units
+    index: 4
+    color: [145, 125, 185, 255]
+  components:
+    Actor:
+    Health: 4
+    Loot:
+      items:
+        - Gold
+        - Poisoned_Dagger
+      chance: 0.25
+    Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Poison, value: 4 }
+  score: 6
+  min_level: 10
+
 Novice:
   sprite:
     atlas_name: units
@@ -79,22 +99,24 @@ Monk:
   min_level: 8
   score: 4
 
-Viper:
+Bishop:
   sprite:
     atlas_name: units
-    index: 4
-    color: [145, 125, 185, 255]
+    index: 6
+    color: [255, 255, 255, 255]
+    frames: 2
   components:
     Actor:
-    Health: 4
+    Health: 6
     Loot:
       items:
-        - Gold
-        - Poisoned_Dagger
-      chance: 0.25
+        - Axe
+        - Spear
+      chance: 0.3
     Obstacle:
-    Offensive: 
+    Ranged: 
       attacks:
-        - { kind: Poison, value: 4 }
-  score: 6
-  min_level: 10
+        - { kind: Hit, value: 1 }
+      distance: 4
+  min_level: 8
+  score: 4
