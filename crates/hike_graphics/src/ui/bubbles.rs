@@ -13,7 +13,7 @@ use super::super::{
 };
 use crate::globals::{
     UI_BUBBLE_Z, UI_BUBBLE_MAX_AGE, UI_BUBBLE_SPEED, 
-    UI_OVERLAY_FONT_SIZE, HEALTH_COLOR, POISON_COLOR
+    UI_OVERLAY_FONT_SIZE, HEALTH_COLOR, POISON_COLOR, IMMUNITY_COLOR
 };
 
 pub struct Bubble {
@@ -56,8 +56,15 @@ pub fn handle_action_event(
         ActionEvent::HealPoison(entity) => {
             bubble_value = Some((
                 entity,
-                "*".to_string(),
+                "H".to_string(),
                 POISON_COLOR
+            ));
+        },        
+        ActionEvent::Immunity(entity) => {
+            bubble_value = Some((
+                entity,
+                "I".to_string(),
+                IMMUNITY_COLOR
             ));
         }
         _ => {}

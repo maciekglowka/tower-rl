@@ -5,6 +5,7 @@ pub const BOARD_V_OFFSET: f32 = -2.;
 // colors:
 pub const BACKGROUND_COLOR: super::Color = super::Color(38, 18, 34, 255);
 pub const HEALTH_COLOR: super::Color = super::Color(255, 126, 102, 255);
+pub const IMMUNITY_COLOR: super::Color = super::Color(189, 200, 220, 255);
 pub const POISON_COLOR: super::Color = super::Color(145, 200, 185, 255);
 
 pub const ACTOR_Z: i32 = 200;

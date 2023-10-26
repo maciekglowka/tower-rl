@@ -83,7 +83,7 @@ fn is_shooting_range(
     let d = (target - source).clamped();
     if d.x != 0 && d.y != 0 { return false } // only ORTHO
 
-    for i in 1..=distance as i32 {
+    for i in 2..=distance as i32 {
         let v = source + i * d;
         if v == target { return true };
         if get_entities_at_position(world, v).iter()
@@ -581,6 +581,9 @@ pub struct GiveImmunity {
 }
 impl Action for GiveImmunity {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Immunity(self.entity)
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut immune)  = world.get_component_mut::<Immune>(self.entity) {
             immune.0 += self.value;

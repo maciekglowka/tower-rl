@@ -10,6 +10,7 @@ pub enum ActionEvent {
     Bump(Entity, Vector2i),
     Health(Entity, i32),
     HealPoison(Entity),
+    Immunity(Entity),
     Poison(Entity, i32),
     Attack(Entity, Vector2i),
     Travel(Entity, bool) // bool: is_animated

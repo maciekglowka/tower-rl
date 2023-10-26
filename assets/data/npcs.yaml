@@ -41,7 +41,7 @@ Viper:
   sprite:
     atlas_name: units
     index: 4
-    color: [145, 125, 185, 255]
+    color: [89, 116, 166, 255]
   components:
     Actor:
     Health: 4
@@ -61,7 +61,7 @@ Novice:
   sprite:
     atlas_name: units
     index: 6
-    color: [145, 125, 185, 255]
+    color: [189, 200, 220, 255]
     frames: 2
   components:
     Actor:
@@ -82,7 +82,7 @@ Monk:
   sprite:
     atlas_name: units
     index: 6
-    color: [245, 125, 185, 255]
+    color: [89, 116, 166, 255]
     frames: 2
   components:
     Actor:
@@ -103,7 +103,7 @@ Bishop:
   sprite:
     atlas_name: units
     index: 6
-    color: [255, 255, 255, 255]
+    color: [255, 102, 145, 255]
     frames: 2
   components:
     Actor:
@@ -116,7 +116,7 @@ Bishop:
     Obstacle:
     Ranged: 
       attacks:
-        - { kind: Hit, value: 1 }
+        - { kind: Hit, value: 2 }
       distance: 4
-  min_level: 8
-  score: 4
+  min_level: 15
+  score: 8

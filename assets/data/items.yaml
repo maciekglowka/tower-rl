@@ -9,7 +9,6 @@ Gold:
       effects:
         - { kind: Gold, value: 1-3 }
     Item:
-  spawn_chance: 0.5
 
 Sword:
   sprite:
@@ -23,6 +22,7 @@ Sword:
     Offensive: 
       attacks:
         - { kind: Hit, value: 2-5 }
+  spawn_chance: 0.5
 
 Axe:
   sprite:
@@ -67,6 +67,7 @@ Stun_Wand:
       attacks:
         - { kind: Stun, value: 3-6 }
   min_level: 5
+  spawn_chance: 0.25
 
 Warhammer:
   sprite:
@@ -82,6 +83,7 @@ Warhammer:
       attacks:
         - { kind: Hit, value: 1 }
   min_level: 5
+  spawn_chance: 0.25
 
 Poisoned_Dagger:
   sprite:
@@ -97,6 +99,7 @@ Poisoned_Dagger:
         - { kind: Hit, value: 2 }
         - { kind: Poison, value: 2-4 }
   min_level: 3
+  spawn_chance: 0.5
 
 Small_Vase:
   sprite:
@@ -109,9 +112,9 @@ Small_Vase:
       items:
         - Snake
         - Rat
-        - Sword
         - Spear
         - Axe
+        - Warhammer
         - Healing_Potion
       chance: 1.
     Item:
