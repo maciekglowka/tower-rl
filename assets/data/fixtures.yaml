@@ -30,7 +30,7 @@ Forge:
 #       kind: !UpgradeOffensive 1-3
 #       cost: 5
 
-Alchemist:
+Herbalist:
   sprite:
     atlas_name: tiles
     index: 8

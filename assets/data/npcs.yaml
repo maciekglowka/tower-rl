@@ -42,6 +42,7 @@ Viper:
     atlas_name: units
     index: 4
     color: [89, 116, 166, 255]
+    frames: 2
   components:
     Actor:
     Health: 4
@@ -118,5 +119,5 @@ Bishop:
       attacks:
         - { kind: Hit, value: 2 }
       distance: 4
-  min_level: 15
+  min_level: 10
   score: 8
