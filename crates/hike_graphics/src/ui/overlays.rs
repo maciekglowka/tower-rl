@@ -10,11 +10,9 @@ use hike_game::{
 };
 
 use crate::GraphicsState;
-use crate::globals::{TILE_SIZE, UI_OVERLAY_Z};
+use crate::globals::{TILE_SIZE, UI_OVERLAY_Z, UI_OVERLAY_FONT_SIZE, HEALTH_COLOR};
 use crate::world_to_tile;
 use crate::graphics::renderers::get_entity_sprite;
-
-const FONT_SIZE: f32 = 0.4;
 
 pub fn draw_overlays(
     world: &World,
@@ -28,7 +26,7 @@ pub fn draw_overlays(
         if world.get_component::<Player>(entity).is_some() { continue };
 
         let text = format!("{}", health.0.current);
-        let size = context.graphics.text_dimensions("default", &text, FONT_SIZE);
+        let size = context.graphics.text_dimensions("default", &text, UI_OVERLAY_FONT_SIZE);
 
         let Some(base) = get_entity_sprite(entity, state) else { continue };
         let tile = world_to_tile(base.v);
@@ -39,8 +37,8 @@ pub fn draw_overlays(
             &text,
             base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
             UI_OVERLAY_Z,
-            FONT_SIZE,
-            Params2d { color: Color(255, 255, 255, 255), ..Default::default() }
+            UI_OVERLAY_FONT_SIZE,
+            Params2d { color: HEALTH_COLOR, ..Default::default() }
         );
     }
 }

@@ -1,7 +1,11 @@
 pub const TILE_SIZE: f32 = 1.;
 pub const PERSP_RATIO: f32 = 1.0;
 pub const BOARD_V_OFFSET: f32 = -2.;
+
+// colors:
 pub const BACKGROUND_COLOR: super::Color = super::Color(38, 18, 34, 255);
+pub const HEALTH_COLOR: super::Color = super::Color(255, 126, 102, 255);
+pub const POISON_COLOR: super::Color = super::Color(145, 200, 185, 255);
 
 pub const ACTOR_Z: i32 = 200;
 pub const FIXTURE_Z: i32 = 100;
@@ -10,10 +14,15 @@ pub const ITEM_Z: i32 = 150;
 pub const PROJECTILE_Z: i32 = 250;
 pub const TILE_Z: i32 = 50;
 
+pub const UI_BUBBLE_Z: i32 = 410;
 pub const UI_OVERLAY_Z: i32 = 400;
 pub const UI_BG_Z: i32 = 500;
 pub const UI_BUTTON_Z: i32 = 550;
 pub const UI_TEXT_Z: i32 = 600;
+
+pub const UI_BUBBLE_MAX_AGE: f32 = 2.;
+pub const UI_BUBBLE_SPEED: f32 = 1.;
+pub const UI_OVERLAY_FONT_SIZE: f32 = 0.4;
 
 pub const INACTIVE_FADE: f32 = 0.5;
 pub const ANIMATION_TICK: f32 = 1.;

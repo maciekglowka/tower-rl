@@ -6,6 +6,7 @@ use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 use super::GraphicsState;
 use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
+pub mod bubbles;
 mod buttons;
 mod context_menu;
 mod help;
@@ -33,7 +34,8 @@ pub struct InputState {
 #[derive(Default)]
 pub struct UiState {
     pub direction_buffer: Option<InputDirection>,
-    mode: UiMode
+    mode: UiMode,
+    bubbles: Vec<bubbles::Bubble>
 }
 
 #[derive(Default)]
@@ -66,9 +68,10 @@ pub enum ButtonState {
 pub fn draw_world_ui(
     world: &World,
     context: &mut crate::Context_,
-    state: &GraphicsState
+    state: &mut GraphicsState
 ) {
     overlays::draw_overlays(world, context, state);
+    bubbles::handle_bubbles(world, state, context);
 }
 
 pub fn ui_update(

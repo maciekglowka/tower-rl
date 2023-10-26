@@ -82,7 +82,7 @@ fn is_shooting_range(
 ) -> bool {
     let d = (target - source).clamped();
     if d.x != 0 && d.y != 0 { return false } // only ORTHO
-    println!("d: {:?}", d);
+
     for i in 1..=distance as i32 {
         let v = source + i * d;
         if v == target { return true };
@@ -504,6 +504,9 @@ pub struct Damage {
 }
 impl Action for Damage {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Health(self.entity, -(self.value as i32))
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if world.get_component::<Immune>(self.entity).is_some() {
             return Err(())
@@ -521,6 +524,9 @@ pub struct Heal {
 }
 impl Action for Heal {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Health(self.entity, self.value as i32)
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0.current = health.0.max.min(health.0.current + self.value);
@@ -535,6 +541,9 @@ pub struct ApplyPoison {
 }
 impl Action for ApplyPoison {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::Poison(self.entity, self.value as i32)
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut poisoned) = world.get_component_mut::<Poisoned>(self.entity) {
             poisoned.0 += self.value;
@@ -553,9 +562,12 @@ pub struct HealPoison {
 }
 impl Action for HealPoison {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> ActionEvent {
+        ActionEvent::HealPoison(self.entity)
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if world.get_component_mut::<Poisoned>(self.entity).is_none() {
-            return Err(())
+            return Ok(Vec::new())
         };
         let _ = world.remove_component::<Poisoned>(self.entity);
         Ok(Vec::new())

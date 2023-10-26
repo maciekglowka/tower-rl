@@ -54,7 +54,7 @@ impl Game<WgpuContext> for GameState {
 
         self.graphics_ready = hike_graphics::graphics_update(&self.world, &mut self.graphics_state, context);
         self.input_state = input::get_input_state(self.camera_main, &mut self.touch_state, context);
-        hike_graphics::ui::draw_world_ui(&self.world, context, &self.graphics_state);
+        hike_graphics::ui::draw_world_ui(&self.world, context, &mut self.graphics_state);
         hike_graphics::ui::ui_update(
             &mut self.world,
             &mut self.input_state,

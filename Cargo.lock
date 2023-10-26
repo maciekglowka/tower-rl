@@ -647,6 +647,7 @@ version = "0.1.0"
 dependencies = [
  "hike_data",
  "hike_game",
+ "rand",
  "rogalik",
 ]
 
