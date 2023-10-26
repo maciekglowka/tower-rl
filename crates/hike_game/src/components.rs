@@ -11,7 +11,10 @@ use crate::utils::deserialize_random_u32;
 
 // deserialized components
 #[derive(Deserialize)]
-pub struct Actor;
+pub struct Actor {
+    #[serde(skip)]
+    pub target: Option<Vector2i>
+}
 impl Component for Actor {}
 
 // marker for non-weapon items that can be put into inventory for later use

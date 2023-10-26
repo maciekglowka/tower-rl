@@ -80,10 +80,11 @@ fn is_shooting_range(
     distance: u32,
     world: &World
 ) -> bool {
+    if target.manhattan(source) == 1 { return false }
     let d = (target - source).clamped();
     if d.x != 0 && d.y != 0 { return false } // only ORTHO
 
-    for i in 2..=distance as i32 {
+    for i in 1..=distance as i32 {
         let v = source + i * d;
         if v == target { return true };
         if get_entities_at_position(world, v).iter()
@@ -153,22 +154,26 @@ impl Action for Walk {
         let mut rng = thread_rng();
         let r = rng.gen_range(0..4);
         let Some(position) = world.get_component::<Position>(self.entity) else { return r };
-        let player_position = if let Some(p) = world.query::<Player>().with::<Position>().build().single::<Position>() {
-            p.0
-        } else {
-            return r;
-        };
+        // let player_position = if let Some(p) = world.query::<Player>().with::<Position>().build().single::<Position>() {
+        //     p.0
+        // } else {
+        //     return r;
+        // };
 
-        if !visibility(world, position.0, player_position) {
-            return r;
-        }
+        // if !visibility(world, position.0, player_position) {
+        //     return r;
+        // }
 
         if let Some(ranged) = world.get_component::<Ranged>(self.entity) {
-            if is_shooting_range(self.target, player_position, ranged.distance, world) {
-                return 50;
+            if let Some(v) = get_player_position(world) {
+                if is_shooting_range(self.target, v, ranged.distance, world) {
+                    return 50;
+                }
             }
         }
 
+        let Some(actor) = world.get_component::<Actor>(self.entity) else { return r };
+        let Some(target) = actor.target else { return r };
         let Some(board) = world.get_resource::<Board>() else { return r };
         let blockers = world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
             .map(|p| p.0)
@@ -176,7 +181,7 @@ impl Action for Walk {
 
         let Some(path) = find_path(
             position.0,
-            player_position,
+            target,
             &board.tiles.keys().map(|&v| v).collect::<HashSet<_>>(),
             &blockers
         ) else { return r };

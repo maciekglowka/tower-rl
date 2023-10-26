@@ -94,6 +94,7 @@ fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> 
         return player.action.take();
     };
 
+    update_npc_target(world, entity);
     Some(get_npc_action(entity, world))
 }
 
@@ -284,6 +285,19 @@ fn process_transition(world: &mut World) {
     }
     for (v, name) in to_spawn {
         spawn_with_position(world, &name, v);
+    }
+}
+
+fn update_npc_target(world: &mut World, entity: Entity) {
+    let Some(mut actor) = world.get_component_mut::<Actor>(entity) else { return };
+    let Some(position) = world.get_component::<Position>(entity) else { return };
+
+    if Some(position.0) == actor.target {
+        actor.target = None
+    };
+    let Some(player_v) = player::get_player_position(world) else { return };
+    if crate::utils::visibility(world, position.0, player_v) {
+        actor.target = Some(player_v);
     }
 }
 

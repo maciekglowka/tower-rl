@@ -58,6 +58,28 @@ Viper:
   score: 6
   min_level: 10
 
+Golden_Snake:
+  sprite:
+    atlas_name: units
+    index: 4
+    color: [255, 191, 102, 255]
+    frames: 2
+  components:
+    Actor:
+    Health: 8
+    Loot:
+      items:
+        - Spear
+        - Axe
+      chance: 0.5
+    Obstacle:
+    Ranged: 
+      attacks:
+        - { kind: Poison, value: 4 }
+      distance: 4
+  score: 10
+  min_level: 12
+
 Novice:
   sprite:
     atlas_name: units

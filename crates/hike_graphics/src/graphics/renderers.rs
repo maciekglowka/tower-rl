@@ -329,7 +329,7 @@ fn get_projectile_renderer(
         atlas_name: "items".into(),
         index: 8,
         z_index: PROJECTILE_Z,
-        color: Color(255, 102, 145, 255),
+        color: Color(189, 200, 220, 255),
         fade: 1.,
         state: SpriteState::Existing,
         frame: 0,
