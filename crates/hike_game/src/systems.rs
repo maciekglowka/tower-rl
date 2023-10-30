@@ -5,11 +5,11 @@ use rogalik::{
 use std::collections::{HashMap, VecDeque};
 
 use crate::actions::{
-    Action, ActorQueue, AttackAction, Damage, DropLoot, PendingActions, UseInstant, get_npc_action,
+    Action, ActorQueue, AttackAction, Damage, DropLoot, Heal, PendingActions, UseInstant, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
-    Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile,
+    Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile, Regeneration,
     Player, Position, Poisoned, Transition
 };
 use crate::GameEvents;
@@ -255,6 +255,23 @@ fn process_immune(world: &mut World) {
     }
 }
 
+fn process_regeneration(world: &mut World) {
+    let mut to_remove = Vec::new();
+    let query = world.query::<Regeneration>().build();
+    let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
+    for (mut regeneration, &entity) in query.iter_mut::<Regeneration>().zip(query.entities()) {
+        regeneration.0 = regeneration.0.saturating_sub(1);
+        if regeneration.0 <= 0 {
+            to_remove.push(entity);
+        }
+        pending.0.push_back(Box::new(Heal { entity: entity, value: 1 }))
+    }
+    drop(pending);
+    for entity in to_remove {
+        world.remove_component::<Regeneration>(entity);
+    }
+}
+
 fn process_offensive_fixtures(world: &mut World) {
     let query = world.query::<Fixture>()
         .with::<Offensive>()
@@ -304,6 +321,7 @@ fn update_npc_target(world: &mut World, entity: Entity) {
 fn turn_end(world: &mut World) {
     collect_actor_queue(world);
     player::turn_end(world);
+    process_regeneration(world);
     process_poisoned(world);
     process_immune(world);
     process_transition(world);

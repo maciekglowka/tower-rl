@@ -72,7 +72,7 @@ pub fn handle_menu(
             .with_sprite("ui", 0)
             .with_span(Span::new().with_text_borrowed("[MORE]").with_size(UI_BUTTON_TEXT_SIZE));
         button.draw(context);
-        if button.clicked(state) {
+        if button.clicked(state) || state.action_right == ButtonState::Pressed {
             CONTEXT_IDX.store(cur_idx + 1, Relaxed);
             return true;
         }
@@ -109,7 +109,7 @@ pub fn handle_menu(
             .with_sprite("ui", 0)
             .with_span(span);
         button.draw(context);
-        if button.clicked(state) || state.interact == ButtonState::Pressed {
+        if button.clicked(state) || state.action_left == ButtonState::Pressed {
             set_player_action(world, action);
             return true;
         }

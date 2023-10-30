@@ -187,6 +187,9 @@ impl Component for Projectile {}
 pub struct Position(pub Vector2i);
 impl Component for Position {}
 
+pub struct Regeneration(pub u32);
+impl Component for Regeneration {}
+
 pub fn insert_data_components(
     entity: Entity,
     world: &mut World,

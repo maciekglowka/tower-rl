@@ -25,7 +25,8 @@ pub struct InputState {
     pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
     pub direction: InputDirection,
-    pub interact: ButtonState,
+    pub action_left: ButtonState,
+    pub action_right: ButtonState,
     pub pause: ButtonState,
     pub digits: [ButtonState; 10],
     pub item_action: [ButtonState; 4] // ZXCV

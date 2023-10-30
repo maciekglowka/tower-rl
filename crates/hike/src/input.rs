@@ -38,7 +38,8 @@ pub fn get_input_state(
         left = ButtonState::Pressed
     }
 
-    let interact = key_state(context, VirtualKeyCode::E);
+    let action_right = key_state(context, VirtualKeyCode::E);
+    let action_left = key_state(context, VirtualKeyCode::Q);
     let pause = key_state(context, VirtualKeyCode::Space);
 
     let mut direction = handle_touches(context, touch_state);
@@ -78,7 +79,8 @@ pub fn get_input_state(
         mouse_world_position: w,
         mouse_button_left: left,
         direction,
-        interact,
+        action_left,
+        action_right,
         pause,
         digits,
         item_action

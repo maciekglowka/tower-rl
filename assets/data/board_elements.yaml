@@ -2,9 +2,9 @@ Tile:
   sprite:
     atlas_name: tiles
     index: 0
-    # color: [195, 234, 254, 255]
-    # color: [150, 128, 128, 255]
-    color: [98, 81, 81, 255]
+    # color: [64, 48, 54, 255]
+    # color: [98, 81, 81, 255]
+    color: [95, 76, 79, 255]
   components:
     Tile:
 

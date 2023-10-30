@@ -6,7 +6,7 @@ use rogalik::{
 
 use hike_game::{
     Board,
-    components::{Health, Player, Poisoned, Immune},
+    components::{Health, Player, Poisoned, Immune, Regeneration},
     get_entities_at_position, get_player_position
 };
 
@@ -48,6 +48,11 @@ pub fn draw_status(world: &World, context: &mut crate::Context_) {
             .with_sprite("icons", utils::ICON_IMMUNITY)
             .with_text_owned(format!("{}", immune.0));
         // text += &format!(" Immune({})", immune.0);
+    }
+    if let Some(regeneration) = world.get_component::<Regeneration>(query.single_entity().unwrap()) {
+        span = span.with_spacer(spacer)
+            .with_sprite("icons", utils::ICON_REGENERATION)
+            .with_text_owned(format!("{}", regeneration.0));
     }
     let bounds = get_viewport_bounds(context);
 

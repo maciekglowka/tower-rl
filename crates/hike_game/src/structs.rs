@@ -5,7 +5,7 @@ use rogalik::{
 use serde::Deserialize;
 
 use crate::actions::{
-    Action, Heal, PickGold, GiveImmunity,
+    Action, Heal, PickGold, GiveImmunity, GiveRegeneration,
     HitAction, StunAction, PoisonAction, ApplyPoison, HealPoison, Teleport
 };
 use crate::utils::deserialize_random_u32;
@@ -31,6 +31,7 @@ pub enum EffectKind {
     HealPoison,
     Immunity,
     Poison,
+    Regenerate,
     Teleport
 }
 
@@ -81,6 +82,9 @@ pub fn get_effect_action(
         ),
         EffectKind::Poison => Box::new(
             ApplyPoison { entity, value: effect.value }
+        ),
+        EffectKind::Regenerate => Box::new(
+            GiveRegeneration { entity, value: effect.value }
         ),
         EffectKind::Teleport => Box::new(
             Teleport { entity }

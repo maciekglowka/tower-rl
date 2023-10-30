@@ -141,6 +141,7 @@ fn draw_symbols_tab(
         (utils::ICON_HEAL, "Heal / Health"),
         (utils::ICON_IMMUNITY, "Immunity"),
         (utils::ICON_HEAL_POISON, "Heal Poison"),
+        (utils::ICON_REGENERATION, "Regenerate"),
         (utils::ICON_TELEPORT, "Teleport"),
         (utils::ICON_LEVEL, "Level"),
     ];

@@ -10,6 +10,21 @@ Healing_Potion:
         - { kind: Heal, value: 1-3 }
     Item:
   min_level: 2
+  spawn_chance: 0.5
+
+Potion_of_Regeneration:
+  sprite:
+    atlas_name: items
+    index: 16
+  components:
+    Collectable:
+    Discoverable:
+    Effects:
+      effects:
+        - { kind: Regenerate, value: 2-4 }
+    Item:
+  spawn_chance: 0.5
+  min_level: 4
 
 Potion_of_Immunity:
   sprite:
@@ -52,7 +67,6 @@ Potion_of_Heal_Poison:
     Item:
   spawn_chance: 0.5
   min_level: 2
-
 
 Potion_of_Teleport:
   sprite:

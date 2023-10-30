@@ -12,7 +12,7 @@ use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects, Projectile,
-    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile
+    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration
 };
 use crate::globals::MAX_COLLECTABLES;
 use crate::events::ActionEvent;
@@ -168,6 +168,9 @@ impl Action for Walk {
             if let Some(v) = get_player_position(world) {
                 if is_shooting_range(self.target, v, ranged.distance, world) {
                     return 50;
+                }
+                if v.manhattan(self.target) == 1 {
+                    return -5;
                 }
             }
         }
@@ -598,6 +601,24 @@ impl Action for GiveImmunity {
         let _ = world.insert_component(self.entity, Immune(self.value));
         Ok(Vec::new())
     }
+}
+
+pub struct GiveRegeneration {
+    pub entity: Entity,
+    pub value: u32
+}
+impl Action for GiveRegeneration {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut regeneration) = world.get_component_mut::<Regeneration>(self.entity) {
+            regeneration.0 += self.value;
+            return Ok(Vec::new())
+        };
+
+        let _ = world.insert_component(self.entity, Regeneration(self.value));
+        Ok(Vec::new())
+    }
+    // score is not implemented as it always should be a resulting action
 }
 
 pub struct Repair {
