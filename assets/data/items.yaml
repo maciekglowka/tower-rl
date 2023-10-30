@@ -24,6 +24,20 @@ Sword:
         - { kind: Hit, value: 2-5 }
   spawn_chance: 0.5
 
+Golden_Sword:
+  sprite:
+    atlas_name: items
+    index: 0
+    color: [255, 191, 102, 255]
+  components:
+    Durability: 5-15
+    Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 6-10 }
+  spawn_chance: 0
+
 Axe:
   sprite:
     atlas_name: items
@@ -119,3 +133,22 @@ Small_Vase:
       chance: 1.
     Item:
   min_level: 6
+
+Large_Vase:
+  sprite:
+    atlas_name: items
+    index: 26
+    color: [255, 255, 255, 255]
+  components:
+    Health: 3
+    Loot:
+      items:
+        - Viper
+        - Monk
+        - Golden_Sword
+        - Potion_of_Regeneration
+        - Potion_of_Teleport
+      chance: 1.
+    Item:
+  min_level: 14
+

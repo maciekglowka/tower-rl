@@ -3,12 +3,15 @@ use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 // use std::collections::HashMap;
 
+use hike_game::get_player_entity;
+
 use super::GraphicsState;
 use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
 pub mod bubbles;
 mod buttons;
 mod context_menu;
+mod game_over;
 mod help;
 mod input;
 mod inventory;
@@ -43,7 +46,8 @@ pub struct UiState {
 pub enum UiMode {
     #[default]
     Game,
-    HelpMenu
+    HelpMenu,
+    GameOver
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -82,8 +86,14 @@ pub fn ui_update(
     context: &mut crate::Context_,
 ) {
     match ui_state.mode {
-        UiMode::Game => update_game_ui(world, input_state, ui_state, context),
-        UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state)
+        UiMode::Game => {
+            update_game_ui(world, input_state, ui_state, context);
+            if get_player_entity(world).is_none() {
+                ui_state.mode = UiMode::GameOver
+            }
+        },
+        UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state),
+        UiMode::GameOver => game_over::handle_menu(context, input_state, ui_state, world)
     }
 }
 

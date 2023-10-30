@@ -1,7 +1,7 @@
 use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2i;
 use serde::{Deserialize, Deserializer};
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use crate::actions::Action;
 use crate::globals::MAX_WEAPONS;

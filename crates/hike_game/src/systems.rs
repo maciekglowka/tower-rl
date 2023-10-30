@@ -4,13 +4,14 @@ use rogalik::{
 };
 use std::collections::{HashMap, VecDeque};
 
+use crate::GameStats;
 use crate::actions::{
     Action, ActorQueue, AttackAction, Damage, DropLoot, Heal, PendingActions, UseInstant, get_npc_action,
 };
 use crate::board::{Board, update_visibility};
 use crate::components::{
     Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile, Regeneration,
-    Player, Position, Poisoned, Transition
+    Player, Position, Poisoned, Transition, Name
 };
 use crate::GameEvents;
 use crate::player;
@@ -193,7 +194,17 @@ fn kill_units(world: &mut World, events: &mut GameEvents) {
         .map(|(_, e)| *e)
         .collect::<Vec<_>>();
 
+
     for entity in entities {
+        if let Some(player_entity) = player::get_player_entity(world) {
+            if let Some(mut stats) = world.get_resource_mut::<GameStats>() {
+                if entity != player_entity {
+                    if let Some(name) = world.get_component::<Name>(entity) {
+                        *stats.kills.entry(name.0.to_string()).or_insert(0) += 1;
+                    }
+                }
+            }
+        }
         let _ = execute_action(
             Box::new(DropLoot { entity }),
             world,

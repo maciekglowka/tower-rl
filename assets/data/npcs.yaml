@@ -71,7 +71,8 @@ Golden_Snake:
       items:
         - Spear
         - Axe
-      chance: 0.5
+        - Golden_Sword
+      chance: 0.75
     Obstacle:
     Ranged: 
       attacks:
@@ -135,6 +136,7 @@ Bishop:
       items:
         - Axe
         - Spear
+        - Potion_of_Teleport
       chance: 0.3
     Obstacle:
     Ranged: 

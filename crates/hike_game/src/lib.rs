@@ -36,9 +36,14 @@ impl GameEvents {
 }
 
 pub fn init(world: &mut World, events: &mut GameEvents) {
+    world.insert_resource(GameStats::default());
     systems::board_start(world, events);
 }
 
+#[derive(Default)]
+pub struct GameStats {
+    pub kills: HashMap<String, u32>
+}
 
 pub fn game_update(world: &mut World, events: &mut GameEvents) -> Result<(), ()> {
     if world.get_resource::<Board>().ok_or(())?.is_exit() {
