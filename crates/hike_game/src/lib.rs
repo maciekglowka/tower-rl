@@ -21,21 +21,21 @@ mod utils;
 
 pub use player::{set_player_action, set_player_action_from_dir, get_player_position, get_player_entity};
 pub use board::Board;
-pub use events::ActionEvent;
+pub use events::GameEvent;
 pub use utils::get_entities_at_position;
 
-pub struct GameEvents {
-    pub action_events: EventBus<ActionEvent>,
-}
-impl GameEvents {
-    pub fn new() -> Self {
-        GameEvents { 
-            action_events: EventBus::new(),
-        }
-    }
-}
+// pub struct GameEvents {
+//     pub action_events: EventBus<ActionEvent>,
+// }
+// impl GameEvents {
+//     pub fn new() -> Self {
+//         GameEvents { 
+//             action_events: EventBus::new(),
+//         }
+//     }
+// }
 
-pub fn init(world: &mut World, events: &mut GameEvents) {
+pub fn init(world: &mut World, events: &mut EventBus<GameEvent>) {
     world.insert_resource(GameStats::default());
     systems::board_start(world, events);
 }
@@ -45,7 +45,7 @@ pub struct GameStats {
     pub kills: HashMap<String, u32>
 }
 
-pub fn game_update(world: &mut World, events: &mut GameEvents) -> Result<(), ()> {
+pub fn game_update(world: &mut World, events: &mut EventBus<GameEvent>) -> Result<(), ()> {
     if world.get_resource::<Board>().ok_or(())?.is_exit() {
         systems::board_end(world);
         systems::board_start(world, events);

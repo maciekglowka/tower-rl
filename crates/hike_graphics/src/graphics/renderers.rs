@@ -8,7 +8,7 @@ use rogalik::storage::{Entity, World, WorldEvent};
 
 use hike_data::GameData;
 use hike_game::{
-    ActionEvent,
+    GameEvent,
     Board,
     components::{Actor, Discoverable, Fixture, Item, Name, Stunned, Position, Projectile, Tile},
     globals::BOARD_SIZE,
@@ -101,18 +101,18 @@ pub fn handle_action_events(
     world: &World,
     state: &mut GraphicsState
 ) {
-    for ev in state.ev_actions.read().iter().flatten() {
+    for ev in state.ev_game.read().iter().flatten() {
         // temp bubble -> create a common handler?
-        crate::game_ui::bubbles::handle_action_event(ev, world, state);
+        crate::game_ui::bubbles::handle_game_event(ev, world, state);
         match ev {
-            ActionEvent::BoardReady => update_wall_sprites(world, state),
-            ActionEvent::Attack(entity, target) | ActionEvent::Bump(entity, target) => {
+            GameEvent::BoardReady => update_wall_sprites(world, state),
+            GameEvent::Attack(entity, target) | GameEvent::Bump(entity, target) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     sprite.path.push_back((sprite.v + tile_to_world(*target)) * 0.5);
                     sprite.path.push_back(sprite.v);
                 }
             },
-            ActionEvent::Travel(entity, is_animated) => {
+            GameEvent::Travel(entity, is_animated) => {
                 if let Some(sprite) = get_entity_sprite_mut(*entity, state) {
                     if let Some(target) = world.get_component::<Position>(*entity) {
                         if *is_animated {

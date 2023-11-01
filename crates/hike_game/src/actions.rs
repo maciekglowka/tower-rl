@@ -15,7 +15,7 @@ use crate::components::{
     Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration
 };
 use crate::globals::MAX_COLLECTABLES;
-use crate::events::ActionEvent;
+use crate::events::GameEvent;
 use crate::player::{get_player_entity, get_player_position};
 use crate::structs::{
     AttackKind, InteractionKind,
@@ -31,7 +31,7 @@ pub type ActionResult = Result<Vec<Box<dyn Action>>, ()>;
 pub trait Action {
     fn as_any(&self) -> &dyn Any;
     fn execute(&self, world: &mut World) -> ActionResult;
-    fn event(&self) -> ActionEvent { ActionEvent::Other }
+    fn event(&self) -> GameEvent { GameEvent::Other }
     fn score(&self, world: &World) -> i32 { 0 }
     fn type_id(&self) -> TypeId where Self: 'static {
         TypeId::of::<Self>()
@@ -140,8 +140,8 @@ impl Action for Walk {
 
         Ok(Vec::new())
     }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Travel(self.entity, true)
+    fn event(&self) -> GameEvent {
+        GameEvent::Travel(self.entity, true)
     }
     fn score(&self, world: &World) -> i32 {
         if get_entities_at_position(world, self.target)
@@ -264,8 +264,8 @@ impl Action for AttackAction {
         }
         Ok(actions)
     }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Attack(self.entity, self.target)
+    fn event(&self) -> GameEvent {
+        GameEvent::Attack(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
         if get_entities_at_position(world, self.target).iter().any(
@@ -388,8 +388,8 @@ impl Action for Bump {
     fn execute(&self, world: &mut World) -> ActionResult {
         Ok(Vec::new())
     }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Bump(self.entity, self.target)
+    fn event(&self) -> GameEvent {
+        GameEvent::Bump(self.entity, self.target)
     }
 }
 
@@ -512,8 +512,8 @@ pub struct Damage {
 }
 impl Action for Damage {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Health(self.entity, -(self.value as i32))
+    fn event(&self) -> GameEvent {
+        GameEvent::Health(self.entity, -(self.value as i32))
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         if world.get_component::<Immune>(self.entity).is_some() {
@@ -532,8 +532,8 @@ pub struct Heal {
 }
 impl Action for Heal {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Health(self.entity, self.value as i32)
+    fn event(&self) -> GameEvent {
+        GameEvent::Health(self.entity, self.value as i32)
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
@@ -549,8 +549,8 @@ pub struct ApplyPoison {
 }
 impl Action for ApplyPoison {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Poison(self.entity, self.value as i32)
+    fn event(&self) -> GameEvent {
+        GameEvent::Poison(self.entity, self.value as i32)
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut poisoned) = world.get_component_mut::<Poisoned>(self.entity) {
@@ -570,8 +570,8 @@ pub struct HealPoison {
 }
 impl Action for HealPoison {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::HealPoison(self.entity)
+    fn event(&self) -> GameEvent {
+        GameEvent::HealPoison(self.entity)
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         if world.get_component_mut::<Poisoned>(self.entity).is_none() {
@@ -589,8 +589,8 @@ pub struct GiveImmunity {
 }
 impl Action for GiveImmunity {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Immunity(self.entity)
+    fn event(&self) -> GameEvent {
+        GameEvent::Immunity(self.entity)
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut immune)  = world.get_component_mut::<Immune>(self.entity) {
@@ -774,8 +774,8 @@ pub struct Teleport {
 }
 impl Action for Teleport {
     fn as_any(&self) -> &dyn Any { self }
-    fn event(&self) -> ActionEvent {
-        ActionEvent::Travel(self.entity, false)
+    fn event(&self) -> GameEvent {
+        GameEvent::Travel(self.entity, false)
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         let position = if let Some(position) = world.get_component::<Position>(self.entity) {

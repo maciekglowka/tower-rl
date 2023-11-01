@@ -4,7 +4,7 @@ use rogalik::math::vectors::Vector2f;
 use rogalik::storage::{Entity, World};
 
 use hike_game::{
-    ActionEvent,
+    GameEvent,
     components::Position,
 };
 
@@ -32,35 +32,35 @@ pub fn handle_bubbles(
     draw_bubbles(state, context);
 }
 
-pub fn handle_action_event(
-    ev: &ActionEvent,
+pub fn handle_game_event(
+    ev: &GameEvent,
     world: &World,
     state: &mut GraphicsState
 ) {
     let mut bubble_value = None;
     match ev {
-        ActionEvent::Health(entity, value) => {
+        GameEvent::Health(entity, value) => {
             bubble_value = Some((
                 entity,
                 format!("{}", value),
                 HEALTH_COLOR
             ));
         },
-        ActionEvent::Poison(entity, value) => {
+        GameEvent::Poison(entity, value) => {
             bubble_value = Some((
                 entity,
                 format!("{}", value),
                 POISON_COLOR
             ));
         },
-        ActionEvent::HealPoison(entity) => {
+        GameEvent::HealPoison(entity) => {
             bubble_value = Some((
                 entity,
                 "H".to_string(),
                 POISON_COLOR
             ));
         },        
-        ActionEvent::Immunity(entity) => {
+        GameEvent::Immunity(entity) => {
             bubble_value = Some((
                 entity,
                 "I".to_string(),

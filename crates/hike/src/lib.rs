@@ -1,5 +1,6 @@
 use rogalik::{
     engine::{Context, Game, GraphicsContext, EngineBuilder, ResourceId},
+    events::EventBus,
     math::vectors::{Vector2f, Vector2i},
     storage::World,
     wgpu::WgpuContext
@@ -24,10 +25,23 @@ enum GamePhase {
     GameEnd,
 }
 
+struct Events {
+    game_events: EventBus<hike_game::GameEvent>,
+    ui_events: EventBus<hike_graphics::UiEvent>,
+}
+impl Events {
+    pub fn new() -> Self {
+        Self {
+            game_events: EventBus::new(),
+            ui_events: EventBus::new(),
+        }
+    }
+}
+
 pub struct GameState {
     phase: GamePhase,
     camera_main: ResourceId,
-    events: hike_game::GameEvents,
+    events: Events,
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
     input_state: hike_graphics::game_ui::InputState,
@@ -59,7 +73,7 @@ impl Game<WgpuContext> for GameState {
         match self.phase {
             GamePhase::Game => game_update(self, context),
             GamePhase::GameStart => {
-                hike_game::init(&mut self.world, &mut self.events);
+                hike_game::init(&mut self.world, &mut self.events.game_events);
                 self.phase = GamePhase::Game;
             },
             GamePhase::GameEnd => {
@@ -121,19 +135,19 @@ fn game_state() -> GameState {
     }
 }
 
-fn get_initial_elements() -> (World, hike_game::GameEvents, hike_graphics::GraphicsState) {
+fn get_initial_elements() -> (World, Events, hike_graphics::GraphicsState) {
     let mut world = World::new();
-    let mut events = hike_game::GameEvents::new();
+    let mut events = Events::new();
     let graphics_state = hike_graphics::GraphicsState::new(
         &mut world,
-        &mut events
+        &mut events.game_events
     );
     (world, events, graphics_state)
 }
 
 fn game_update(state: &mut GameState, context: &mut Context_) {
     if state.graphics_ready {
-        let _ = hike_game::game_update(&mut state.world, &mut state.events);
+        let _ = hike_game::game_update(&mut state.world, &mut state.events.game_events);
     }
 
     state.graphics_ready = hike_graphics::graphics_update(&state.world, &mut state.graphics_state, context);

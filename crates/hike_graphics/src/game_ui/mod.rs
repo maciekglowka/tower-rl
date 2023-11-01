@@ -1,4 +1,5 @@
 use rogalik::engine::{Color, GraphicsContext};
+use rogalik::events::EventBus;
 use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 // use std::collections::HashMap;
@@ -39,8 +40,7 @@ pub struct InputState {
 pub struct UiState {
     pub direction_buffer: Option<InputDirection>,
     mode: UiMode,
-    bubbles: Vec<bubbles::Bubble>
-}
+    bubbles: Vec<bubbles::Bubble>}
 
 #[derive(Default)]
 pub enum UiMode {

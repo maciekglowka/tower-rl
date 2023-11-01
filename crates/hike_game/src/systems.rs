@@ -1,4 +1,5 @@
 use rogalik::{
+    events::EventBus,
     math::vectors::Vector2i,
     storage::{Entity, World}
 };
@@ -13,12 +14,12 @@ use crate::components::{
     Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile, Regeneration,
     Player, Position, Poisoned, Transition, Name
 };
-use crate::GameEvents;
+use crate::events::GameEvent;
 use crate::player;
 use crate::structs::get_attack_action;
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
-pub fn board_start(world: &mut World, events: &mut GameEvents) {
+pub fn board_start(world: &mut World, events: &mut EventBus<GameEvent>) {
     // replace board resource
     let level = match world.get_resource::<Board>() {
         Some(b) => b.level,
@@ -36,7 +37,7 @@ pub fn board_start(world: &mut World, events: &mut GameEvents) {
     world.insert_resource(pending);
 
     player::spawn_player(world);
-    events.action_events.publish(crate::ActionEvent::BoardReady);
+    events.publish(crate::GameEvent::BoardReady);
 }
 
 pub fn board_end(world: &mut World) {
@@ -50,7 +51,7 @@ pub fn board_end(world: &mut World) {
     }
 }
 
-pub fn turn_step(world: &mut World, events: &mut GameEvents) {
+pub fn turn_step(world: &mut World, events: &mut EventBus<GameEvent>) {
     hit_projectiles(world);
     update_visibility(world);
     kill_units(world, events);
@@ -76,7 +77,7 @@ fn get_current_actor(world: &mut World) -> Option<Entity> {
     queue.0.get(0).map(|&e| e)
 }
 
-fn process_actor(entity: Entity, world: &mut World, events: &mut GameEvents) -> bool {
+fn process_actor(entity: Entity, world: &mut World, events: &mut EventBus<GameEvent>) -> bool {
     // returns true if the actor is done
     if process_stunned(world, entity) { return true };
     let Some(selected) = get_new_action(entity, world) else { return false };
@@ -103,18 +104,18 @@ fn get_new_action(entity: Entity, world: &mut World) -> Option<Box<dyn Action>> 
 fn execute_action(
     action: Box<dyn Action>,
     world: &mut World,
-    events: &mut GameEvents
+    events: &mut EventBus<GameEvent>
 ) -> Result<(), ()> {
     let res = action.execute(world);
     if let Ok(res) = res {
         world.get_resource_mut::<PendingActions>().unwrap().0.extend(res);
-        events.action_events.publish(action.event());
+        events.publish(action.event());
         return Ok(())
     }
     Err(())
 }
 
-fn process_pending_action(world: &mut World, events: &mut GameEvents) -> bool {
+fn process_pending_action(world: &mut World, events: &mut EventBus<GameEvent>) -> bool {
     let Some(pending) = world.get_resource_mut::<PendingActions>()
             .unwrap()
             .0
@@ -187,7 +188,7 @@ fn destroy_items(
     }
 }
 
-fn kill_units(world: &mut World, events: &mut GameEvents) {
+fn kill_units(world: &mut World, events: &mut EventBus<GameEvent>) {
     let query = world.query::<Health>().build();
     let entities = query.iter::<Health>().zip(query.entities())
         .filter(|(h, _)| h.0.current == 0)

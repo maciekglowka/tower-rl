@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub enum ActionEvent {
+pub enum GameEvent {
     Other,
     BoardReady,
     Bump(Entity, Vector2i),

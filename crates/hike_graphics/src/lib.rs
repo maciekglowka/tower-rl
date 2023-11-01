@@ -3,12 +3,12 @@ mod graphics;
 pub mod game_ui;
 
 use rogalik::engine::{Color, Context, ResourceId};
-use rogalik::events::SubscriberHandle;
+use rogalik::events::{EventBus, SubscriberHandle};
 use rogalik::storage::{World, WorldEvent};
 use rogalik::math::vectors::{Vector2f, Vector2i};
 use rogalik::wgpu::WgpuContext;
 
-use hike_game::{ActionEvent, GameEvents};
+use hike_game::GameEvent;
 
 use globals::{TILE_SIZE, PERSP_RATIO};
 
@@ -19,19 +19,25 @@ pub use graphics::{
     utils::move_towards
 };
 
+#[derive(Clone, Copy)]
+pub enum UiEvent {
+    Restart
+}
+
+
 pub struct GraphicsState {
     sprites: Vec<graphics::renderers::SpriteRenderer>,
     ev_world: SubscriberHandle<WorldEvent>,
-    ev_actions: SubscriberHandle<ActionEvent>,
+    ev_game: SubscriberHandle<GameEvent>,
     pub animation_timer: ResourceId,
-    pub ui_state: game_ui::UiState
+    pub ui_state: game_ui::UiState,
 }
 impl GraphicsState {
-    pub fn new(world: &mut World, events: &mut GameEvents) -> Self {
+    pub fn new(world: &mut World, events: &mut EventBus<GameEvent>) -> Self {
         GraphicsState {
             sprites: Vec::new(),
             ev_world: world.events.subscribe(),
-            ev_actions: events.action_events.subscribe(),
+            ev_game: events.subscribe(),
             animation_timer: ResourceId::default(),
             ui_state: game_ui::UiState::default()
         }
