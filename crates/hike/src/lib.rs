@@ -82,8 +82,7 @@ impl Game<WgpuContext> for GameState {
                 }
             },
             GamePhase::GameStart => {
-                self.world.insert_resource(self.data.clone());
-                hike_game::init(&mut self.world, &mut self.events.game_events);
+                hike_game::init(&mut self.world, &mut self.events.game_events, self.data.clone());
                 self.phase = GamePhase::Game;
             },
             GamePhase::GameEnd => {

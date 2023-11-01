@@ -35,13 +35,10 @@ pub use utils::get_entities_at_position;
 //     }
 // }
 
-pub fn init(world: &mut World, events: &mut EventBus<GameEvent>) {
+pub fn init(world: &mut World, events: &mut EventBus<GameEvent>, data: hike_data::GameData) {
     world.insert_resource(GameStats::default());
+    world.insert_resource(data);
     systems::board_start(world, events);
-}
-
-pub fn reset(world: &mut World) {
-    // let entities = world.
 }
 
 #[derive(Default)]
