@@ -13,7 +13,7 @@ use hike_game::{
 use super::super::globals::{UI_GAP, UI_TEXT_GAP, UI_STATUS_TEXT_SIZE};
 use super::get_viewport_bounds;
 use super::span::Span;
-use crate::ui::utils;
+use crate::game_ui::utils;
 
 pub fn draw_status(world: &World, context: &mut crate::Context_) {
     let query = world.query::<Player>().with::<Health>().build();

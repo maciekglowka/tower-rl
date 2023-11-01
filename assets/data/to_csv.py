@@ -3,7 +3,7 @@ import csv
 import os
 import yaml
 
-STATIC_COLUMNS = ['min_level', 'spawn_chance']
+STATIC_COLUMNS = ['min_level', 'spawn_chance', 'score']
 
 def default_ctor(loader, tag_suffix, node):
     return tag_suffix + ' ' + node.value
@@ -11,6 +11,7 @@ def default_ctor(loader, tag_suffix, node):
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--source_dir', default='.', nargs='?')
 parser.add_argument('-o', '--output', default='entities.csv', nargs='?')
+parser.add_argument('-c', '--components', default=[], nargs='*')
 args = parser.parse_args()
 
 entities = {}
@@ -25,13 +26,16 @@ for file_path in os.listdir(args.source_dir):
     for k, v in content.items():
         entities[k] = v
 
-component_names = set([
-    c for e in entities.values()
-    for c in e.get('components', {})
-])
+component_names = args.components
+if not component_names:
+    component_names = set([
+        c for e in entities.values()
+        for c in e.get('components', {})
+    ])
+    component_names = sorted(list(component_names))
 rows = []
 
-header = STATIC_COLUMNS + list(component_names)
+header = ['name'] + STATIC_COLUMNS + list(component_names)
 
 for k, v in entities.items():
     row = [k]
@@ -39,7 +43,7 @@ for k, v in entities.items():
         row.append(v.get(c, '-'))
 
     for c in component_names:
-        row.append(v.get('components', {}).get(c, '-'))
+        row.append(v.get('components', {}).get(c, '-') or 'o')
     
 
     rows.append(row)

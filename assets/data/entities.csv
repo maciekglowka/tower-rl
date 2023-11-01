@@ -1,36 +1,36 @@
-min_level,spawn_chance,Ranged,Lunge,Loot,Collectable,Instant,Obstacle,Push,Health,Tile,Interactive,Swing,Weapon,Actor,ViewBlocker,Discoverable,Durability,Item,Fixture,Effects,Transition,Offensive
-Rat,-,-,-,-,"{'items': ['Gold'], 'chance': 0.5}",-,-,,-,2,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}"
-Snake,3,-,-,-,"{'items': ['Gold'], 'chance': 0.25}",-,-,,-,2,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Poison', 'value': 2}]}"
-Viper,10,-,-,-,"{'items': ['Gold', 'Poisoned_Dagger'], 'chance': 0.25}",-,-,,-,4,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Poison', 'value': 4}]}"
-Golden_Snake,12,-,"{'attacks': [{'kind': 'Poison', 'value': 4}], 'distance': 4}",-,"{'items': ['Spear', 'Axe', 'Golden_Sword'], 'chance': 0.75}",-,-,,-,8,-,-,-,-,,-,-,-,-,-,-,-,-
-Novice,5,-,-,-,"{'items': ['Sword', 'Gold'], 'chance': 0.3}",-,-,,-,4,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}"
-Monk,8,-,-,-,"{'items': ['Axe', 'Spear'], 'chance': 0.3}",-,-,,-,6,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 3}]}"
-Bishop,10,-,"{'attacks': [{'kind': 'Hit', 'value': 2}], 'distance': 4}",-,"{'items': ['Axe', 'Spear', 'Potion_of_Teleport'], 'chance': 0.3}",-,-,,-,6,-,-,-,-,,-,-,-,-,-,-,-,-
-1,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
-Spikes_Hidden,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,,-,{'next': 'Spikes_Half'},-
-Spikes_Half,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,,-,{'next': 'Spikes'},-
-Spikes,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,,-,{'next': 'Spikes_Hidden'},"{'attacks': [{'kind': 'Hit', 'value': 1}]}"
-Forge,-,-,-,-,-,-,-,-,-,-,-,"{'kind': '!Repair 5-10', 'cost': 5}",-,-,-,-,-,-,-,,-,-,-
-Herbalist,-,-,-,-,-,-,-,-,-,-,-,"{'kind': '!UpgradeHealth 1-3', 'cost': 5}",-,-,-,-,-,-,-,,-,-,-
-Player,-,-,-,-,-,-,-,,-,8,-,-,-,-,,-,-,-,-,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}"
-Gold,-,-,-,-,-,-,,-,-,-,-,-,-,-,-,-,-,-,,-,"{'effects': [{'kind': 'Gold', 'value': '1-3'}]}",-,-
-Sword,-,0.5,-,-,-,-,-,-,-,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': '2-5'}]}"
-Golden_Sword,-,0,-,-,-,-,-,-,-,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': '6-10'}]}"
-Axe,-,0,-,-,-,-,-,-,-,-,-,-,,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': '3-5'}]}"
-Spear,-,0,-,,-,-,-,-,-,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': '3-5'}]}"
-Stun_Wand,5,0.25,-,-,-,-,-,-,-,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Stun', 'value': '3-6'}]}"
-Warhammer,5,0.25,-,-,-,-,-,-,,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}"
-Poisoned_Dagger,3,0.5,-,-,-,-,-,-,-,-,-,-,-,,-,-,-,5-15,,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 2}, {'kind': 'Poison', 'value': '2-4'}]}"
-Small_Vase,6,-,-,-,"{'items': ['Snake', 'Rat', 'Spear', 'Axe', 'Warhammer', 'Healing_Potion'], 'chance': 1.0}",-,-,-,-,1,-,-,-,-,-,-,-,-,,-,-,-,-
-Large_Vase,14,-,-,-,"{'items': ['Viper', 'Monk', 'Golden_Sword', 'Potion_of_Regeneration', 'Potion_of_Teleport'], 'chance': 1.0}",-,-,-,-,3,-,-,-,-,-,-,-,-,,-,-,-,-
-Healing_Potion,2,0.5,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'Heal', 'value': '1-3'}]}",-,-
-Potion_of_Regeneration,4,0.5,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'Regenerate', 'value': '2-4'}]}",-,-
-Potion_of_Immunity,4,0.25,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'Immunity', 'value': '3-5'}]}",-,-
-Potion_of_Poison,2,0.25,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'Poison', 'value': '2-4'}]}",-,-
-Potion_of_Heal_Poison,2,0.5,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'HealPoison', 'value': 0}]}",-,-
-Potion_of_Teleport,5,0.5,-,-,-,,-,-,-,-,-,-,-,-,-,-,,-,,-,"{'effects': [{'kind': 'Teleport', 'value': 0}]}",-,-
-Tile,-,-,-,-,-,-,-,-,-,-,,-,-,-,-,-,-,-,-,-,-,-,-
-Wall,-,-,-,-,-,-,-,,-,-,-,-,-,-,-,,-,-,-,,-,-,-
-Stair,-,-,-,-,-,-,-,-,-,-,-,{'kind': '!Ascend '},-,-,-,-,-,-,-,,-,-,-
-Closed_Door,-,-,-,-,-,-,-,,-,-,-,-,-,-,-,,-,-,-,,-,-,-
-Open_Door,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,,-,-,-
+name,min_level,spawn_chance,score,Offensive,Ranged,Health,Durability,Effects,Loot
+Rat,-,-,1,"{'attacks': [{'kind': 'Hit', 'value': 1}]}",-,2,-,-,"{'items': ['Gold'], 'chance': 0.5}"
+Snake,3,-,2,"{'attacks': [{'kind': 'Poison', 'value': 2}]}",-,2,-,-,"{'items': ['Gold'], 'chance': 0.25}"
+Viper,8,-,6,"{'attacks': [{'kind': 'Poison', 'value': 4}]}",-,4,-,-,"{'items': ['Gold', 'Poisoned_Dagger'], 'chance': 0.25}"
+Golden_Snake,12,-,10,-,"{'attacks': [{'kind': 'Poison', 'value': 4}], 'distance': 4}",8,-,-,"{'items': ['Spear', 'Axe', 'Golden_Sword'], 'chance': 0.75}"
+Novice,5,-,2,"{'attacks': [{'kind': 'Hit', 'value': 1}]}",-,4,-,-,"{'items': ['Sword', 'Gold'], 'chance': 0.3}"
+Monk,8,-,4,"{'attacks': [{'kind': 'Hit', 'value': 3}]}",-,6,-,-,"{'items': ['Axe', 'Spear'], 'chance': 0.3}"
+Bishop,10,-,8,-,"{'attacks': [{'kind': 'Hit', 'value': 2}], 'distance': 4}",6,-,-,"{'items': ['Axe', 'Spear', 'Potion_of_Teleport'], 'chance': 0.3}"
+1,-,-,-,-,-,-,-,-,-
+Spikes_Hidden,-,-,-,-,-,-,-,-,-
+Spikes_Half,-,-,-,-,-,-,-,-,-
+Spikes,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}",-,-,-,-,-
+Forge,-,-,-,-,-,-,-,-,-
+Herbalist,-,-,-,-,-,-,-,-,-
+Player,-,-,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}",-,8,-,-,-
+Gold,-,-,-,-,-,-,-,"{'effects': [{'kind': 'Gold', 'value': '1-3'}]}",-
+Sword,-,0.5,-,"{'attacks': [{'kind': 'Hit', 'value': '2-5'}]}",-,-,5-15,-,-
+Golden_Sword,-,0,-,"{'attacks': [{'kind': 'Hit', 'value': '6-10'}]}",-,-,5-15,-,-
+Axe,-,0,-,"{'attacks': [{'kind': 'Hit', 'value': '3-5'}]}",-,-,5-15,-,-
+Spear,-,0,-,"{'attacks': [{'kind': 'Hit', 'value': '3-5'}]}",-,-,5-15,-,-
+Stun_Wand,5,0.25,-,"{'attacks': [{'kind': 'Stun', 'value': '3-6'}]}",-,-,5-15,-,-
+Warhammer,5,0.25,-,"{'attacks': [{'kind': 'Hit', 'value': 1}]}",-,-,5-15,-,-
+Poisoned_Dagger,3,0.5,-,"{'attacks': [{'kind': 'Hit', 'value': 2}, {'kind': 'Poison', 'value': '2-4'}]}",-,-,5-15,-,-
+Small_Vase,6,-,-,-,-,1,-,-,"{'items': ['Snake', 'Rat', 'Spear', 'Axe', 'Warhammer', 'Healing_Potion'], 'chance': 1.0}"
+Large_Vase,14,-,-,-,-,3,-,-,"{'items': ['Viper', 'Monk', 'Golden_Sword', 'Potion_of_Regeneration', 'Potion_of_Teleport'], 'chance': 1.0}"
+Healing_Potion,2,0.5,-,-,-,-,-,"{'effects': [{'kind': 'Heal', 'value': '1-3'}]}",-
+Potion_of_Regeneration,4,0.5,-,-,-,-,-,"{'effects': [{'kind': 'Regenerate', 'value': '2-4'}]}",-
+Potion_of_Immunity,4,0.25,-,-,-,-,-,"{'effects': [{'kind': 'Immunity', 'value': '3-5'}]}",-
+Potion_of_Poison,2,0.25,-,-,-,-,-,"{'effects': [{'kind': 'Poison', 'value': '2-4'}]}",-
+Potion_of_Heal_Poison,2,0.5,-,-,-,-,-,"{'effects': [{'kind': 'HealPoison', 'value': 0}]}",-
+Potion_of_Teleport,5,0.5,-,-,-,-,-,"{'effects': [{'kind': 'Teleport', 'value': 0}]}",-
+Tile,-,-,-,-,-,-,-,-,-
+Wall,-,-,-,-,-,-,-,-,-
+Stair,-,-,-,-,-,-,-,-,-
+Closed_Door,-,-,-,-,-,-,-,-,-
+Open_Door,-,-,-,-,-,-,-,-,-

@@ -103,7 +103,7 @@ pub fn handle_action_events(
 ) {
     for ev in state.ev_actions.read().iter().flatten() {
         // temp bubble -> create a common handler?
-        crate::ui::bubbles::handle_action_event(ev, world, state);
+        crate::game_ui::bubbles::handle_action_event(ev, world, state);
         match ev {
             ActionEvent::BoardReady => update_wall_sprites(world, state),
             ActionEvent::Attack(entity, target) | ActionEvent::Bump(entity, target) => {

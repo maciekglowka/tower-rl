@@ -56,7 +56,7 @@ Viper:
       attacks:
         - { kind: Poison, value: 4 }
   score: 6
-  min_level: 10
+  min_level: 8
 
 Golden_Snake:
   sprite:

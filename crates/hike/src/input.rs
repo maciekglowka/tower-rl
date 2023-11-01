@@ -7,7 +7,7 @@ use rogalik::{
 };
 use std::collections::HashMap;
 
-use hike_graphics::ui::{ButtonState, InputState, InputDirection};
+use hike_graphics::game_ui::{ButtonState, InputState, InputDirection};
 
 use super::Context_;
 

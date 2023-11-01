@@ -9,7 +9,7 @@ use hike_game::{
     structs::{Attack, AttackKind, Effect, EffectKind},
     get_player_entity
 };
-use crate::ui::span::Span;
+use crate::game_ui::span::Span;
 
 pub const ICON_HIT: u32 = 0;
 pub const ICON_POISON: u32 = 1;

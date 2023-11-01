@@ -1,13 +1,12 @@
 pub mod globals;
 mod graphics;
-pub mod ui;
+pub mod game_ui;
 
 use rogalik::engine::{Color, Context, ResourceId};
 use rogalik::events::SubscriberHandle;
 use rogalik::storage::{World, WorldEvent};
 use rogalik::math::vectors::{Vector2f, Vector2i};
 use rogalik::wgpu::WgpuContext;
-use std::collections::HashMap;
 
 use hike_game::{ActionEvent, GameEvents};
 
@@ -25,7 +24,7 @@ pub struct GraphicsState {
     ev_world: SubscriberHandle<WorldEvent>,
     ev_actions: SubscriberHandle<ActionEvent>,
     pub animation_timer: ResourceId,
-    pub ui_state: ui::UiState
+    pub ui_state: game_ui::UiState
 }
 impl GraphicsState {
     pub fn new(world: &mut World, events: &mut GameEvents) -> Self {
@@ -34,7 +33,7 @@ impl GraphicsState {
             ev_world: world.events.subscribe(),
             ev_actions: events.action_events.subscribe(),
             animation_timer: ResourceId::default(),
-            ui_state: ui::UiState::default()
+            ui_state: game_ui::UiState::default()
         }
     }
     pub fn sort_sprites(&mut self) {

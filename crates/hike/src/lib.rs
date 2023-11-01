@@ -16,12 +16,21 @@ mod input;
 
 pub type Context_ = Context<WgpuContext>;
 
+#[derive(Default)]
+enum GamePhase {
+    #[default]
+    GameStart,
+    Game,
+    GameEnd,
+}
+
 pub struct GameState {
+    phase: GamePhase,
     camera_main: ResourceId,
     events: hike_game::GameEvents,
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
-    input_state: hike_graphics::ui::InputState,
+    input_state: hike_graphics::game_ui::InputState,
     touch_state: HashMap<u64, Vector2f>,
     world: World
 }
@@ -42,25 +51,22 @@ impl Game<WgpuContext> for GameState {
         );
         context.graphics.set_camera(self.camera_main);
     
-        hike_game::init(&mut self.world, &mut self.events);
         self.touch_state = HashMap::new();
         self.graphics_state.animation_timer = context.time.add_timer(hike_graphics::globals::ANIMATION_TICK);
     }
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
         // println!("{}", 1. / context.time.get_delta());
-        if self.graphics_ready {
-            let _ = hike_game::game_update(&mut self.world, &mut self.events);
+        match self.phase {
+            GamePhase::Game => game_update(self, context),
+            GamePhase::GameStart => {
+                hike_game::init(&mut self.world, &mut self.events);
+                self.phase = GamePhase::Game;
+            },
+            GamePhase::GameEnd => {
+                (self.world, self.events, self.graphics_state) = get_initial_elements();
+                self.phase = GamePhase::GameStart;
+            }
         }
-
-        self.graphics_ready = hike_graphics::graphics_update(&self.world, &mut self.graphics_state, context);
-        self.input_state = input::get_input_state(self.camera_main, &mut self.touch_state, context);
-        hike_graphics::ui::draw_world_ui(&self.world, context, &mut self.graphics_state);
-        hike_graphics::ui::ui_update(
-            &mut self.world,
-            &mut self.input_state,
-            &mut self.graphics_state.ui_state,
-            context
-        );
         // std::thread::sleep(std::time::Duration::from_millis(5));
     }
     #[cfg(target_os = "android")]
@@ -95,20 +101,48 @@ pub fn run() {
 }
 
 fn game_state() -> GameState {
+    // let mut world = World::new();
+    // let mut events = hike_game::GameEvents::new();
+    // let graphics_state = hike_graphics::GraphicsState::new(
+    //     &mut world,
+    //     &mut events
+    // );
+    let (world, events, graphics_state) = get_initial_elements();
+
+    GameState {
+        phase: GamePhase::default(),
+        camera_main: ResourceId::default(),
+        events,
+        graphics_ready: false,
+        graphics_state,
+        input_state: hike_graphics::game_ui::InputState::default(),
+        touch_state: HashMap::new(),
+        world
+    }
+}
+
+fn get_initial_elements() -> (World, hike_game::GameEvents, hike_graphics::GraphicsState) {
     let mut world = World::new();
     let mut events = hike_game::GameEvents::new();
     let graphics_state = hike_graphics::GraphicsState::new(
         &mut world,
         &mut events
     );
+    (world, events, graphics_state)
+}
 
-    GameState {
-        camera_main: ResourceId::default(),
-        events,
-        graphics_ready: false,
-        graphics_state,
-        input_state: hike_graphics::ui::InputState::default(),
-        touch_state: HashMap::new(),
-        world
+fn game_update(state: &mut GameState, context: &mut Context_) {
+    if state.graphics_ready {
+        let _ = hike_game::game_update(&mut state.world, &mut state.events);
     }
+
+    state.graphics_ready = hike_graphics::graphics_update(&state.world, &mut state.graphics_state, context);
+    state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, context);
+    hike_graphics::game_ui::draw_world_ui(&state.world, context, &mut state.graphics_state);
+    hike_graphics::game_ui::ui_update(
+        &mut state.world,
+        &mut state.input_state,
+        &mut state.graphics_state.ui_state,
+        context
+    );
 }

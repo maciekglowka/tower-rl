@@ -8,14 +8,12 @@ use hike_data::GameData;
 use hike_game::{Board, GameStats};
 
 use super::super::globals::{
-    UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT,
-    UI_BG_Z, UI_TEXT_Z, UI_STATUS_TEXT_SIZE
+    UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE,
+    UI_BG_Z
 };
 use super::{UiState, UiMode, InputState, get_viewport_bounds};
 use super::buttons::Button;
-use super::context_menu::CONTEXT_VISIBLE;
 use super::span::Span;
-use super::utils;
 
 pub fn handle_menu(
     context: &mut crate::Context_,
