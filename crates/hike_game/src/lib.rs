@@ -40,6 +40,10 @@ pub fn init(world: &mut World, events: &mut EventBus<GameEvent>) {
     systems::board_start(world, events);
 }
 
+pub fn reset(world: &mut World) {
+    // let entities = world.
+}
+
 #[derive(Default)]
 pub struct GameStats {
     pub kills: HashMap<String, u32>

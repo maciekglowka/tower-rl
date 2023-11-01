@@ -5,12 +5,10 @@ use hike_data::GameData;
 use super::{Context_, GameState};
 
 pub fn load_assets(state: &mut GameState, context: &mut Context_) {
-    let game_data = load_game_data();
-    state.world.insert_resource(game_data);
     load_textures(state, context);
 }
 
-fn load_game_data() -> GameData {
+pub fn load_game_data() -> GameData {
     let mut game_data = hike_data::GameData::new();
 
     let fixtures = game_data.add_entities_from_str(

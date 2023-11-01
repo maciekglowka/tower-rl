@@ -1,5 +1,6 @@
 use rogalik::{
     engine::{Color, GraphicsContext, Params2d},
+    events::EventBus,
     math::vectors::Vector2f,
     storage::World
 };
@@ -7,6 +8,7 @@ use rogalik::{
 use hike_data::GameData;
 use hike_game::{Board, GameStats};
 
+use crate::UiEvent;
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE,
     UI_BG_Z
@@ -19,6 +21,7 @@ pub fn handle_menu(
     context: &mut crate::Context_,
     input_state: &InputState,
     ui_state: &mut UiState,
+    events: &mut EventBus<UiEvent>,
     world: &World
 ) {
     let bounds = get_viewport_bounds(context);
@@ -85,6 +88,9 @@ pub fn handle_menu(
                 .with_size(UI_BUTTON_TEXT_SIZE)
         );
     button.draw(context);
+    if button.clicked(input_state) {
+        events.publish(UiEvent::Restart);
+    }
 }
 
 fn draw_centered_span(

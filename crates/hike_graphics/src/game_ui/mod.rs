@@ -6,6 +6,7 @@ use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
 
 use hike_game::get_player_entity;
 
+use crate::UiEvent;
 use super::GraphicsState;
 use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
@@ -83,6 +84,7 @@ pub fn ui_update(
     world: &mut World,
     input_state: &mut InputState,
     ui_state: &mut UiState,
+    events: &mut EventBus<UiEvent>,
     context: &mut crate::Context_,
 ) {
     match ui_state.mode {
@@ -93,7 +95,7 @@ pub fn ui_update(
             }
         },
         UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state),
-        UiMode::GameOver => game_over::handle_menu(context, input_state, ui_state, world)
+        UiMode::GameOver => game_over::handle_menu(context, input_state, ui_state, events, world)
     }
 }
 

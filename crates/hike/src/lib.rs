@@ -1,6 +1,6 @@
 use rogalik::{
     engine::{Context, Game, GraphicsContext, EngineBuilder, ResourceId},
-    events::EventBus,
+    events::{EventBus, SubscriberHandle},
     math::vectors::{Vector2f, Vector2i},
     storage::World,
     wgpu::WgpuContext
@@ -40,8 +40,10 @@ impl Events {
 
 pub struct GameState {
     phase: GamePhase,
+    data: hike_data::GameData,
     camera_main: ResourceId,
     events: Events,
+    ev_ui: SubscriberHandle<hike_graphics::UiEvent>,
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
     input_state: hike_graphics::game_ui::InputState,
@@ -71,13 +73,22 @@ impl Game<WgpuContext> for GameState {
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
         // println!("{}", 1. / context.time.get_delta());
         match self.phase {
-            GamePhase::Game => game_update(self, context),
+            GamePhase::Game => {
+                game_update(self, context);
+                for ev in self.ev_ui.read().iter().flatten() {
+                    match ev {
+                        hike_graphics::UiEvent::Restart => self.phase = GamePhase::GameEnd
+                    }
+                }
+            },
             GamePhase::GameStart => {
+                self.world.insert_resource(self.data.clone());
                 hike_game::init(&mut self.world, &mut self.events.game_events);
                 self.phase = GamePhase::Game;
             },
             GamePhase::GameEnd => {
                 (self.world, self.events, self.graphics_state) = get_initial_elements();
+                self.ev_ui = self.events.ui_events.subscribe();
                 self.phase = GamePhase::GameStart;
             }
         }
@@ -115,18 +126,15 @@ pub fn run() {
 }
 
 fn game_state() -> GameState {
-    // let mut world = World::new();
-    // let mut events = hike_game::GameEvents::new();
-    // let graphics_state = hike_graphics::GraphicsState::new(
-    //     &mut world,
-    //     &mut events
-    // );
-    let (world, events, graphics_state) = get_initial_elements();
+    let (world, mut events, graphics_state) = get_initial_elements();
+    let ev_ui = events.ui_events.subscribe();
 
     GameState {
         phase: GamePhase::default(),
         camera_main: ResourceId::default(),
+        data: assets::load_game_data(),
         events,
+        ev_ui,
         graphics_ready: false,
         graphics_state,
         input_state: hike_graphics::game_ui::InputState::default(),
@@ -157,6 +165,7 @@ fn game_update(state: &mut GameState, context: &mut Context_) {
         &mut state.world,
         &mut state.input_state,
         &mut state.graphics_state.ui_state,
+        &mut state.events.ui_events,
         context
     );
 }

@@ -7,7 +7,7 @@ use rogalik::engine::Color;
 
 pub mod colors;
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct GameData {
     // all entity data, by name
     pub entities: HashMap<String, EntityData>,
