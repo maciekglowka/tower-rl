@@ -61,6 +61,8 @@ pub struct EntityData {
     pub components: serde_yaml::Value,
     #[serde(default)]
     pub min_level: u32,
+    #[serde(default)]
+    pub max_level: u32,
     pub spawn_chance: Option<f32>,
     #[serde(default)]
     pub score: i32

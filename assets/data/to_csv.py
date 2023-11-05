@@ -3,7 +3,7 @@ import csv
 import os
 import yaml
 
-STATIC_COLUMNS = ['min_level', 'spawn_chance', 'score']
+STATIC_COLUMNS = ['min_level', 'max_level', 'spawn_chance', 'score']
 
 def default_ctor(loader, tag_suffix, node):
     return tag_suffix + ' ' + node.value

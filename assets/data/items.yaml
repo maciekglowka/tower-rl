@@ -10,7 +10,22 @@ Gold:
         - { kind: Gold, value: 1-3 }
     Item:
 
-Sword:
+Small_Sword:
+  sprite:
+    atlas_name: items
+    index: 0
+    color: [189, 200, 220, 255]
+  components:
+    Durability: 5-15
+    Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2-3 }
+  spawn_chance: 0.5
+  max_level: 5
+
+Medium_Sword:
   sprite:
     atlas_name: items
     index: 0
@@ -21,8 +36,9 @@ Sword:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 2-5 }
+        - { kind: Hit, value: 4-5 }
   spawn_chance: 0.5
+  min_level: 3
 
 Golden_Sword:
   sprite:
@@ -37,6 +53,22 @@ Golden_Sword:
       attacks:
         - { kind: Hit, value: 6-10 }
   spawn_chance: 0
+
+Poisoned_Dagger:
+  sprite:
+    atlas_name: items
+    index: 3
+    color: [145, 200, 185, 255]
+  components:
+    Durability: 5-15
+    Item:
+    Weapon:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2 }
+        - { kind: Poison, value: 2-4 }
+  min_level: 3
+  spawn_chance: 0.5
 
 Axe:
   sprite:
@@ -81,7 +113,7 @@ Stun_Wand:
       attacks:
         - { kind: Stun, value: 3-6 }
   min_level: 5
-  spawn_chance: 0.25
+  spawn_chance: 0.5
 
 Warhammer:
   sprite:
@@ -97,22 +129,6 @@ Warhammer:
       attacks:
         - { kind: Hit, value: 1 }
   min_level: 5
-  spawn_chance: 0.25
-
-Poisoned_Dagger:
-  sprite:
-    atlas_name: items
-    index: 3
-    color: [145, 200, 185, 255]
-  components:
-    Durability: 5-15
-    Item:
-    Weapon:
-    Offensive: 
-      attacks:
-        - { kind: Hit, value: 2 }
-        - { kind: Poison, value: 2-4 }
-  min_level: 3
   spawn_chance: 0.5
 
 Small_Vase:
@@ -150,5 +166,5 @@ Large_Vase:
         - Potion_of_Teleport
       chance: 1.
     Item:
-  min_level: 14
+  min_level: 12
 

@@ -270,7 +270,10 @@ fn get_target_score(level: u32) -> i32 {
 fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
     base.iter()
         .filter_map(|name| data.entities.get(name).map(|d| (name, d)))
-        .filter(|(_, d)| d.min_level <= level)
+        .filter(|(_, d)| 
+            d.min_level <= level
+            && (d.max_level == 0 || d.max_level >= level)
+        )
         .map(|(name, d)| (d.spawn_chance.unwrap_or(1.), name.to_string()))
         .collect()
 }

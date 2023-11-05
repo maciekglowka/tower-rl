@@ -10,7 +10,7 @@ Rat:
     Loot:
       items:
         - Gold
-      chance: 0.5
+      chance: 0.25
     Obstacle:
     Offensive: 
       attacks:
@@ -29,7 +29,7 @@ Snake:
     Loot:
       items:
         - Gold
-      chance: 0.25
+      chance: 0.5
     Obstacle:
     Offensive: 
       attacks:
@@ -56,7 +56,7 @@ Viper:
       attacks:
         - { kind: Poison, value: 4 }
   score: 6
-  min_level: 8
+  min_level: 7
 
 Golden_Snake:
   sprite:
@@ -66,7 +66,7 @@ Golden_Snake:
     frames: 2
   components:
     Actor:
-    Health: 8
+    Health: 6
     Loot:
       items:
         - Spear
@@ -78,8 +78,8 @@ Golden_Snake:
       attacks:
         - { kind: Poison, value: 4 }
       distance: 4
-  score: 10
-  min_level: 12
+  score: 8
+  min_level: 10
 
 Novice:
   sprite:
@@ -92,7 +92,7 @@ Novice:
     Health: 4
     Loot:
       items:
-        - Sword
+        - Small_Sword
         - Gold
       chance: 0.3
     Obstacle:
@@ -100,7 +100,7 @@ Novice:
       attacks:
         - { kind: Hit, value: 1 }
   min_level: 5
-  score: 2
+  score: 3
 
 Monk:
   sprite:
@@ -120,18 +120,18 @@ Monk:
     Offensive: 
       attacks:
         - { kind: Hit, value: 3 }
-  min_level: 8
+  min_level: 7
   score: 4
 
-Bishop:
+Librarian:
   sprite:
     atlas_name: units
     index: 6
-    color: [255, 102, 145, 255]
+    color: [255, 126, 102, 255]
     frames: 2
   components:
     Actor:
-    Health: 6
+    Health: 4
     Loot:
       items:
         - Axe
@@ -143,5 +143,28 @@ Bishop:
       attacks:
         - { kind: Hit, value: 2 }
       distance: 4
-  min_level: 10
-  score: 8
+  min_level: 8
+  score: 6
+
+
+Gargoyle:
+  sprite:
+    atlas_name: units
+    index: 8
+    color: [190, 167, 167, 255]
+    frames: 2
+  components:
+    Actor:
+    Health: 10
+    Loot:
+      items:
+        - Axe
+        - Spear
+        - Potion_of_Teleport
+      chance: 0.3
+    Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 3 }
+  min_level: 12
+  score: 6
