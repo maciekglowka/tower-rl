@@ -21,6 +21,7 @@ Second_Book_of_Poetics:
       effects:
         - { kind: Win, value: 0 }
     Item:
+  spawn_chance: 0
 
 Small_Sword:
   sprite:
