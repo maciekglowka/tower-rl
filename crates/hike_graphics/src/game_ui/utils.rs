@@ -28,6 +28,7 @@ pub const ICON_TELEPORT: u32 = 20;
 pub const ICON_REGENERATION: u32 = 21;
 
 pub const ICON_LEVEL: u32 = 24;
+pub const ICON_WIN: u32 = 25;
 
 
 fn needs_discovery(entity: Entity, world: &World) -> Option<(&str, Color)> {
@@ -123,6 +124,7 @@ fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
         EffectKind::Poison => ICON_POISON,
         EffectKind::Regenerate => ICON_REGENERATION,
         EffectKind::Teleport => ICON_TELEPORT,
+        EffectKind::Win => ICON_WIN
     };
     (icon, if effect.value > 0 { Some(effect.value) } else { None })
 }

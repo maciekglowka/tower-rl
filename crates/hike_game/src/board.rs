@@ -7,7 +7,7 @@ use::rogalik::storage::{Entity, World};
 use hike_data::GameData;
 
 use crate::components::{Position, Player, ViewBlocker, Tile};
-use crate::globals::{BOARD_SIZE, VIEW_RANGE};
+use crate::globals::{BOARD_SIZE, VIEW_RANGE, LEVEL_COUNT};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
 #[derive(Default)]
@@ -15,6 +15,7 @@ pub struct Board {
     pub level: u32,
     pub tiles: HashMap<Vector2i, Entity>,
     pub exit: bool,
+    pub player_spawn: Vector2i,
     pub visible: HashSet<Vector2i>
 }
 impl Board {
@@ -49,14 +50,23 @@ impl Board {
         // remvove doors and adjacent
         tile_pool.retain(|v| !layout.1.iter().any(|d| d.manhattan(*v) <= 1));
 
-        let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool).unwrap());
+        if self.level < LEVEL_COUNT {
+            let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool, None).unwrap());
+        }
+
+        self.player_spawn = get_random_tile(&mut tile_pool, None).unwrap();
+
+        if self.level == LEVEL_COUNT {
+            let v = get_random_tile(&mut tile_pool, Some((self.player_spawn, 6))).unwrap();
+            let _ = spawn_with_position(world, "Second_Book_of_Poetics", v);
+        }
 
         let pieces = if let Some(data) = world.get_resource::<GameData>() {
             get_board_pieces(self.level, &data) 
         } else { return };
 
         for name in pieces {
-            let Some(v) = get_random_tile(&mut tile_pool) else { continue };
+            let Some(v) = get_random_tile(&mut tile_pool, Some((self.player_spawn, 3))) else { continue };
             let _ = spawn_with_position(world, &name, v);
         }
         
@@ -245,23 +255,32 @@ fn tile_range(a: Vector2i, b: Vector2i) -> HashSet<Vector2i> {
         .collect()
 }
 
-fn get_random_tile(pool: &mut HashSet<Vector2i>) -> Option<Vector2i> {
+fn get_random_tile(pool: &mut HashSet<Vector2i>, dist: Option<(Vector2i, u32)>) -> Option<Vector2i> {
     let mut rng = thread_rng();
-    let v = *pool.iter().choose(&mut rng)?;
+
+    let v = match dist {
+        Some((p, d)) => {
+            *pool.iter()
+                .filter(|a| a.manhattan(p) >= d as i32)
+                .choose(&mut rng)?
+        },
+        None => *pool.iter().choose(&mut rng)?
+    };
+    // let v = *pool.iter().choose(&mut rng)?;
     pool.remove(&v);
     Some(v)
 }
 
-pub fn get_free_tile(world: &World) -> Option<Vector2i> {
-    let mut rng = thread_rng();
-    let board = world.get_resource::<Board>()?;
-    let tiles = board.tiles.keys()
-        .filter(|&&v| !get_entities_at_position(world, v)
-            .iter()
-            .any(|&e| world.get_component::<Tile>(e).is_none())
-        );
-    tiles.choose(&mut rng).map(|&v| v)
-}
+// pub fn get_free_tile(world: &World) -> Option<Vector2i> {
+//     let mut rng = thread_rng();
+//     let board = world.get_resource::<Board>()?;
+//     let tiles = board.tiles.keys()
+//         .filter(|&&v| !get_entities_at_position(world, v)
+//             .iter()
+//             .any(|&e| world.get_component::<Tile>(e).is_none())
+//         );
+//     tiles.choose(&mut rng).map(|&v| v)
+// }
 
 fn get_target_score(level: u32) -> i32 {
     (level as f32 * 1.5) as i32

@@ -43,7 +43,8 @@ pub fn init(world: &mut World, events: &mut EventBus<GameEvent>, data: hike_data
 
 #[derive(Default)]
 pub struct GameStats {
-    pub kills: HashMap<String, u32>
+    pub kills: HashMap<String, u32>,
+    pub win: bool
 }
 
 pub fn game_update(world: &mut World, events: &mut EventBus<GameEvent>) -> Result<(), ()> {

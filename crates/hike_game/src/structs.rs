@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 use crate::actions::{
     Action, Heal, PickGold, GiveImmunity, GiveRegeneration,
-    HitAction, StunAction, PoisonAction, ApplyPoison, HealPoison, Teleport
+    HitAction, StunAction, PoisonAction, ApplyPoison, HealPoison, Teleport, WinAction
 };
 use crate::utils::deserialize_random_u32;
 
@@ -32,7 +32,8 @@ pub enum EffectKind {
     Immunity,
     Poison,
     Regenerate,
-    Teleport
+    Teleport,
+    Win
 }
 
 #[derive(Deserialize)]
@@ -88,7 +89,8 @@ pub fn get_effect_action(
         ),
         EffectKind::Teleport => Box::new(
             Teleport { entity }
-        )
+        ),
+        EffectKind::Win => Box::new(WinAction)
     }
 }
 

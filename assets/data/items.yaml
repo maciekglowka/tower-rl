@@ -10,6 +10,18 @@ Gold:
         - { kind: Gold, value: 1-3 }
     Item:
 
+Second_Book_of_Poetics:
+  sprite:
+    atlas_name: items
+    index: 18
+    color: [255, 255, 255, 255]
+  components:
+    Instant:
+    Effects:
+      effects:
+        - { kind: Win, value: 0 }
+    Item:
+
 Small_Sword:
   sprite:
     atlas_name: items
@@ -38,7 +50,7 @@ Medium_Sword:
       attacks:
         - { kind: Hit, value: 4-5 }
   spawn_chance: 0.5
-  min_level: 3
+  min_level: 4
 
 Golden_Sword:
   sprite:
@@ -65,9 +77,8 @@ Poisoned_Dagger:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 2 }
-        - { kind: Poison, value: 2-4 }
-  min_level: 3
+        - { kind: Poison, value: 4-6 }
+  min_level: 4
   spawn_chance: 0.5
 
 Axe:
@@ -82,7 +93,7 @@ Axe:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 3-5 }
+        - { kind: Hit, value: 4-5 }
   spawn_chance: 0
 
 Spear:
@@ -97,7 +108,7 @@ Spear:
     Weapon:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 3-5 }
+        - { kind: Hit, value: 4-5 }
   spawn_chance: 0
 
 Stun_Wand:

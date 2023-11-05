@@ -13,7 +13,7 @@ use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 pub mod bubbles;
 mod buttons;
 mod context_menu;
-mod game_over;
+mod game_end;
 mod help;
 mod input;
 mod inventory;
@@ -48,7 +48,7 @@ pub enum UiMode {
     #[default]
     Game,
     HelpMenu,
-    GameOver
+    GameEnd,
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -91,11 +91,13 @@ pub fn ui_update(
         UiMode::Game => {
             update_game_ui(world, input_state, ui_state, context);
             if get_player_entity(world).is_none() {
-                ui_state.mode = UiMode::GameOver
+                ui_state.mode = UiMode::GameEnd
+            } else if let Some(stats) = world.get_resource::<hike_game::GameStats>() {
+                if stats.win { ui_state.mode = UiMode::GameEnd }
             }
         },
         UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state),
-        UiMode::GameOver => game_over::handle_menu(context, input_state, ui_state, events, world)
+        UiMode::GameEnd => game_end::handle_menu(context, input_state, ui_state, events, world)
     }
 }
 

@@ -14,6 +14,7 @@ use crate::components::{
     Obstacle, Position, Player, Name, Poisoned, Effects, Projectile,
     Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration
 };
+use crate::GameStats;
 use crate::globals::MAX_COLLECTABLES;
 use crate::events::GameEvent;
 use crate::player::{get_player_entity, get_player_position};
@@ -839,5 +840,16 @@ impl Action for Shoot {
         } else {
             -50
         }
+    }
+}
+
+pub struct WinAction;
+impl Action for WinAction {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        if let Some(mut stats) = world.get_resource_mut::<GameStats>() {
+            stats.win = true;
+        }
+        Ok(Vec::new())
     }
 }

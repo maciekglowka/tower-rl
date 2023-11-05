@@ -45,7 +45,7 @@ pub fn handle_menu(
         bounds,
         bounds.1.y - gap * 2.,
         Span::new()
-            .with_text_borrowed("GAME OVER")
+            .with_text_borrowed(get_result_text(world))
             .with_size(1.5 * UI_BUTTON_TEXT_SIZE)
     );
 
@@ -65,7 +65,7 @@ pub fn handle_menu(
         bounds,
         bounds.1.y - gap * 2. - 4. * UI_BUTTON_TEXT_SIZE,
         Span::new()
-            .with_text_borrowed("Kills:")
+            .with_text_borrowed("Victims:")
             .with_size(UI_BUTTON_TEXT_SIZE)
     );
 
@@ -125,4 +125,15 @@ fn draw_kill_spans(
             }
         }
     }
+}
+
+fn get_result_text(
+    world: &World
+) -> &str {
+    if let Some(stats) = world.get_resource::<GameStats>() {
+        if stats.win {
+            return "THE LOST SCROLL IS FOUND"
+        }
+    }
+    "GAME OVER!"
 }

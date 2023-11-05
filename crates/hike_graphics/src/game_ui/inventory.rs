@@ -28,7 +28,7 @@ pub fn handle_inventory(
     
     let _ = context.graphics.draw_text(
         "default",
-        "Weapons",
+        "Weapon slots",
         bounds.0 + Vector2f::new(UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
         UI_TEXT_Z,
         UI_BUTTON_TEXT_SIZE,
