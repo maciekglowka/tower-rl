@@ -72,9 +72,8 @@ Golden_Snake:
     Loot:
       items:
         - Spear
-        - Axe
         - Golden_Sword
-      chance: 0.75
+      chance: 0.5
     Obstacle:
     Ranged: 
       attacks:
@@ -94,7 +93,7 @@ Novice:
     Health: 4
     Loot:
       items:
-        - Small_Sword
+        - Medium_Sword
         - Gold
       chance: 0.3
     Obstacle:
@@ -180,13 +179,12 @@ Stone_Golem:
   components:
     Actor:
     Budding:
-    Health: 8
+    Health: 10
     Loot:
       items:
-        - Axe
-        - Spear
+        - Golden_Sword
         - Potion_of_Teleport
-      chance: 0.3
+      chance: 0.35
     Obstacle:
     Offensive: 
       attacks:

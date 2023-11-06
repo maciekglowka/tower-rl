@@ -14,9 +14,9 @@ pub fn load_game_data() -> GameData {
     let fixtures = game_data.add_entities_from_str(
         include_str!("../../../assets/data/fixtures.yaml").to_string()
     );
-    let traps = game_data.add_entities_from_str(
-        include_str!("../../../assets/data/traps.yaml").to_string()
-    );
+    // let traps = game_data.add_entities_from_str(
+    //     include_str!("../../../assets/data/traps.yaml").to_string()
+    // );
     let npcs = game_data.add_entities_from_str(
         include_str!("../../../assets/data/npcs.yaml").to_string()
     );
@@ -32,6 +32,10 @@ pub fn load_game_data() -> GameData {
     let discoverables = game_data.add_entities_from_str(
         include_str!("../../../assets/data/discoverables.yaml").to_string()
     );
+    let weapons = game_data.add_entities_from_str(
+        include_str!("../../../assets/data/weapons.yaml").to_string()
+    );
+
     items.extend(discoverables.clone());
 
     game_data.npcs = npcs;
@@ -40,7 +44,8 @@ pub fn load_game_data() -> GameData {
 
     game_data.items = items;
     game_data.fixtures = fixtures;
-    game_data.traps = traps;
+    game_data.weapons = weapons;
+    // game_data.traps = traps;
     
     game_data.add_level_data_from_str(
         include_str!("../../../assets/data/levels.yaml").to_string()
@@ -62,7 +67,7 @@ fn load_textures(state: &mut GameState, context: &mut Context_) {
         "icons", include_bytes!("../../../assets/sprites/icons.png"), 8, 8, None
     );
     context.graphics.load_sprite_atlas(
-        "fog", include_bytes!("../../../assets/sprites/fog.png"), 1, 1, None
+        "fog", include_bytes!("../../../assets/sprites/fog.png"), 2, 2, None
     );
     context.graphics.load_sprite_atlas(
         "ui", include_bytes!("../../../assets/ui/sprites.png"), 4, 4, None

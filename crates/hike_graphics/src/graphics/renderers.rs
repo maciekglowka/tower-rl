@@ -221,7 +221,10 @@ pub fn draw_sprites(world: &World, state: &GraphicsState, context: &mut Context_
     let Some(board) = world.get_resource::<Board>() else { return };
     for sprite in state.sprites.iter() {
         let tile = world_to_tile(sprite.v);
-        if !board.visible.contains(&tile) { continue; }
+        if !board.discovered.contains(&tile) { continue; }
+        if !board.visible.contains(&tile) {
+            if world.get_component::<Actor>(sprite.entity).is_some() { continue; }
+        }
 
         let color = Color(
             sprite.color.0,
@@ -246,10 +249,11 @@ pub fn draw_fog(world: &World, state: &GraphicsState, context: &mut Context_) {
         for y in -2..BOARD_SIZE as i32 + 2 {
             let vi = Vector2i::new(x, y);
             if board.visible.contains(&vi) { continue; }
+            let idx = if board.discovered.contains(&vi) { 1 } else { 0 };
 
             let _ = context.graphics.draw_atlas_sprite(
                 "fog",
-                0,
+                idx,
                 tile_to_world(vi) - Vector2f::new(0.5, 0.5) * TILE_SIZE,
                 FOG_Z,
                 Vector2f::new(TILE_SIZE, TILE_SIZE) * 2.0,

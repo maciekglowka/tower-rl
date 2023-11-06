@@ -16,7 +16,8 @@ pub struct GameData {
     pub items: Vec<String>,
     pub npcs: Vec<String>,
     pub fixtures: Vec<String>,
-    pub traps: Vec<String>,
+    // pub traps: Vec<String>,
+    pub weapons: Vec<String>,
     pub discoverable_colors: HashMap<String,  (&'static str, Color)>
 }
 impl GameData {

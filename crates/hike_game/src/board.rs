@@ -16,7 +16,8 @@ pub struct Board {
     pub tiles: HashMap<Vector2i, Entity>,
     pub exit: bool,
     pub player_spawn: Vector2i,
-    pub visible: HashSet<Vector2i>
+    pub discovered: HashSet<Vector2i>,
+    pub visible: HashSet<Vector2i>,
 }
 impl Board {
     pub fn new(level: u32) -> Self {
@@ -92,58 +93,6 @@ fn create_bounds(world: &mut World) -> HashMap<Vector2i, Entity> {
     entities
 }
 
-// fn spawn_npcs(
-//     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2i>,
-//     level: u32
-// ) {
-//     let npc_pool = if let Some(data) = world.get_resource::<GameData>() {
-//         get_entity_pool(&data, &data.npcs, level)
-//     } else { return };
-
-//     let mut rng = thread_rng();
-//     for _ in 0..rng.gen_range(2..=4) {
-//         let npc = &npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
-//         let Some(v) = get_random_tile(tile_pool) else { continue };
-//         let _ = spawn_with_position(world, npc, v);
-//     }
-// }
-
-// fn spawn_items(
-//     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2i>,
-//     level: u32
-// ) {
-//     let item_pool = if let Some(data) = world.get_resource::<GameData>() {
-//         get_entity_pool(&data, &data.items, level)
-//     } else { return };
-
-//     let mut rng = thread_rng();
-//     for _ in 0..rng.gen_range(1..=3) {
-//         let item = &item_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
-//         let Some(v) = get_random_tile(tile_pool) else { continue };
-//         let _ = spawn_with_position(world, item, v);
-//     }
-// }
-
-// fn spawn_fixtures(
-//     world: &mut World,
-//     tile_pool: &mut HashSet<Vector2i>,
-//     level: u32
-// ) {
-//     let mut rng = thread_rng();
-//     if level % 2 != 0 { return };
-//     let fixture_pool = if let Some(data) = world.get_resource::<GameData>() {
-//         get_entity_pool(&data, &data.fixtures, level)
-//     } else { return };
-
-//     for _ in 0..1 {
-//         let fixture = &fixture_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1;
-//         let Some(v) = get_random_tile(tile_pool) else { continue };
-//         let _ = spawn_with_position(world, fixture, v);
-//     }
-// }
-
 pub fn update_visibility(world: &mut World) {
     if let Some(position) = world.query::<Player>().with::<Position>().build().single::<Position>() {
         let Some(mut board) = world.get_resource_mut::<Board>() else { return };
@@ -156,7 +105,8 @@ pub fn update_visibility(world: &mut World) {
             &blockers,
             VIEW_RANGE
         );
-        board.visible.extend(currently_visible);
+        board.discovered.extend(&currently_visible);
+        board.visible = currently_visible;
     }
 }
 
@@ -300,8 +250,9 @@ fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) ->
 fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     let target_score = get_target_score(level);
     let mut rng = thread_rng();
-    // TODO generete smarter?
-    let item_count: usize = rng.gen_range(1..=3);
+
+    let weapon_count: usize = rng.gen_range(0..=1) + level as usize % 2;
+    let item_count: usize = rng.gen_range(1..=2);
 
     let (mut items, mut npcs, mut fixtures) = match data.levels.get(&level) {
         Some(l) => (l.required_items.clone(), l.required_npcs.clone(), l.required_fixtures.clone()),
@@ -310,6 +261,11 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     let item_pool = get_entity_pool(&data, &data.items, level);
     for _ in 0..item_count.saturating_sub(items.len()) {
         items.push(item_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
+    }
+
+    let weapon_pool = get_entity_pool(&data, &data.weapons, level);
+    for _ in 0..weapon_count {
+        items.push(weapon_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
     }
 
     let mut npc_score: i32 = npcs.iter()
@@ -327,7 +283,7 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     output.extend(npcs);
 
     // TODO redo
-    if fixtures.len() == 0 && level % 2 != 1 {
+    if fixtures.len() == 0 && level % 2 == 0 {
         let pool = get_entity_pool(&data, &data.fixtures, level);
         fixtures.push(pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone())
     }
