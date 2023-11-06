@@ -16,6 +16,7 @@ Rat:
       attacks:
         - { kind: Hit, value: 1 }
   score: 1
+  max_level: 10
 
 Snake:
   sprite:
@@ -36,6 +37,7 @@ Snake:
         - { kind: Poison, value: 2 }
   score: 2
   min_level: 3
+  max_level: 10
 
 Viper:
   sprite:
@@ -165,6 +167,29 @@ Gargoyle:
     Obstacle:
     Offensive: 
       attacks:
-        - { kind: Hit, value: 3 }
+        - { kind: Hit, value: 2 }
   min_level: 12
   score: 6
+
+Stone_Golem:
+  sprite:
+    atlas_name: units
+    index: 10
+    color: [255, 126, 102, 255]
+    frames: 2
+  components:
+    Actor:
+    Budding:
+    Health: 8
+    Loot:
+      items:
+        - Axe
+        - Spear
+        - Potion_of_Teleport
+      chance: 0.3
+    Obstacle:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2 }
+  min_level: 14
+  score: 10

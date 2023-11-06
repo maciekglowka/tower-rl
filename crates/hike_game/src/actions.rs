@@ -11,7 +11,7 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
-    Obstacle, Position, Player, Name, Poisoned, Effects, Projectile,
+    Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding,
     Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration
 };
 use crate::GameStats;
@@ -522,6 +522,9 @@ impl Action for Damage {
         }
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0.current = health.0.current.saturating_sub(self.value);
+        if world.get_component::<Budding>(self.entity).is_some() {
+            return Ok(vec![Box::new(BuddingActon { entity: self.entity })])
+        }
         Ok(Vec::new())
     }
     // score is not implemented as it always should be a resulting action
@@ -739,6 +742,36 @@ impl Action for Replace {
     fn score(&self, world: &World) -> i32 {
         // npcs should not do those things :)
         -200
+    }
+}
+
+pub struct BuddingActon {
+    pub entity: Entity
+}
+impl Action for BuddingActon {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let health = world.get_component::<Health>(self.entity).ok_or(())?.0.current;
+        if health <= 1 { return Ok(Vec::new()) }
+
+        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
+        let pool = ORTHO_DIRECTIONS.iter()
+            .map(|&v| v + position)
+            .filter(|v| !get_entities_at_position(world, *v)
+                .iter()
+                .any(|&e| world.get_component::<Obstacle>(e).is_some())
+            );
+
+        let mut rng = thread_rng();
+        let target = pool.choose(&mut rng).ok_or(())?;
+        let name = world.get_component::<Name>(self.entity).ok_or(())?.0.to_string();
+
+        let spawned = spawn_with_position(world, &name, target).ok_or(())?;
+
+        if let Some(mut h) = world.get_component_mut::<Health>(spawned) {
+            h.0.current = health / 2;
+        }
+        Ok(Vec::new())
     }
 }
 

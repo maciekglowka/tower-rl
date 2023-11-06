@@ -17,6 +17,10 @@ pub struct Actor {
 }
 impl Component for Actor {}
 
+#[derive(Deserialize)]
+pub struct Budding;
+impl Component for Budding {}
+
 // marker for non-weapon items that can be put into inventory for later use
 #[derive(Deserialize)]
 pub struct Collectable;
@@ -200,6 +204,7 @@ pub fn insert_data_components(
         let Some(name) = name.as_str() else { continue };
         match name {
             "Actor" => insert_single::<Actor>(entity, world, component_data),
+            "Budding" => insert_single::<Budding>(entity, world, component_data),
             "Collectable" => insert_single::<Collectable>(entity, world, component_data),
             "Discoverable" => insert_single::<Discoverable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
