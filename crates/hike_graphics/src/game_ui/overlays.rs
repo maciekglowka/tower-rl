@@ -35,7 +35,7 @@ pub fn draw_overlays(
         let _ = context.graphics.draw_text(
             "default",
             &text,
-            base.v + Vector2f::new(TILE_SIZE - size.x, 0.),
+            base.v + Vector2f::new(TILE_SIZE - size.x + 0.075, -0.075), // unhardcode this
             UI_OVERLAY_Z,
             UI_OVERLAY_FONT_SIZE,
             Params2d { color: HEALTH_COLOR, ..Default::default() }
