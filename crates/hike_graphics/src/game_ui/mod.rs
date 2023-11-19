@@ -41,7 +41,9 @@ pub struct InputState {
 pub struct UiState {
     pub direction_buffer: Option<InputDirection>,
     mode: UiMode,
-    bubbles: Vec<bubbles::Bubble>}
+    bubbles: Vec<bubbles::Bubble>,
+    game_duration: f32
+}
 
 #[derive(Default)]
 pub enum UiMode {
@@ -90,10 +92,11 @@ pub fn ui_update(
     match ui_state.mode {
         UiMode::Game => {
             update_game_ui(world, input_state, ui_state, context);
-            if get_player_entity(world).is_none() {
-                ui_state.mode = UiMode::GameEnd
-            } else if let Some(stats) = world.get_resource::<hike_game::GameStats>() {
-                if stats.win { ui_state.mode = UiMode::GameEnd }
+            if let Some(stats) = world.get_resource::<hike_game::GameStats>() {
+                if get_player_entity(world).is_none() || stats.win {
+                    ui_state.mode = UiMode::GameEnd;
+                    ui_state.game_duration = stats.start.elapsed()
+                }
             }
         },
         UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state),

@@ -20,7 +20,7 @@ use super::span::Span;
 pub fn handle_menu(
     context: &mut crate::Context_,
     input_state: &InputState,
-    ui_state: &mut UiState,
+    ui_state: &UiState,
     events: &mut EventBus<UiEvent>,
     world: &World
 ) {
@@ -60,10 +60,17 @@ pub fn handle_menu(
         );
     }
 
+    draw_elapsed(
+        context,
+        bounds,
+        ui_state,
+        bounds.1.y - gap * 2. - 4. * UI_BUTTON_TEXT_SIZE
+    );
+
     draw_centered_span(
         context,
         bounds,
-        bounds.1.y - gap * 2. - 4. * UI_BUTTON_TEXT_SIZE,
+        bounds.1.y - gap * 2. - 6. * UI_BUTTON_TEXT_SIZE,
         Span::new()
             .with_text_borrowed("Victims:")
             .with_size(UI_BUTTON_TEXT_SIZE)
@@ -73,7 +80,7 @@ pub fn handle_menu(
         context,
         bounds,
         world,
-        bounds.1.y - gap * 2. - 6. * UI_BUTTON_TEXT_SIZE
+        bounds.1.y - gap * 2. - 8. * UI_BUTTON_TEXT_SIZE
     );
 
     let button = Button::new(
@@ -101,6 +108,21 @@ fn draw_centered_span(
 ) {
     let x = bounds.0.x + 0.5 * (bounds.1.x - bounds.0.x) - 0.5 * span.width(context);
     span.draw(Vector2f::new(x, y), context);
+}
+
+fn draw_elapsed(
+    context: &mut crate::Context_,
+    bounds: (Vector2f, Vector2f),
+    ui_state: &UiState,
+    y: f32
+) {
+    let duration = ui_state.game_duration as u32;
+    let span = Span::new()
+        .with_text_owned(format!(
+            "Elapsed: {}:{:02}", duration / 60, duration % 60
+        ))
+        .with_size(UI_BUTTON_TEXT_SIZE);
+    draw_centered_span(context, bounds, y, span);
 }
 
 fn draw_kill_spans(

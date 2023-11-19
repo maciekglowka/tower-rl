@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use rogalik::{
+    engine::Instant,
     events::EventBus,
     math::vectors::Vector2i,
     storage::World
@@ -24,27 +25,25 @@ pub use board::Board;
 pub use events::GameEvent;
 pub use utils::get_entities_at_position;
 
-// pub struct GameEvents {
-//     pub action_events: EventBus<ActionEvent>,
-// }
-// impl GameEvents {
-//     pub fn new() -> Self {
-//         GameEvents { 
-//             action_events: EventBus::new(),
-//         }
-//     }
-// }
-
 pub fn init(world: &mut World, events: &mut EventBus<GameEvent>, data: hike_data::GameData) {
-    world.insert_resource(GameStats::default());
+    world.insert_resource(GameStats::new());
     world.insert_resource(data);
     systems::board_start(world, events);
 }
 
-#[derive(Default)]
 pub struct GameStats {
     pub kills: HashMap<String, u32>,
+    pub start: Instant,
     pub win: bool
+}
+impl GameStats {
+    pub fn new() -> Self {
+        Self {
+            start: Instant::init(),
+            kills: HashMap::default(),
+            win: false
+        }
+    }
 }
 
 pub fn game_update(world: &mut World, events: &mut EventBus<GameEvent>) -> Result<(), ()> {
