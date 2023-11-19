@@ -8,18 +8,21 @@ use serde::{Deserialize, Deserializer};
 use hike_data::GameData;
 
 use crate::components::{Actor, Name, Player, Position, ViewBlocker, insert_data_components};
+use crate::globals::VIEW_RANGE;
+use crate::structs::Attitude;
 
-// pub fn are_hostile(source: Entity, target: Entity, world: &World) -> bool {
-//     if world.get_component::<Player>(source).is_some() {
-//         return world.get_component::<Player>(target).is_none()
-//     } else {
-//         return world.get_component::<Player>(target).is_some()
-//     }
-// }
+
+pub fn is_hostile(entity: Entity, world: &World) -> bool {
+    if let Some(actor) = world.get_component::<Actor>(entity) {
+        return actor.attitude == Attitude::Hostile;
+    }
+    false
+}
 
 pub fn visibility(world: &World, a: Vector2i, b: Vector2i) -> bool {
     let line = get_line(a, b);
     if line.len() <= 2 { return true }
+    if line.len() > VIEW_RANGE as usize { return false }
     for v in line[1..line.len() - 1].iter() {
         if get_entities_at_position(world, *v).iter()
             .any(|&e| world.get_component::<ViewBlocker>(e).is_some()) {

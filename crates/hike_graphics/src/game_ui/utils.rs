@@ -5,8 +5,11 @@ use rogalik::{
 
 use hike_data::GameData;
 use hike_game::{
-    components::{Durability, Discoverable, Effects, Lunge, Name, Offensive, Player, Push, Swing},
-    structs::{Attack, AttackKind, Effect, EffectKind},
+    components::{
+        Durability, Discoverable, Effects, Lunge, Name, Interactive,
+        Offensive, Player, Push, Swing
+    },
+    structs::{Attack, AttackKind, Effect, EffectKind, InteractionKind},
     get_player_entity
 };
 use crate::game_ui::span::Span;
@@ -67,10 +70,25 @@ pub fn get_item_span<'a>(entity: Entity, world: &World) -> Span<'a> {
         if let Some(val) = val {
             span = span.with_text_owned(format!("{}", val));
         }
-        // if it.peek().is_some() {
-        //     // non-last element
-        //     // span = span.with_spacer(0.1);
-        // }
+    }
+    span
+}
+
+pub fn get_interactive_span<'a>(entity: Entity, world: &World) -> Span<'a> {
+    let mut span = Span::new()
+        .with_text_color(Color(255, 255, 255, 255));
+    if let Some(interective) = world.get_component::<Interactive>(entity) {
+        let (icon, text) = get_interaction_icon(&interective.kind);
+        if let Some(text) = text {
+            span = span.with_text_owned(text);
+        }
+        span = span.with_sprite("icons", icon);
+
+        if let Some(cost) = interective.cost {
+            span = span.with_spacer(crate::globals::UI_STATUS_TEXT_SIZE);
+            span = span.with_text_owned(format!("-{}", cost));
+            span = span.with_sprite("icons", ICON_GOLD);
+        }
     }
     span
 }
@@ -127,4 +145,18 @@ fn get_effect_icon(effect: &Effect) -> (u32, Option<u32>) {
         EffectKind::Win => ICON_WIN
     };
     (icon, if effect.value > 0 { Some(effect.value) } else { None })
+}
+
+fn get_interaction_icon(interaction: &InteractionKind) -> (u32, Option<String>) {
+    match interaction {
+        InteractionKind::Ascend => (ICON_LEVEL, None),
+        InteractionKind::Repair(v) => (
+            ICON_DURABILITY,
+            Some(format!("+{}", v))
+        ),
+        InteractionKind::UpgradeHealth(v) => (
+            ICON_HEAL,
+            Some(format!("+{}max", v))
+        )
+    }
 }

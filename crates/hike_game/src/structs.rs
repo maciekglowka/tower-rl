@@ -10,6 +10,15 @@ use crate::actions::{
 };
 use crate::utils::deserialize_random_u32;
 
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq)]
+pub enum Attitude {
+    #[default]
+    Neutral,
+    Aware,
+    Hostile,
+    Panic
+}
+
 #[derive(Clone, Copy, Deserialize)]
 pub enum AttackKind {
     Hit,

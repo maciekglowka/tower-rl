@@ -12,11 +12,11 @@ use crate::actions::{
 use crate::board::{Board, update_visibility};
 use crate::components::{
     Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile, Regeneration,
-    Player, Position, Poisoned, Transition, Name
+    Player, Position, Poisoned, Transition, Name, Ranged
 };
 use crate::events::GameEvent;
 use crate::player;
-use crate::structs::get_attack_action;
+use crate::structs::{get_attack_action, Attitude};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
 pub fn board_start(world: &mut World, events: &mut EventBus<GameEvent>) {
@@ -327,6 +327,16 @@ fn update_npc_target(world: &mut World, entity: Entity) {
     let Some(player_v) = player::get_player_position(world) else { return };
     if crate::utils::visibility(world, position.0, player_v) {
         actor.target = Some(player_v);
+        match actor.attitude {
+            Attitude::Aware => actor.attitude = Attitude::Hostile,
+            Attitude::Neutral => actor.attitude = Attitude::Aware,
+            _ => ()
+        }
+    }
+    if let Some(health) = world.get_component::<Health>(entity) {
+        if health.0.current == 1 && health.0.max > 7 {
+            actor.attitude = Attitude::Panic;
+        }
     }
 }
 

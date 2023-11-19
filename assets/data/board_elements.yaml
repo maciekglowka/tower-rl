@@ -3,8 +3,9 @@ Tile:
     atlas_name: tiles
     index: 0
     # color: [64, 48, 54, 255]
-    # color: [98, 81, 81, 255]
-    color: [95, 76, 79, 255]
+    # color: [48, 32, 36, 255]
+    color: [52, 39, 44, 255]
+    # color: [95, 76, 79, 255]
   components:
     Tile:
 

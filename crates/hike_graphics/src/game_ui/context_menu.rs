@@ -20,7 +20,7 @@ use super::super::globals::{
 use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::span::Span;
-use super::utils::{get_item_name, get_item_span};
+use super::utils::{get_item_name, get_item_span, get_interactive_span};
 
 static CONTEXT_IDX: AtomicUsize = AtomicUsize::new(0);
 pub static CONTEXT_VISIBLE: AtomicBool = AtomicBool::new(false);
@@ -119,7 +119,6 @@ pub fn handle_menu(
 }
 
 fn get_desc_spans(world: &World, entity: Entity) -> Option<Vec<Span>> {
-    // let name = world.get_component::<Name>(entity)?.0.clone().replace("_", " ");
     let name = get_item_name(entity, world)?;
     let name_span = Span::new()
         .with_text_owned(name)
@@ -131,22 +130,14 @@ fn get_desc_spans(world: &World, entity: Entity) -> Option<Vec<Span>> {
         res.push(get_item_span(entity, world).with_size(UI_STATUS_TEXT_SIZE));
     }    
     if world.get_component::<Interactive>(entity).is_some() {
-        let text = world.get_entity_components(entity).iter()
-            .map(|c| c.as_str())
-            .filter(|s| s.len() > 0)
-            .fold(String::new(), |a, b| a + &b + " ");
-        let span = Span::new()
-            .with_text_owned(text)
-            .with_size(UI_STATUS_TEXT_SIZE)
-            .with_text_color(Color(98, 81, 81, 255));
-        res.push(span);
+        res.push(get_interactive_span(entity, world).with_size(UI_STATUS_TEXT_SIZE));
     }    
     Some(res)
 }
 
 fn draw_item_desc(world: &World, entity: Entity, context: &mut crate::Context_, v: Vector2f) {
     if let Some(spans) = get_desc_spans(world, entity) {
-        let space = context.graphics.text_dimensions("default", " ", UI_STATUS_TEXT_SIZE).x;
+        let space = 0.5 * context.graphics.text_dimensions("default", " ", UI_STATUS_TEXT_SIZE).x;
         let mut offset = 0.;
         for span in spans {
             span.draw(

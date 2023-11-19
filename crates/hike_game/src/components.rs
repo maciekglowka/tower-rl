@@ -5,7 +5,7 @@ use std::collections::{HashSet, HashMap};
 
 use crate::actions::Action;
 use crate::globals::MAX_WEAPONS;
-use crate::structs::{Attack, Effect, InteractionKind, ValueMax};
+use crate::structs::{Attack, Attitude, Effect, InteractionKind, ValueMax};
 use crate::utils::deserialize_random_u32;
 
 
@@ -13,7 +13,9 @@ use crate::utils::deserialize_random_u32;
 #[derive(Deserialize)]
 pub struct Actor {
     #[serde(skip)]
-    pub target: Option<Vector2i>
+    pub target: Option<Vector2i>,
+    #[serde(default)]
+    pub attitude: Attitude
 }
 impl Component for Actor {}
 
@@ -61,6 +63,7 @@ impl Component for Instant {}
 #[derive(Deserialize)]
 pub struct Interactive{
     pub kind: InteractionKind,
+    // transforms into another entity after use
     pub next: Option<String>,
     pub cost: Option<u32>
 }

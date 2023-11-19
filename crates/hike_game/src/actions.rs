@@ -19,10 +19,10 @@ use crate::globals::MAX_COLLECTABLES;
 use crate::events::GameEvent;
 use crate::player::{get_player_entity, get_player_position};
 use crate::structs::{
-    AttackKind, InteractionKind,
+    AttackKind, InteractionKind, Attitude,
     get_attack_action, get_effect_action
 };
-use crate::utils::{visibility, get_entities_at_position, spawn_with_position};
+use crate::utils::{visibility, get_entities_at_position, spawn_with_position, is_hostile};
 
 pub struct PendingActions(pub VecDeque<Box<dyn Action>>);
 pub struct ActorQueue(pub VecDeque<Entity>);
@@ -155,28 +155,23 @@ impl Action for Walk {
         let mut rng = thread_rng();
         let r = rng.gen_range(0..4);
         let Some(position) = world.get_component::<Position>(self.entity) else { return r };
-        // let player_position = if let Some(p) = world.query::<Player>().with::<Position>().build().single::<Position>() {
-        //     p.0
-        // } else {
-        //     return r;
-        // };
+        let Some(actor) = world.get_component::<Actor>(self.entity) else { return r };
 
-        // if !visibility(world, position.0, player_position) {
-        //     return r;
-        // }
+        if let Some(player_v) = get_player_position(world) {
+            if let Attitude::Panic = actor.attitude {
+                return player_v.manhattan(self.target);
+            }
 
-        if let Some(ranged) = world.get_component::<Ranged>(self.entity) {
-            if let Some(v) = get_player_position(world) {
-                if is_shooting_range(self.target, v, ranged.distance, world) {
+            if let Some(ranged) = world.get_component::<Ranged>(self.entity) {
+                if is_shooting_range(self.target, player_v, ranged.distance, world) {
                     return 50;
                 }
-                if v.manhattan(self.target) == 1 {
+                if player_v.manhattan(self.target) == 1 {
                     return -5;
                 }
             }
         }
 
-        let Some(actor) = world.get_component::<Actor>(self.entity) else { return r };
         let Some(target) = actor.target else { return r };
         let Some(board) = world.get_resource::<Board>() else { return r };
         let blockers = world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
@@ -269,6 +264,7 @@ impl Action for AttackAction {
         GameEvent::Attack(self.entity, self.target)
     }
     fn score(&self, world: &World) -> i32 {
+        if !is_hostile(self.entity, world) { return -50 };
         if get_entities_at_position(world, self.target).iter().any(
             |e| world.get_component::<Player>(*e).is_some()
         ) {
@@ -769,7 +765,7 @@ impl Action for BuddingActon {
         let spawned = spawn_with_position(world, &name, target).ok_or(())?;
 
         if let Some(mut h) = world.get_component_mut::<Health>(spawned) {
-            h.0.current = health / 2;
+            h.0.current = health;
         }
         Ok(Vec::new())
     }
@@ -866,6 +862,7 @@ impl Action for Shoot {
         Ok(Vec::new())
     }
     fn score(&self, world: &World) -> i32 {
+        if !is_hostile(self.entity, world) { return -50 };
         if get_entities_at_position(world, self.target).iter().any(
             |e| world.get_component::<Player>(*e).is_some()
         ) {
