@@ -122,13 +122,9 @@ impl Component for Transition {}
 pub struct Weapon;
 impl Component for Weapon {}
 
-// #[derive(Deserialize)]
-// pub struct Immunity(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
-// impl Component for Immunity {
-//     fn as_str(&self) -> String {
-//         format!("Immunity({})", self.0)
-//     }
-// }
+#[derive(Deserialize)]
+pub struct Immaterial;
+impl Component for Immaterial {}
 
 #[derive(Deserialize)]
 pub struct Lunge;
@@ -214,6 +210,7 @@ pub fn insert_data_components(
             "Effects" => insert_single::<Effects>(entity, world, component_data),
             "Fixture" => insert_single::<Fixture>(entity, world, component_data),
             "Health" => insert_single::<Health>(entity, world, component_data),
+            "Immaterial" => insert_single::<Immaterial>(entity, world, component_data),
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
             "Instant" => insert_single::<Instant>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),

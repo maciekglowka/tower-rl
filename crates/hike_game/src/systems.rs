@@ -52,7 +52,7 @@ pub fn board_end(world: &mut World) {
 }
 
 pub fn turn_step(world: &mut World, events: &mut EventBus<GameEvent>) {
-    hit_projectiles(world);
+    hit_projectiles(world, events);
     update_visibility(world);
     kill_units(world, events);
     destroy_items(world);
@@ -127,7 +127,7 @@ fn process_pending_action(world: &mut World, events: &mut EventBus<GameEvent>) -
     true
 }
 
-fn hit_projectiles(world: &mut World) {
+fn hit_projectiles(world: &mut World, events: &mut EventBus<GameEvent>) {
     // this should be called before actions are exectued
     // to clear projectiles spawned at the previous tick
     let query = world.query::<Projectile>().build();
@@ -138,6 +138,7 @@ fn hit_projectiles(world: &mut World) {
                 .map(|a| get_attack_action(a, projectile.target))
                 .collect();
             pending.0.extend(actions);
+            events.publish(GameEvent::HitProjectile(projectile.target));
         }
     };
 

@@ -24,6 +24,7 @@ build_targets = [ "aarch64-linux-android" ]
 [dependencies]
 rogalik = { workspace = true }
 
+hike_audio = { path = "../hike_audio" }
 hike_data = { path = "../hike_data" }
 hike_game = { path = "../hike_game" }
 hike_graphics = { path = "../hike_graphics" }

@@ -12,7 +12,7 @@ use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding,
-    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration
+    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration, Immaterial
 };
 use crate::GameStats;
 use crate::globals::MAX_COLLECTABLES;
@@ -68,7 +68,7 @@ pub fn get_action_at_dir(
         .any(|&e| world.get_component::<Obstacle>(e).is_some());
     if bumpable {
         // return Some(Box::new(Bump { entity, target }))
-        return None
+        if world.get_component::<Immaterial>(entity).is_none() { return None }
     }
 
     // otherwise should be safe to walk into
@@ -174,9 +174,13 @@ impl Action for Walk {
 
         let Some(target) = actor.target else { return r };
         let Some(board) = world.get_resource::<Board>() else { return r };
-        let blockers = world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
-            .map(|p| p.0)
-            .collect::<HashSet<_>>();
+
+        let blockers = match world.get_component::<Immaterial>(self.entity) {
+            Some(_) => HashSet::new(),
+            None => world.query::<Obstacle>().with::<Position>().build().iter::<Position>()
+                .map(|p| p.0)
+                .collect::<HashSet<_>>()
+        };
 
         let Some(path) = find_path(
             position.0,

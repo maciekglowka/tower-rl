@@ -39,6 +39,7 @@ impl Events {
 }
 
 pub struct GameState {
+    audio: hike_audio::AudioContext,
     phase: GamePhase,
     data: hike_data::GameData,
     camera_main: ResourceId,
@@ -86,7 +87,7 @@ impl Game<WgpuContext> for GameState {
                 self.phase = GamePhase::Game;
             },
             GamePhase::GameEnd => {
-                (self.world, self.events, self.graphics_state) = get_initial_elements();
+                (self.world, self.events, self.graphics_state, self.audio) = get_initial_elements();
                 self.ev_ui = self.events.ui_events.subscribe();
                 self.phase = GamePhase::GameStart;
             }
@@ -125,10 +126,11 @@ pub fn run() {
 }
 
 fn game_state() -> GameState {
-    let (world, mut events, graphics_state) = get_initial_elements();
+    let (world, mut events, graphics_state, audio) = get_initial_elements();
     let ev_ui = events.ui_events.subscribe();
 
     GameState {
+        audio,
         phase: GamePhase::default(),
         camera_main: ResourceId::default(),
         data: assets::load_game_data(),
@@ -142,14 +144,15 @@ fn game_state() -> GameState {
     }
 }
 
-fn get_initial_elements() -> (World, Events, hike_graphics::GraphicsState) {
+fn get_initial_elements() -> (World, Events, hike_graphics::GraphicsState, hike_audio::AudioContext) {
     let mut world = World::new();
     let mut events = Events::new();
     let graphics_state = hike_graphics::GraphicsState::new(
         &mut world,
         &mut events.game_events
     );
-    (world, events, graphics_state)
+    let audio = hike_audio::get_audio_context(&mut events.game_events);
+    (world, events, graphics_state, audio)
 }
 
 fn game_update(state: &mut GameState, context: &mut Context_) {
@@ -167,4 +170,5 @@ fn game_update(state: &mut GameState, context: &mut Context_) {
         &mut state.events.ui_events,
         context
     );
+    hike_audio::handle_game_audio(&mut state.audio, &state.world);
 }
