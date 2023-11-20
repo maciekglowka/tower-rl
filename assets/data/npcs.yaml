@@ -152,7 +152,8 @@ Gargoyle:
   sprite:
     atlas_name: units
     index: 8
-    color: [190, 167, 167, 255]
+    color: [126, 104, 104, 255]
+    # color: [190, 167, 167, 255]
     frames: 2
   components:
     Actor:

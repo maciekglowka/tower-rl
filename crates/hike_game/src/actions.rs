@@ -748,7 +748,6 @@ impl Action for BuddingActon {
     fn as_any(&self) -> &dyn Any { self }
     fn execute(&self, world: &mut World) -> ActionResult {
         let health = world.get_component::<Health>(self.entity).ok_or(())?.0.current;
-        if health <= 1 { return Ok(Vec::new()) }
 
         let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
         let pool = ORTHO_DIRECTIONS.iter()
