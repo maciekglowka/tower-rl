@@ -217,19 +217,20 @@ Exorcist:
   sprite:
     atlas_name: units
     index: 6
-    color: [195, 234, 254, 255]
+    color: [77, 57, 65, 255]
     frames: 2
   components:
     Actor:
-    Health: 4
+    Health: 8
     Loot:
       items:
         - Axe
         - Spear
+        - Golden_Sword
       chance: 0.3
     Obstacle:
     Summoner:
       creature: Ghost
       cooldown: 6
-  min_level: 8
-  score: 6
+  min_level: 16
+  score: 10

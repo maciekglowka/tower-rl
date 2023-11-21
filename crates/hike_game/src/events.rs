@@ -16,4 +16,5 @@ pub enum GameEvent {
     HitProjectile(Vector2i),
     Travel(Entity, bool), // bool: is_animated,
     PickInstant,
+    Spawn
 }

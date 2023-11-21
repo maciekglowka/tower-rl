@@ -19,6 +19,9 @@ pub fn handle_game_audio(context: &mut AudioContext, world: &World) {
             GameEvent::PickInstant => {
                 context.play("coin");
             },
+            GameEvent::Spawn => {
+                context.play("spawn");
+            }
             GameEvent::Travel(entity, is_animated) => {
                 if !is_animated {
                     context.play("teleport");
@@ -67,6 +70,7 @@ pub fn get_audio_context(events: &mut EventBus<GameEvent>) -> AudioContext {
     let mut data = HashMap::new();
     data.insert("coin", include_bytes!("../../../assets/sfx/coin.wav").to_vec());
     data.insert("hit", include_bytes!("../../../assets/sfx/hit.wav").to_vec());
+    data.insert("spawn", include_bytes!("../../../assets/sfx/spawn.wav").to_vec());
     data.insert("teleport", include_bytes!("../../../assets/sfx/teleport.wav").to_vec());
 
     let mut sounds = HashMap::new();
