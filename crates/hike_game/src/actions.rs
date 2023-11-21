@@ -493,6 +493,9 @@ pub struct UseInstant {
 }
 impl Action for UseInstant {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::PickInstant
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
         let player_entity = world.query::<Player>().build().single_entity().ok_or(())?;

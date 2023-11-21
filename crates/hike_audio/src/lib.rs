@@ -16,8 +16,8 @@ use hike_game::{GameEvent, get_player_entity};
 pub fn handle_game_audio(context: &mut AudioContext, world: &World) {
     for ev in context.ev_game.read().iter().flatten() {
         match ev {
-            GameEvent::BoardReady => {
-                context.play("ascend");
+            GameEvent::PickInstant => {
+                context.play("coin");
             },
             GameEvent::Travel(entity, is_animated) => {
                 if !is_animated {
@@ -65,8 +65,7 @@ pub fn get_audio_context(events: &mut EventBus<GameEvent>) -> AudioContext {
     engine.state().add_context(context.clone());
 
     let mut data = HashMap::new();
-    data.insert("ascend", include_bytes!("../../../assets/sfx/ascend.wav").to_vec());
-    data.insert("walk", include_bytes!("../../../assets/sfx/walk.wav").to_vec());
+    data.insert("coin", include_bytes!("../../../assets/sfx/coin.wav").to_vec());
     data.insert("hit", include_bytes!("../../../assets/sfx/hit.wav").to_vec());
     data.insert("teleport", include_bytes!("../../../assets/sfx/teleport.wav").to_vec());
 

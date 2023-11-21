@@ -14,5 +14,6 @@ pub enum GameEvent {
     Poison(Entity, i32),
     Attack(Entity, Vector2i),
     HitProjectile(Vector2i),
-    Travel(Entity, bool) // bool: is_animated
+    Travel(Entity, bool), // bool: is_animated,
+    PickInstant,
 }
