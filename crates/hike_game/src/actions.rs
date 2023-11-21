@@ -12,7 +12,7 @@ use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
     Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding,
-    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration, Immaterial
+    Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration, Immaterial, Summoner
 };
 use crate::GameStats;
 use crate::globals::MAX_COLLECTABLES;
@@ -64,11 +64,18 @@ pub fn get_action_at_dir(
             return Some(Box::new(Replace { entity: *door, name: "Open_Door".to_string() }))
         }
 
-    let bumpable = entities.iter()
-        .any(|&e| world.get_component::<Obstacle>(e).is_some());
-    if bumpable {
-        // return Some(Box::new(Bump { entity, target }))
+    let has_obstacle = entities.iter().any(|&e| world.get_component::<Obstacle>(e).is_some());
+    let has_actor = entities.iter().any(|&e| world.get_component::<Actor>(e).is_some());
+
+    if has_obstacle {
         if world.get_component::<Immaterial>(entity).is_none() { return None }
+    }
+    if has_actor { return None }
+    
+    if let Some(summoner) = world.get_component::<Summoner>(entity) {
+        if summoner.cooldown.current == 0 {
+            return Some(Box::new(Summon { entity, target }));
+        }
     }
 
     // otherwise should be safe to walk into
@@ -773,6 +780,26 @@ impl Action for BuddingActon {
         if let Some(mut h) = world.get_component_mut::<Health>(spawned) {
             h.0.current = health;
         }
+        Ok(Vec::new())
+    }
+}
+
+pub struct Summon {
+    pub entity: Entity,
+    pub target: Vector2i
+}
+impl Action for Summon {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let mut summoner = world.get_component_mut::<Summoner>(self.entity).ok_or(())?;
+        if summoner.cooldown.current > 0 {
+            return Err(())
+        }
+        summoner.cooldown.current = summoner.cooldown.max;
+        let name = summoner.creature.clone();
+        drop(summoner);
+        let _ = spawn_with_position(world, &name, self.target).ok_or(())?;
+
         Ok(Vec::new())
     }
 }

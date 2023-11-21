@@ -203,7 +203,7 @@ Ghost:
     Health: 6
     Loot:
       items:
-        - Golden_Sword
+        - Potion_of_Healing
         - Potion_of_Teleport
       chance: 0.35
     Immaterial:
@@ -211,4 +211,25 @@ Ghost:
       attacks:
         - { kind: Hit, value: 2 }
   min_level: 12
+  score: 6
+
+Exorcist:
+  sprite:
+    atlas_name: units
+    index: 6
+    color: [195, 234, 254, 255]
+    frames: 2
+  components:
+    Actor:
+    Health: 4
+    Loot:
+      items:
+        - Axe
+        - Spear
+      chance: 0.3
+    Obstacle:
+    Summoner:
+      creature: Ghost
+      cooldown: 6
+  min_level: 8
   score: 6

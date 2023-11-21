@@ -12,7 +12,7 @@ use crate::actions::{
 use crate::board::{Board, update_visibility};
 use crate::components::{
     Actor, Durability, Fixture, Immune, Instant, Stunned, Health, Offensive, Projectile, Regeneration,
-    Player, Position, Poisoned, Transition, Name, Ranged
+    Player, Position, Poisoned, Transition, Name, Ranged, Summoner
 };
 use crate::events::GameEvent;
 use crate::player;
@@ -318,6 +318,13 @@ fn process_transition(world: &mut World) {
     }
 }
 
+fn process_summoner_cooldown(world: &mut World) {
+    let query = world.query::<Summoner>().build();
+    for mut summoner in query.iter_mut::<Summoner>() {
+        summoner.cooldown.current = summoner.cooldown.current.saturating_sub(1);
+    }
+}
+
 fn update_npc_target(world: &mut World, entity: Entity) {
     let Some(mut actor) = world.get_component_mut::<Actor>(entity) else { return };
     let Some(position) = world.get_component::<Position>(entity) else { return };
@@ -348,6 +355,7 @@ fn turn_end(world: &mut World) {
     process_poisoned(world);
     process_immune(world);
     process_transition(world);
+    process_summoner_cooldown(world);
     process_offensive_fixtures(world);
 }
 

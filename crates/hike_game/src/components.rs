@@ -109,6 +109,13 @@ pub struct Ranged {
 impl Component for Ranged {}
 
 #[derive(Deserialize)]
+pub struct Summoner {
+    pub creature: String,
+    pub cooldown: ValueMax
+}
+impl Component for Summoner {}
+
+#[derive(Deserialize)]
 pub struct Tile;
 impl Component for Tile {}
 
@@ -220,6 +227,7 @@ pub fn insert_data_components(
             "Obstacle" => insert_single::<Obstacle>(entity, world, component_data),
             "Offensive" => insert_single::<Offensive>(entity, world, component_data),
             "Ranged" => insert_single::<Ranged>(entity, world, component_data),
+            "Summoner" => insert_single::<Summoner>(entity, world, component_data),
             "Push" => insert_single::<Push>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "Transition" => insert_single::<Transition>(entity, world, component_data),
