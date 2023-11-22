@@ -34,3 +34,6 @@ hike_audio = { path = "../hike_audio" }
 hike_data = { path = "../hike_data" }
 hike_game = { path = "../hike_game" }
 hike_graphics = { path = "../hike_graphics" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"

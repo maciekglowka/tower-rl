@@ -12,6 +12,9 @@ use std::{
 #[cfg(target_os = "android")]
 use rogalik::engine::AndroidApp;
 
+#[cfg(target_arch="wasm32")]
+use wasm_bindgen::prelude::*;
+
 mod assets;
 mod input;
 
