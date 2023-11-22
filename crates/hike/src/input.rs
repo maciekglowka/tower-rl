@@ -43,10 +43,15 @@ pub fn get_input_state(
     let pause = key_state(context, VirtualKeyCode::Space);
 
     let mut direction = handle_touches(context, touch_state);
-    if context.input.is_key_pressed(VirtualKeyCode::W) { direction = InputDirection::Up }
-    if context.input.is_key_pressed(VirtualKeyCode::S) { direction = InputDirection::Down }
-    if context.input.is_key_pressed(VirtualKeyCode::A) { direction = InputDirection::Left }
-    if context.input.is_key_pressed(VirtualKeyCode::D) { direction = InputDirection::Right }
+    if context.input.is_key_pressed(VirtualKeyCode::W) 
+        || context.input.is_key_pressed(VirtualKeyCode::Up) { direction = InputDirection::Up }
+    if context.input.is_key_pressed(VirtualKeyCode::S)
+        || context.input.is_key_pressed(VirtualKeyCode::Down){ direction = InputDirection::Down }
+    if context.input.is_key_pressed(VirtualKeyCode::A)
+        || context.input.is_key_pressed(VirtualKeyCode::Left){ direction = InputDirection::Left }
+    if context.input.is_key_pressed(VirtualKeyCode::D)
+        || context.input.is_key_pressed(VirtualKeyCode::Right){ direction = InputDirection::Right }
+
     if context.input.is_key_pressed(VirtualKeyCode::Space) { direction = InputDirection::Still }
 
     let digits = [

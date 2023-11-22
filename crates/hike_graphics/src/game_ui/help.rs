@@ -12,6 +12,7 @@ use super::{UiState, UiMode, InputState, get_viewport_bounds};
 use super::buttons::Button;
 use super::context_menu::CONTEXT_VISIBLE;
 use super::span::Span;
+use super::text_box::TextBox;
 use super::utils;
 
 static TAB_IDX: AtomicUsize = AtomicUsize::new(0);
@@ -38,7 +39,11 @@ pub fn handle_help_menu(
         Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
     );
 
-    draw_help_tab(origin, width, context);
+    draw_help_tab(
+        Vector2f::new(bounds.0.x + 2. * UI_GAP, bounds.1.y - 3. * UI_GAP),
+        width - 2. * UI_GAP,
+        context
+    );
 
     if draw_menu_button(origin, button_width, 0, "Symbol", context, input_state) {
         TAB_IDX.store(0, Relaxed);
@@ -69,13 +74,14 @@ fn draw_menu_button(
         idx as f32 * (UI_GAP + width),
         - UI_GAP - UI_BUTTON_HEIGHT
     );
+    let sprite_idx = if TAB_IDX.load(Relaxed) == idx { 1 } else { 0 };
     let button = Button::new(
         v.x,
         v.y,
         width,
         UI_BUTTON_HEIGHT
     )
-        .with_sprite("ui", 0)
+        .with_sprite("ui", sprite_idx)
         .with_span(Span::new().with_text_borrowed(label).with_size(UI_BUTTON_TEXT_SIZE));
     button.draw(context);
     button.clicked(input_state)
@@ -119,14 +125,16 @@ fn draw_help_tab(
     context: &mut crate::Context_
 ) {
     match TAB_IDX.load(Relaxed) {
-        0 => draw_symbols_tab(origin, width, context),
+        0 => draw_symbols_tab(origin, context),
+        1 => draw_text_tab(ITEM_TEXT, origin, width, context),
+        2 => draw_text_tab(WEAPON_TEXT, origin, width, context),
+        3 => draw_text_tab(CTRL_TEXT, origin, width, context),
         _ => ()
     }
 }
 
 fn draw_symbols_tab(
     origin: Vector2f,
-    width: f32,
     context: &mut crate::Context_
 ) {
     let data = [
@@ -134,8 +142,8 @@ fn draw_symbols_tab(
         (utils::ICON_POISON, "Poison"),
         (utils::ICON_DURABILITY, "Durability"),
         (utils::ICON_STUN, "Stun"),
-        (utils::ICON_SWING, "Swing (hit frond and sides"),
-        (utils::ICON_LUNGE, "Lunge (hit 2 tiles in front"),
+        (utils::ICON_SWING, "Swing (hit front and sides)"),
+        (utils::ICON_LUNGE, "Lunge (hit 2 tiles in front)"),
         (utils::ICON_PUSH, "Push"),
         (utils::ICON_GOLD, "Gold"),
         (utils::ICON_HEAL, "Heal / Health"),
@@ -145,7 +153,7 @@ fn draw_symbols_tab(
         (utils::ICON_TELEPORT, "Teleport"),
         (utils::ICON_LEVEL, "Level"),
     ];
-    let mut v = origin + Vector2f::new(UI_GAP, 4. * UI_GAP);
+    let mut v = origin;
     for d in data {
         let span = Span::new()
             .with_size(UI_BUTTON_TEXT_SIZE)
@@ -153,6 +161,62 @@ fn draw_symbols_tab(
             .with_spacer(0.5)
             .with_text_borrowed(d.1);
         span.draw(v, context);
-        v += Vector2f::new(0., UI_BUTTON_TEXT_SIZE + UI_GAP);
+        v -= Vector2f::new(0., UI_BUTTON_TEXT_SIZE + UI_GAP);
     }
 }
+
+fn draw_text_tab(
+    text: &str,
+    origin: Vector2f,
+    width: f32,
+    context: &mut crate::Context_
+) {
+    let text_box = TextBox::new()
+        .with_size(UI_BUTTON_TEXT_SIZE)
+        .with_text_borrowed(text);
+    text_box.draw(
+        origin,
+        width,
+        context
+    );
+}
+
+const CTRL_TEXT: &str = 
+"MOBILE CONTROLS
+---------------
+  Swipe: move
+  Board tap: pause
+
+KEYBOARD CONTROLS
+-----------------
+  WASD / Arrows: move
+  Space: pause
+  Q: pick / interact
+  E: [more] (if available)
+  1234: change weapon slot
+  ZXCV: use item
+";
+
+const WEAPON_TEXT: &str =
+"WEAPONS
+-------
+The player has 4 weapon slots available. Only one can be active at a time.
+Each weapon action (attack, pick, repair etc.) is always performed on the active slot.
+
+Beware: picking new weapon permanently replaces the active one.
+
+Weapons have a durability parameter (marked by a hammer icon) that decreases with every use by one.
+
+Weapon switching does NOT take a turn.
+";
+
+const ITEM_TEXT: &str =
+"ITEMS
+-----
+The player can carry up to 4 items at a time. Newly picked item is always placed on the first free slot.
+When no slots are available, new items cannot be picked.
+
+Most of the items are randomized per each gameplay and have to be discovered on the first use.
+
+Item use takes a single turn.
+";
