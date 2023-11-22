@@ -15,6 +15,11 @@ pub enum GameEvent {
     Attack(Entity, Vector2i),
     HitProjectile(Vector2i),
     Travel(Entity, bool), // bool: is_animated,
-    PickInstant,
-    Spawn
+    Ascend,
+    PickItem,
+    UseCollectable,
+    Upgrade,
+    Spawn,
+    Win,
+    Defeat
 }

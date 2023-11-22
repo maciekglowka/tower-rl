@@ -16,12 +16,15 @@ use hike_game::{GameEvent, get_player_entity};
 pub fn handle_game_audio(context: &mut AudioContext, world: &World) {
     for ev in context.ev_game.read().iter().flatten() {
         match ev {
-            GameEvent::PickInstant => {
-                context.play("coin");
+            GameEvent::PickItem => {
+                context.play("pick");
             },
             GameEvent::Spawn => {
                 context.play("spawn");
             }
+            GameEvent::UseCollectable => {
+                context.play("use");
+            },
             GameEvent::Travel(entity, is_animated) => {
                 if !is_animated {
                     context.play("teleport");
@@ -33,6 +36,18 @@ pub fn handle_game_audio(context: &mut AudioContext, world: &World) {
             GameEvent::Attack(_, _) | GameEvent::HitProjectile(_) => {
                 context.play("hit");
             },
+            GameEvent::Upgrade => {
+                context.play("upgrade");
+            },
+            GameEvent::Ascend => {
+                context.play("ascend");
+            },
+            GameEvent::Win => {
+                context.play("win");
+            },
+            GameEvent::Defeat => {
+                context.play("defeat");
+            }
             _ => continue
         }
     }
@@ -68,10 +83,15 @@ pub fn get_audio_context(events: &mut EventBus<GameEvent>) -> AudioContext {
     engine.state().add_context(context.clone());
 
     let mut data = HashMap::new();
-    data.insert("coin", include_bytes!("../../../assets/sfx/coin.wav").to_vec());
+    data.insert("pick", include_bytes!("../../../assets/sfx/pick.wav").to_vec());
+    data.insert("use", include_bytes!("../../../assets/sfx/use.wav").to_vec());
     data.insert("hit", include_bytes!("../../../assets/sfx/hit.wav").to_vec());
     data.insert("spawn", include_bytes!("../../../assets/sfx/spawn.wav").to_vec());
     data.insert("teleport", include_bytes!("../../../assets/sfx/teleport.wav").to_vec());
+    data.insert("defeat", include_bytes!("../../../assets/sfx/defeat.wav").to_vec());
+    data.insert("win", include_bytes!("../../../assets/sfx/win.wav").to_vec());
+    data.insert("upgrade", include_bytes!("../../../assets/sfx/upgrade.wav").to_vec());
+    data.insert("ascend", include_bytes!("../../../assets/sfx/ascend.wav").to_vec());
 
     let mut sounds = HashMap::new();
 

@@ -204,6 +204,9 @@ fn kill_units(world: &mut World, events: &mut EventBus<GameEvent>) {
                     if let Some(name) = world.get_component::<Name>(entity) {
                         *stats.kills.entry(name.0.to_string()).or_insert(0) += 1;
                     }
+                } else {
+                    // maybe should be moved to an action? | currently for sfx only
+                    events.publish(GameEvent::Defeat);
                 }
             }
         }

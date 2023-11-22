@@ -55,7 +55,7 @@ pub fn handle_menu(
             bounds,
             bounds.1.y - gap * 2. - 2.* UI_BUTTON_TEXT_SIZE,
             Span::new()
-                .with_text_owned(format!("You've reached level {} of the tower", board.level))
+                .with_text_owned(format!("You've reached level {}!", board.level))
                 .with_size(UI_BUTTON_TEXT_SIZE)
         );
     }

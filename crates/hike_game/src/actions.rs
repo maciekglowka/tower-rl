@@ -440,6 +440,9 @@ pub struct WieldWeapon {
 }
 impl Action for WieldWeapon {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::PickItem
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut current = None;
         if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
@@ -464,6 +467,9 @@ pub struct PickCollectable {
 }
 impl Action for PickCollectable {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::PickItem
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
             if player.collectables.len() >= MAX_COLLECTABLES {
@@ -484,6 +490,9 @@ pub struct UseCollectable {
 }
 impl Action for UseCollectable {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::UseCollectable
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
         let player_query = world.query::<Player>().build();
@@ -515,7 +524,7 @@ pub struct UseInstant {
 impl Action for UseInstant {
     fn as_any(&self) -> &dyn Any { self }
     fn event(&self) -> GameEvent {
-        GameEvent::PickInstant
+        GameEvent::PickItem
     }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut actions: Vec<Box<dyn Action>> = Vec::new();
@@ -655,6 +664,9 @@ pub struct Repair {
 }
 impl Action for Repair {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::Upgrade
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut durability = world.get_component_mut::<Durability>(self.entity).ok_or(())?;
         durability.0 += self.value;
@@ -669,6 +681,9 @@ pub struct UpgradeHealth {
 }
 impl Action for UpgradeHealth {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::Upgrade
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         let mut health = world.get_component_mut::<Health>(self.entity).ok_or(())?;
         health.0.max += self.value;
@@ -822,6 +837,9 @@ impl Action for Summon {
 pub struct Ascend;
 impl Action for Ascend {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::Ascend
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         world.get_resource_mut::<Board>().ok_or(())?.exit = true;
         Ok(Vec::new())
@@ -924,6 +942,9 @@ impl Action for Shoot {
 pub struct WinAction;
 impl Action for WinAction {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::Win
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut stats) = world.get_resource_mut::<GameStats>() {
             stats.win = true;
