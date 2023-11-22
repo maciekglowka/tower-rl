@@ -43,7 +43,7 @@ pub fn set_player_action_from_dir(
     let Some(entity) = query.single_entity() else { return false };
     if let Some(queue) = world.get_resource::<ActorQueue>() {
         if queue.0.get(0).map(|&e| e) == Some(entity) {
-            query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir).into_iter().next();
+            query.single_mut::<Player>().unwrap().action = get_action_at_dir(entity, world, dir);
             return true;
         }
     }

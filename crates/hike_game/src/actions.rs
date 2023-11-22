@@ -43,13 +43,11 @@ pub fn get_action_at_dir(
     entity: Entity,
     world: &World,
     dir: Vector2i
-) -> Vec<Box<dyn Action>> {
-    // for the player only first entry can be picked
-    // for the npcs - one with the highest score
-    let Some(position) = world.get_component::<Position>(entity) else { return Vec::new() };
+) -> Option<Box<dyn Action>> {
+    let position = world.get_component::<Position>(entity)?;
     let target = position.0 + dir;
-    let Some(board) = world.get_resource::<Board>() else { return Vec::new() };
-    if !board.tiles.contains_key(&target) { return Vec::new() };
+    let board = world.get_resource::<Board>()?;
+    if !board.tiles.contains_key(&target) { return None };
 
     let entities = get_entities_at_position(world, target);
 
@@ -58,31 +56,23 @@ pub fn get_action_at_dir(
         let attackable = entities.iter()
             .any(|&e| world.get_component::<Health>(e).is_some());
         if attackable {
-            return vec![Box::new(AttackAction { entity, target })];
+            return Some(Box::new(AttackAction { entity, target }));
         }
     }
 
     // other actions
-    let mut output: Vec<Box<dyn Action>> = Vec::new();
-
     if let Some(door) = entities.iter()
         .find(|&e| world.get_component::<Name>(*e).unwrap().0 == "Closed_Door") {
-            output.push(Box::new(Replace { entity: *door, name: "Open_Door".to_string() }))
+            return Some(Box::new(Replace { entity: *door, name: "Open_Door".to_string() }))
         }
 
     let has_obstacle = entities.iter().any(|&e| world.get_component::<Obstacle>(e).is_some());
     let has_actor = entities.iter().any(|&e| world.get_component::<Actor>(e).is_some());
 
-    if let Some(summoner) = world.get_component::<Summoner>(entity) {
-        if !has_actor && !has_obstacle && summoner.cooldown.current == 0 {
-            output.push(Box::new(Summon { entity, target }));
-        }
+    if has_actor || (has_obstacle && world.get_component::<Immaterial>(entity).is_none()) { 
+        return None
     }
-    if !has_actor && (!has_obstacle || world.get_component::<Immaterial>(entity).is_some()) { 
-        output.push(Box::new(Walk { entity, target }));
-    }
-
-    output
+    Some(Box::new(Walk { entity, target }))
 }
 
 fn is_shooting_range(
@@ -125,18 +115,39 @@ pub fn get_npc_action(
     world: &World
 ) -> Box<dyn Action> {
     let mut possible_actions = ORTHO_DIRECTIONS.iter()
-       .map(|dir| get_action_at_dir(entity, world, *dir))
-       .flatten()
+       .filter_map(|dir| get_action_at_dir(entity, world, *dir))
        .collect::<Vec<_>>();
 
     if let Some(action) = get_ranged_action(entity, world) {
         possible_actions.push(action);
     }
+
+    if let Some(summoner) = world.get_component::<Summoner>(entity) {
+        if summoner.cooldown.current == 0 {
+            possible_actions.push(Box::new(Summon { entity }))
+        }
+    }
+
     possible_actions.sort_by(|a, b| a.score(world).cmp(&b.score(world)));
     match possible_actions.pop() {
         Some(a) => a,
         _ => Box::new(Pause)
     }
+}
+
+fn get_empty_neighboring_tile(entity: Entity, world: &World) -> Option<Vector2i> {
+    let position = world.get_component::<Position>(entity)?.0;
+    let pool = ORTHO_DIRECTIONS.iter()
+        .map(|&v| v + position)
+        .filter(|v| !get_entities_at_position(world, *v)
+            .iter()
+            .any(|&e|
+                world.get_component::<Obstacle>(e).is_some()
+                || world.get_component::<Obstacle>(e).is_some()
+            )
+        );
+    let mut rng = thread_rng();
+    pool.choose(&mut rng)
 }
 
 pub struct Walk {
@@ -769,16 +780,7 @@ impl Action for BuddingActon {
     fn execute(&self, world: &mut World) -> ActionResult {
         let health = world.get_component::<Health>(self.entity).ok_or(())?.0.current;
 
-        let position = world.get_component::<Position>(self.entity).ok_or(())?.0;
-        let pool = ORTHO_DIRECTIONS.iter()
-            .map(|&v| v + position)
-            .filter(|v| !get_entities_at_position(world, *v)
-                .iter()
-                .any(|&e| world.get_component::<Obstacle>(e).is_some())
-            );
-
-        let mut rng = thread_rng();
-        let target = pool.choose(&mut rng).ok_or(())?;
+        let target = get_empty_neighboring_tile(self.entity, world).ok_or(())?;
         let name = world.get_component::<Name>(self.entity).ok_or(())?.0.to_string();
 
         let spawned = spawn_with_position(world, &name, target).ok_or(())?;
@@ -791,8 +793,7 @@ impl Action for BuddingActon {
 }
 
 pub struct Summon {
-    pub entity: Entity,
-    pub target: Vector2i
+    pub entity: Entity
 }
 impl Action for Summon {
     fn as_any(&self) -> &dyn Any { self }
@@ -800,6 +801,7 @@ impl Action for Summon {
         GameEvent::Spawn
     }
     fn execute(&self, world: &mut World) -> ActionResult {
+        let target = get_empty_neighboring_tile(self.entity, world).ok_or(())?;
         let mut summoner = world.get_component_mut::<Summoner>(self.entity).ok_or(())?;
         if summoner.cooldown.current > 0 {
             return Err(())
@@ -807,7 +809,7 @@ impl Action for Summon {
         summoner.cooldown.current = summoner.cooldown.max;
         let name = summoner.creature.clone();
         drop(summoner);
-        let _ = spawn_with_position(world, &name, self.target).ok_or(())?;
+        let _ = spawn_with_position(world, &name, target).ok_or(())?;
 
         Ok(Vec::new())
     }

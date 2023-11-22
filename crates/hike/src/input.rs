@@ -106,7 +106,8 @@ fn handle_touches(context: &Context_, touch_state: &mut HashMap<u64, Vector2f>) 
                     if dy > thresh { dir = InputDirection::Up }
                     if dy < -thresh { dir = InputDirection::Down }
                     if dir != InputDirection::None {
-                        touch_state.insert(*id, touch.position);
+                        // touch_state.insert(*id, touch.position);
+                        touch_state.remove(id);
                         return dir
                     }
                 }
