@@ -233,7 +233,7 @@ fn get_random_tile(pool: &mut HashSet<Vector2i>, dist: Option<(Vector2i, u32)>) 
 // }
 
 fn get_target_score(level: u32) -> i32 {
-    (level as f32 * 1.5) as i32
+    (level as f32 * 2.0) as i32
 }
 
 fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) -> Vec<(f32, String)> {
