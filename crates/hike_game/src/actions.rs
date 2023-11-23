@@ -67,9 +67,8 @@ pub fn get_action_at_dir(
         }
 
     let has_obstacle = entities.iter().any(|&e| world.get_component::<Obstacle>(e).is_some());
-    let has_actor = entities.iter().any(|&e| world.get_component::<Actor>(e).is_some());
 
-    if has_actor || (has_obstacle && world.get_component::<Immaterial>(entity).is_none()) { 
+    if has_obstacle && world.get_component::<Immaterial>(entity).is_none() { 
         return None
     }
     Some(Box::new(Walk { entity, target }))
@@ -89,7 +88,10 @@ fn is_shooting_range(
         let v = source + i * d;
         if v == target { return true };
         if get_entities_at_position(world, v).iter()
-            .any(|&e| world.get_component::<Obstacle>(e).is_some())
+            .any(|&e| 
+                world.get_component::<Obstacle>(e).is_some()
+                && world.get_component::<Immaterial>(e).is_none()
+            )
             { break }
     }
     false
@@ -141,10 +143,7 @@ fn get_empty_neighboring_tile(entity: Entity, world: &World) -> Option<Vector2i>
         .map(|&v| v + position)
         .filter(|v| !get_entities_at_position(world, *v)
             .iter()
-            .any(|&e|
-                world.get_component::<Obstacle>(e).is_some()
-                || world.get_component::<Obstacle>(e).is_some()
-            )
+            .any(|&e| world.get_component::<Obstacle>(e).is_some())
         );
     let mut rng = thread_rng();
     pool.choose(&mut rng)

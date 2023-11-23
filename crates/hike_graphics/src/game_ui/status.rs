@@ -36,7 +36,6 @@ pub fn draw_status(world: &World, context: &mut crate::Context_) {
         .with_sprite("icons", utils::ICON_GOLD)
         .with_text_owned(format!("{}", player.gold));
 
-    // let mut text = format!("HP: {}/{} Gold: {}, Level: {}", health.0.current, health.0.max, player.gold, board.level);
     if let Some(poisoned) = world.get_component::<Poisoned>(query.single_entity().unwrap()) {
         span = span.with_spacer(spacer)
             .with_sprite("icons", utils::ICON_POISON)
@@ -62,15 +61,4 @@ pub fn draw_status(world: &World, context: &mut crate::Context_) {
     );
 
     span.draw(v, context);
-
-    // let _ = context.graphics.draw_text(
-    //     "default",
-    //     &text,
-    //     Vector2f::new(
-    //         bounds.0.x + UI_GAP,
-    //         bounds.1.y - UI_GAP - UI_STATUS_TEXT_SIZE,
-    //     ),
-    //     UI_STATUS_TEXT_SIZE,
-    //     Params2d { color: Color(150, 128, 128, 255), ..Default::default() }
-    // );
 }

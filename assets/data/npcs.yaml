@@ -207,6 +207,7 @@ Ghost:
         - Potion_of_Teleport
       chance: 0.35
     Immaterial:
+    Obstacle:
     Offensive: 
       attacks:
         - { kind: Hit, value: 2 }

@@ -104,6 +104,13 @@ impl Game<WgpuContext> for GameState {
             camera.set_scale(scale);
         }
     }
+    #[cfg(target_arch="wasm32")]
+    fn resize(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
+        let scale = 16. * (context.get_physical_size().x as u32 / 10 / 16) as f32;
+        if let Some(camera) = context.graphics.get_camera_mut(self.camera_main) {
+            camera.set_scale(scale);
+        }
+    }
 }
 
 #[cfg(target_os = "android")]
@@ -116,15 +123,18 @@ fn android_main(app: AndroidApp) {
 
 fn main() {
     std::env::set_var("WINIT_UNIX_BACKEND", "x11");
-    run();
-}
-
-#[cfg_attr(target_arch="wasm32", wasm_bindgen(start))]
-pub fn run() {
     let engine = EngineBuilder::new()
         .with_title("Tower RL".to_string())
         .with_logical_size(600., 760.)
         .build(game_state());
+    engine.run();
+}
+
+#[cfg(target_arch="wasm32")]
+#[cfg_attr(target_arch="wasm32", wasm_bindgen(start))]
+pub fn wasm_main() {
+    let engine = EngineBuilder::new()
+        .build_wasm(game_state());
     engine.run();
 }
 
