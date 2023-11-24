@@ -46,7 +46,6 @@ pub fn draw_status(world: &World, context: &mut crate::Context_) {
         span = span.with_spacer(spacer)
             .with_sprite("icons", utils::ICON_IMMUNITY)
             .with_text_owned(format!("{}", immune.0));
-        // text += &format!(" Immune({})", immune.0);
     }
     if let Some(regeneration) = world.get_component::<Regeneration>(query.single_entity().unwrap()) {
         span = span.with_spacer(spacer)
