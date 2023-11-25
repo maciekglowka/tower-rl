@@ -1,0 +1,38 @@
+use rogalik::{
+    engine::{Color, GraphicsContext, Params2d},
+    math::vectors::Vector2f,
+    storage::World
+};
+
+use hike_game::{
+    components::Info,
+    get_entities_at_position, get_player_position
+};
+
+use super::super::globals::{UI_GAP, UI_TEXT_GAP, UI_STATUS_TEXT_SIZE};
+use super::get_viewport_bounds;
+use super::text_box::TextBox;
+
+pub fn handle_info(world: &World, context: &mut crate::Context_) {
+    let Some(player_v) = get_player_position(world) else { return };
+    let entities = get_entities_at_position(world, player_v);
+    let mut infos = entities.iter()
+        .filter_map(|&e| world.get_component::<Info>(e))
+        .map(|a| a.text.to_string());
+
+    // there should really by at most one
+    let Some(text) = infos.next() else { return };
+    let bounds = get_viewport_bounds(context);
+    let v = Vector2f::new(
+        bounds.0.x + 2. * UI_GAP,
+        bounds.1.y - UI_GAP  - 2. * (UI_STATUS_TEXT_SIZE + UI_TEXT_GAP)
+    );
+    TextBox::new()
+        .with_text_owned(text)
+        .with_size(UI_STATUS_TEXT_SIZE)
+        .draw(
+            v,
+            bounds.1.x - bounds.0.x - 4. * UI_GAP,
+            context
+        );
+}

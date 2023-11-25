@@ -82,6 +82,13 @@ impl Component for Interactive {
 pub struct Item;
 impl Component for Item {}
 
+// shows an in-game info message
+#[derive(Deserialize)]
+pub struct Info {
+    pub text: String
+}
+impl Component for Info {}
+
 #[derive(Deserialize)]
 pub struct Loot {
     pub items: Vec<String>,
@@ -221,6 +228,7 @@ pub fn insert_data_components(
             "Interactive" => insert_single::<Interactive>(entity, world, component_data),
             "Instant" => insert_single::<Instant>(entity, world, component_data),
             "Item" => insert_single::<Item>(entity, world, component_data),
+            "Info" => insert_single::<Info>(entity, world, component_data),
             "Loot" => insert_single::<Loot>(entity, world, component_data),
             "Lunge" => insert_single::<Lunge>(entity, world, component_data),
             "Swing" => insert_single::<Swing>(entity, world, component_data),

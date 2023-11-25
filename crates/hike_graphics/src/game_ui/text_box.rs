@@ -31,6 +31,10 @@ impl<'a> TextBox<'a> {
         self.size = size;
         self
     }
+    pub fn with_color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
     pub fn draw(&self, origin: Vector2f, width: f32, context: &mut crate::Context_) {
         let paragraphs = self.text.split('\n');
         let mut v_offset = 0.;

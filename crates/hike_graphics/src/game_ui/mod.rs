@@ -15,6 +15,7 @@ mod buttons;
 mod context_menu;
 mod game_end;
 mod help;
+mod info;
 mod input;
 mod inventory;
 mod modal;
@@ -115,6 +116,7 @@ fn update_game_ui(
     let mut ui_click = false;
 
     inventory::handle_inventory(world, context, input_state);
+    info::handle_info(world, context);
 
     if context_menu::handle_menu(world, context, input_state) {
         ui_click = true

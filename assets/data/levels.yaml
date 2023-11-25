@@ -1,4 +1,12 @@
-# 1:
-#   required_items:
-#     - Ghost
-#     - Spear
+1:
+  required_items:
+    - Info_Wait
+    - Info_Weapon
+
+2:
+  required_items:
+    - Info_Potion
+
+8:
+  required_items:
+    - Info_Ranged

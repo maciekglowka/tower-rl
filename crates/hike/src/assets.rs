@@ -35,6 +35,9 @@ pub fn load_game_data() -> GameData {
     let weapons = game_data.add_entities_from_str(
         include_str!("../../../assets/data/weapons.yaml").to_string()
     );
+    let _ = game_data.add_entities_from_str(
+        include_str!("../../../assets/data/info.yaml").to_string()
+    );
 
     items.extend(discoverables.clone());
 

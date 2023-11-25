@@ -1,0 +1,43 @@
+Info_Wait:
+  sprite:
+    atlas_name: tiles
+    index: 12
+    frames: 1
+  components:
+    Fixture:
+    Info:
+      text: You can always wait for an enemy to come to you (check the "?" menu for the controls)
+  spawn_chance: 0
+
+Info_Weapon:
+  sprite:
+    atlas_name: tiles
+    index: 12
+    frames: 1
+  components:
+    Fixture:
+    Info:
+      text: Beware, picking new weapon permanently replaces the active one!
+  spawn_chance: 0
+
+Info_Potion:
+  sprite:
+    atlas_name: tiles
+    index: 12
+    frames: 1
+  components:
+    Fixture:
+    Info:
+      text: Potion effects have to be discovered on the first use.
+  spawn_chance: 0
+
+Info_Ranged:
+  sprite:
+    atlas_name: tiles
+    index: 12
+    frames: 1
+  components:
+    Fixture:
+    Info:
+      text: Ranged units can't hit you, if you're right next to them.
+  spawn_chance: 0
