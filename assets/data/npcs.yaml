@@ -203,7 +203,7 @@ Ghost:
     Health: 6
     Loot:
       items:
-        - Potion_of_Healing
+        - Healing_Potion
         - Potion_of_Teleport
       chance: 0.35
     Immaterial:

@@ -160,10 +160,11 @@ fn game_state() -> GameState {
 fn get_initial_elements() -> (World, Events, hike_graphics::GraphicsState, hike_audio::AudioContext) {
     let mut world = World::new();
     let mut events = Events::new();
-    let graphics_state = hike_graphics::GraphicsState::new(
+    let mut graphics_state = hike_graphics::GraphicsState::new(
         &mut world,
         &mut events.game_events
     );
+    graphics_state.ui_state.build_version = env!("CARGO_PKG_VERSION").to_string();
     let audio = hike_audio::get_audio_context(&mut events.game_events);
     (world, events, graphics_state, audio)
 }

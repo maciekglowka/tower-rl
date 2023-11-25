@@ -6,7 +6,7 @@ use rogalik::{
 
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT,
-    UI_BG_Z
+    UI_BG_Z, UI_STATUS_TEXT_SIZE
 };
 use super::{UiState, UiMode, InputState, get_viewport_bounds};
 use super::buttons::Button;
@@ -38,6 +38,16 @@ pub fn handle_help_menu(
         Vector2f::new(width, height),
         Params2d { slice: Some((4, Vector2f::new(1., 1.))), ..Default::default() }
     );
+
+    draw_build_version(
+        Vector2f::new(
+            bounds.1.x - 2.* UI_GAP,
+            origin.y + 4. * UI_GAP
+        ),
+        context,
+        &ui_state.build_version
+    );
+
 
     draw_help_tab(
         Vector2f::new(bounds.0.x + 2. * UI_GAP, bounds.1.y - 3. * UI_GAP),
@@ -131,6 +141,16 @@ fn draw_help_tab(
         3 => draw_text_tab(CTRL_TEXT, origin, width, context),
         _ => ()
     }
+}
+
+fn draw_build_version(origin: Vector2f, context: &mut crate::Context_, ver: &str) {
+    let w = context.graphics.text_dimensions("default", ver, UI_STATUS_TEXT_SIZE).x;
+    let v = origin - Vector2f::new(w, 0.);
+    let span = Span::new()
+        .with_text_borrowed(ver)
+        .with_text_color(Color(126, 104, 104, 255))
+        .with_size(UI_STATUS_TEXT_SIZE);
+    span.draw(v, context);
 }
 
 fn draw_symbols_tab(

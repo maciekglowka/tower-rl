@@ -42,7 +42,8 @@ pub struct UiState {
     pub direction_buffer: Option<InputDirection>,
     mode: UiMode,
     bubbles: Vec<bubbles::Bubble>,
-    game_duration: f32
+    game_duration: f32,
+    pub build_version: String,
 }
 
 #[derive(Default)]
