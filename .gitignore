@@ -3,3 +3,4 @@ output/
 env/
 wasm-out/
 tower.keystore
+key_store.password
