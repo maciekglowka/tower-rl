@@ -1,5 +1,4 @@
 use rogalik::{
-    engine::{Color, GraphicsContext, Params2d},
     math::vectors::Vector2f,
     storage::World
 };

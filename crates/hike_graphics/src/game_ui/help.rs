@@ -4,6 +4,8 @@ use rogalik::{
     math::vectors::Vector2f,
 };
 
+use hike_data::Settings;
+
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT,
     UI_BG_Z, UI_STATUS_TEXT_SIZE
@@ -20,7 +22,8 @@ static TAB_IDX: AtomicUsize = AtomicUsize::new(0);
 pub fn handle_help_menu(
     context: &mut crate::Context_,
     input_state: &InputState,
-    ui_state: &mut UiState
+    ui_state: &mut UiState,
+    settings: &mut Settings
 ) {
     let bounds = get_viewport_bounds(context);
     let width = bounds.1.x - bounds.0.x - 2. * UI_GAP;
@@ -52,7 +55,10 @@ pub fn handle_help_menu(
     draw_help_tab(
         Vector2f::new(bounds.0.x + 2. * UI_GAP, bounds.1.y - 3. * UI_GAP),
         width - 2. * UI_GAP,
-        context
+        height - 2. * UI_GAP,
+        context,
+        settings,
+        input_state
     );
 
     if draw_menu_button(origin, button_width, 0, "Symbol", context, input_state) {
@@ -132,13 +138,19 @@ fn draw_help_button(context: &mut crate::Context_, state: &InputState) -> bool {
 fn draw_help_tab(
     origin: Vector2f,
     width: f32,
-    context: &mut crate::Context_
+    height: f32,
+    context: &mut crate::Context_,
+    settings: &mut Settings,
+    state: &InputState
 ) {
     match TAB_IDX.load(Relaxed) {
         0 => draw_symbols_tab(origin, context),
         1 => draw_text_tab(ITEM_TEXT, origin, width, context),
         2 => draw_text_tab(WEAPON_TEXT, origin, width, context),
-        3 => draw_text_tab(CTRL_TEXT, origin, width, context),
+        3 => {
+            draw_text_tab(CTRL_TEXT, origin, width, context);
+            draw_ctrl_settings(origin, width, height, context, settings, state)
+        },
         _ => ()
     }
 }
@@ -182,6 +194,68 @@ fn draw_symbols_tab(
             .with_text_borrowed(d.1);
         span.draw(v, context);
         v -= Vector2f::new(0., UI_BUTTON_TEXT_SIZE + UI_GAP);
+    }
+}
+
+fn draw_ctrl_settings(
+    origin: Vector2f,
+    width: f32,
+    height: f32,
+    context: &mut crate::Context_,
+    settings: &mut Settings,
+    state: &InputState
+) {
+    let y = origin.y - height + 2. * UI_GAP;
+    let single_width = width / 4.;
+
+    let value = Button::new(
+            origin.x + 0.5 * (width - single_width),
+            y,
+            single_width,
+            UI_BUTTON_HEIGHT
+        )
+        .with_span(
+            Span::new()
+                .with_size(UI_BUTTON_TEXT_SIZE)
+                .with_text_owned("|".repeat(settings.swipe_sensitivity as usize))
+        );
+    value.draw(context);
+
+    let down = Button::new(
+            origin.x,
+            y,
+            single_width,
+            UI_BUTTON_HEIGHT
+        )
+        .with_sprite("ui", 0)
+        .with_span(
+            Span::new()
+                .with_size(UI_BUTTON_TEXT_SIZE)
+                .with_text_borrowed("-")
+        );
+    down.draw(context);
+
+    let up = Button::new(
+            origin.x + width - single_width,
+            y,
+            single_width,
+            UI_BUTTON_HEIGHT
+        )
+        .with_sprite("ui", 0)
+        .with_span(
+            Span::new()
+                .with_size(UI_BUTTON_TEXT_SIZE)
+                .with_text_borrowed("+")
+        );
+    up.draw(context);
+
+    if down.clicked(state) {
+        settings.swipe_sensitivity = (settings.swipe_sensitivity - 1).max(1);
+        settings.dirty = true;
+    }
+    if up.clicked(state) {
+        settings.swipe_sensitivity = (settings.swipe_sensitivity + 1).min(10);
+        settings.dirty = true;
     }
 }
 

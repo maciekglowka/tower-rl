@@ -443,17 +443,24 @@ impl Action for WieldWeapon {
         GameEvent::PickItem
     }
     fn execute(&self, world: &mut World) -> ActionResult {
-        let mut current = None;
+        let mut replaced = None;
         if let Some(mut player) = world.query::<Player>().build().single_mut::<Player>() {
-            let active = player.active_weapon;
+            let index = if let Some(free) = player.weapons.iter()
+                .enumerate()
+                .filter(|a| a.1.is_none())
+                .next() {
+                    free.0
+                } else {
+                    player.active_weapon
+                };
     
-            current = player.weapons[active];
-            player.weapons[active] = Some(self.entity);
+            replaced = player.weapons[index];
+            player.weapons[index] = Some(self.entity);
         };
 
         world.remove_component::<Position>(self.entity);
-        if let Some(current) = current {
-            world.despawn_entity(current);
+        if let Some(replaced) = replaced {
+            world.despawn_entity(replaced);
         }
 
         Ok(Vec::new())

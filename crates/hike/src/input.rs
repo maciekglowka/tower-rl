@@ -1,7 +1,8 @@
 use rogalik::{
     engine::{
         GraphicsContext, ResourceId,
-        input::{MouseButton, VirtualKeyCode, TouchPhase}
+        input::{MouseButton, VirtualKeyCode, TouchPhase},
+        Instant
     },
     math::vectors::Vector2f
 };
@@ -22,9 +23,16 @@ use super::Context_;
 //     Vector2f::new(v.x, v.y)
 // }
 
+pub struct Touch {
+    pub start: Vector2f,
+    pub time: Instant,
+    pub dir: Option<InputDirection>
+}
+
 pub fn get_input_state(
     camera: ResourceId,
-    touch_state: &mut HashMap<u64, Vector2f>,
+    touch_state: &mut HashMap<u64, Touch>,
+    settings: &hike_data::Settings,
     context: &Context_
 ) -> InputState {
     let mut left = ButtonState::Up;
@@ -42,7 +50,7 @@ pub fn get_input_state(
     let action_left = key_state(context, VirtualKeyCode::Q);
     let pause = key_state(context, VirtualKeyCode::Space);
 
-    let mut direction = handle_touches(context, touch_state);
+    let mut direction = handle_touches(context, touch_state, settings);
     if context.input.is_key_pressed(VirtualKeyCode::W) 
         || context.input.is_key_pressed(VirtualKeyCode::Up) { direction = InputDirection::Up }
     if context.input.is_key_pressed(VirtualKeyCode::S)
@@ -96,31 +104,70 @@ fn key_state(context: &Context_, code: VirtualKeyCode) -> ButtonState {
     if context.input.is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
 }
 
-fn handle_touches(context: &Context_, touch_state: &mut HashMap<u64, Vector2f>) -> InputDirection {
+fn handle_touches(
+    context: &Context_,
+    touch_state: &mut HashMap<u64, Touch>,
+    settings: &hike_data::Settings
+) -> InputDirection {
     for (id, touch) in context.input.get_touches().iter() {
         match touch.phase {
-            TouchPhase::Started => { touch_state.insert(*id, touch.position); },
+            TouchPhase::Started => { touch_state.insert(
+                *id, Touch { start: touch.position, time: Instant::init(), dir: None }
+            ); },
             TouchPhase::Moved => {
-                if let Some(start) = touch_state.get(&id) {
-                    let dx = touch.position.x - start.x;
-                    let dy = touch.position.y - start.y;
-                    let thresh = 0.05 * context.get_physical_size().x;
-                    let mut dir = InputDirection::None;
-                    if dx > thresh { dir = InputDirection::Right }
-                    if dx < -thresh { dir = InputDirection::Left }
-                    if dy > thresh { dir = InputDirection::Up }
-                    if dy < -thresh { dir = InputDirection::Down }
-                    if dir != InputDirection::None {
-                        // touch_state.insert(*id, touch.position);
-                        touch_state.remove(id);
-                        return dir
+                if let Some(existing) = touch_state.get(&id) {
+                    if existing.dir.is_none() {
+                        let dx = touch.position.x - existing.start.x;
+                        let dy = touch.position.y - existing.start.y;
+                        let d = Vector2f::new(dx, dy);
+                        let speed = (d.len() / context.get_physical_size().x) / existing.time.elapsed();
+                        if speed < 2. / settings.swipe_sensitivity.pow(3) as f32 {
+                            return InputDirection::None
+                        }
+                        if dx.abs() / dy.abs() < 1.5 && dy.abs() / dx.abs() < 1.5 {
+                            return InputDirection::None
+                        }
+    
+                        // TEMP
+                        let dir = if dx.abs() > dy.abs() {
+                            if dx < 0. { InputDirection::Left } else { InputDirection::Right }
+                        } else {
+                            if dy < 0. { InputDirection::Down } else { InputDirection::Up }
+                        };
+    
+                        touch_state.insert(*id, Touch { start: touch.position, time: Instant::init(), dir: Some(dir) });
+                        return dir;
                     }
+
+                    // let thresh = (settings.swipe_sensitivity as f32 / 100.) * context.get_physical_size().x;
+                    // let mut dir = InputDirection::None;
+                    // if dx > thresh { dir = InputDirection::Right }
+                    // if dx < -thresh { dir = InputDirection::Left }
+                    // if dy > thresh { dir = InputDirection::Up }
+                    // if dy < -thresh { dir = InputDirection::Down }
+                    // if dir != InputDirection::None {
+                    //     // if settings.continuous_swipe {
+                    //     //     touch_state.insert(*id, touch.position);
+                    //     // } else {
+                    //     // }
+                    //     touch_state.remove(id);
+                    //     return dir
+                    // }
                 }
             },
             TouchPhase::Ended => {
                 touch_state.remove(&id);
+                return InputDirection::None;
             }
             _ => ()
+        }
+        if let Some(existing) = touch_state.get(&id) {
+            if let Some(dir) = existing.dir {
+                if existing.time.elapsed() > 0.1 {
+                    touch_state.insert(*id, Touch { start: touch.position, time: Instant::init(), dir: Some(dir) });
+                    return dir;
+                }
+            }
         }
     }
     InputDirection::None

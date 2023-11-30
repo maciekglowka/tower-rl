@@ -3,6 +3,7 @@ use rogalik::{
     engine::{Context, Game, GraphicsContext, EngineBuilder, ResourceId},
     events::{EventBus, SubscriberHandle},
     math::vectors::{Vector2f, Vector2i},
+    persist,
     storage::World,
     wgpu::WgpuContext
 };
@@ -20,6 +21,7 @@ mod assets;
 mod input;
 
 pub type Context_ = Context<WgpuContext>;
+const SETTINGS_NAME: &str = "monk_settings";
 
 #[derive(Default)]
 enum GamePhase {
@@ -52,11 +54,15 @@ pub struct GameState {
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
     input_state: hike_graphics::game_ui::InputState,
-    touch_state: HashMap<u64, Vector2f>,
+    settings: hike_data::Settings,
+    touch_state: HashMap<u64, input::Touch>,
     world: World
 }
 impl Game<WgpuContext> for GameState {
     fn setup(&mut self, context: &mut Context<WgpuContext>) {
+        if let Ok(settings) = persist::load(SETTINGS_NAME, context.os_path.as_deref()) {
+            self.settings = settings;
+        }
         assets::load_assets(self, context);
         context.graphics.set_clear_color(hike_graphics::globals::BACKGROUND_COLOR);
 
@@ -76,7 +82,6 @@ impl Game<WgpuContext> for GameState {
         self.graphics_state.animation_timer = context.time.add_timer(hike_graphics::globals::ANIMATION_TICK);
     }
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
-        // println!("{}", 1. / context.time.get_delta());
         match self.phase {
             GamePhase::Game => {
                 game_update(self, context);
@@ -153,6 +158,7 @@ fn game_state() -> GameState {
         graphics_ready: false,
         graphics_state,
         input_state: hike_graphics::game_ui::InputState::default(),
+        settings: hike_data::Settings::default(),
         touch_state: HashMap::new(),
         world
     }
@@ -176,14 +182,19 @@ fn game_update(state: &mut GameState, context: &mut Context_) {
     }
 
     state.graphics_ready = hike_graphics::graphics_update(&state.world, &mut state.graphics_state, context);
-    state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, context);
+    state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, &state.settings, context);
     hike_graphics::game_ui::draw_world_ui(&state.world, context, &mut state.graphics_state);
     hike_graphics::game_ui::ui_update(
         &mut state.world,
         &mut state.input_state,
         &mut state.graphics_state.ui_state,
         &mut state.events.ui_events,
-        context
+        context,
+        &mut state.settings
     );
     hike_audio::handle_game_audio(&mut state.audio, &state.world);
+    if state.settings.dirty {
+        state.settings.dirty = false;
+        let _ = persist::store(SETTINGS_NAME, &state.settings, context.os_path.as_deref());
+    }
 }

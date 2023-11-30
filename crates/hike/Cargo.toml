@@ -14,8 +14,6 @@ name = "tower"
 # Specifies the array of targets to build for.
 # build_targets = [ "aarch64-linux-android" ]
 build_targets = ["armv7-linux-androideabi", "aarch64-linux-android", "i686-linux-android", "x86_64-linux-android"]
-version_code = 1
-version_name = "0.1.0"
 
 [package.metadata.android.sdk]
 min_sdk_version = 30

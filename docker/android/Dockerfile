@@ -1,4 +1,4 @@
-FROM rust:1.72
+FROM rust:1.74
 
 RUN apt-get update && apt-get install android-sdk -yy
 RUN mkdir /usr/lib/android-sdk/cmdline-tools/
@@ -20,6 +20,6 @@ RUN cargo install cargo-apk
 ENV ANDROID_HOME=/usr/lib/android-sdk
 ENV ANDROID_NDK_ROOT=/usr/lib/android-sdk/ndk/25.2.9519653
 
-WORKDIR /app
+WORKDIR /app/crates/hike
 
 CMD ["cargo", "apk", "build", "--release"]

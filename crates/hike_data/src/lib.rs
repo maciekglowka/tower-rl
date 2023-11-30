@@ -6,6 +6,9 @@ use std::collections::HashMap;
 use rogalik::engine::Color;
 
 pub mod colors;
+mod settings;
+
+pub use settings::Settings;
 
 #[derive(Clone, Default)]
 pub struct GameData {

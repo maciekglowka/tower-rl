@@ -2,8 +2,8 @@ use rogalik::engine::{Color, GraphicsContext};
 use rogalik::events::EventBus;
 use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
-// use std::collections::HashMap;
 
+use hike_data::Settings;
 use hike_game::get_player_entity;
 
 use crate::UiEvent;
@@ -90,6 +90,7 @@ pub fn ui_update(
     ui_state: &mut UiState,
     events: &mut EventBus<UiEvent>,
     context: &mut crate::Context_,
+    settings: &mut Settings
 ) {
     match ui_state.mode {
         UiMode::Game => {
@@ -101,7 +102,7 @@ pub fn ui_update(
                 }
             }
         },
-        UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state),
+        UiMode::HelpMenu => help::handle_help_menu(context, input_state, ui_state, settings),
         UiMode::GameEnd => game_end::handle_menu(context, input_state, ui_state, events, world)
     }
 }
@@ -125,7 +126,7 @@ fn update_game_ui(
         ui_click = true
     }
     if ui_click { return };
-    input::handle_dir_input(world, input_state, ui_state);
+    input::handle_dir_input(world, input_state, ui_state, context);
 }
 
 fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
