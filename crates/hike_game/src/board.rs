@@ -283,7 +283,7 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     output.extend(npcs);
 
     // TODO redo
-    if fixtures.len() == 0 && level % 2 == 0 {
+    if fixtures.len() == 0 && level % 2 == 0 && level > 2 {
         let pool = get_entity_pool(&data, &data.fixtures, level);
         fixtures.push(pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone())
     }

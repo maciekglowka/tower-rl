@@ -120,15 +120,16 @@ fn handle_touches(
                         let dx = touch.position.x - existing.start.x;
                         let dy = touch.position.y - existing.start.y;
                         let d = Vector2f::new(dx, dy);
-                        let speed = (d.len() / context.get_physical_size().x) / existing.time.elapsed();
-                        if speed < 2. / settings.swipe_sensitivity.pow(3) as f32 {
-                            return InputDirection::None
-                        }
+                        // let speed = (d.len() / context.get_physical_size().x) / existing.time.elapsed();
+                        // if speed < 1. / settings.swipe_sensitivity.pow(3) as f32 {
+                        //     return InputDirection::None
+                        // }
+                        let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32) * context.get_physical_size().x;
+                        if d.len() < thresh { return InputDirection::None }
                         if dx.abs() / dy.abs() < 1.5 && dy.abs() / dx.abs() < 1.5 {
                             return InputDirection::None
                         }
-    
-                        // TEMP
+
                         let dir = if dx.abs() > dy.abs() {
                             if dx < 0. { InputDirection::Left } else { InputDirection::Right }
                         } else {
@@ -137,22 +138,9 @@ fn handle_touches(
     
                         touch_state.insert(*id, Touch { start: touch.position, time: Instant::init(), dir: Some(dir) });
                         return dir;
+
                     }
 
-                    // let thresh = (settings.swipe_sensitivity as f32 / 100.) * context.get_physical_size().x;
-                    // let mut dir = InputDirection::None;
-                    // if dx > thresh { dir = InputDirection::Right }
-                    // if dx < -thresh { dir = InputDirection::Left }
-                    // if dy > thresh { dir = InputDirection::Up }
-                    // if dy < -thresh { dir = InputDirection::Down }
-                    // if dir != InputDirection::None {
-                    //     // if settings.continuous_swipe {
-                    //     //     touch_state.insert(*id, touch.position);
-                    //     // } else {
-                    //     // }
-                    //     touch_state.remove(id);
-                    //     return dir
-                    // }
                 }
             },
             TouchPhase::Ended => {

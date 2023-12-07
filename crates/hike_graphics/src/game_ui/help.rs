@@ -130,7 +130,7 @@ fn draw_help_button(context: &mut crate::Context_, state: &InputState) -> bool {
         UI_BUTTON_HEIGHT
     )
         .with_sprite("ui", 0)
-        .with_span(Span::new().with_text_borrowed("?").with_size(UI_BUTTON_TEXT_SIZE));
+        .with_span(Span::new().with_text_borrowed("\u{0098}").with_size(UI_BUTTON_TEXT_SIZE));
     button.draw(context);
     button.clicked(state)
 }
@@ -205,15 +205,24 @@ fn draw_ctrl_settings(
     settings: &mut Settings,
     state: &InputState
 ) {
-    let y = origin.y - height + 2. * UI_GAP;
+    let y = origin.y - height + 2. * UI_GAP + UI_STATUS_TEXT_SIZE;
+
+    let span = Span::new()
+        .with_text_borrowed("Swipe sensitivity")
+        .with_size(UI_STATUS_TEXT_SIZE);
+    span.draw(Vector2f::new(origin.x, y + 4. * UI_GAP + UI_BUTTON_HEIGHT), context);
+
     let single_width = width / 4.;
 
+    let value_width = width - 2. * (UI_GAP + single_width);
+
     let value = Button::new(
-            origin.x + 0.5 * (width - single_width),
+            origin.x + 0.5 * (width - value_width),
             y,
-            single_width,
+            value_width,
             UI_BUTTON_HEIGHT
         )
+        .with_sprite("ui", 1)
         .with_span(
             Span::new()
                 .with_size(UI_BUTTON_TEXT_SIZE)
@@ -279,12 +288,13 @@ const CTRL_TEXT: &str =
 "MOBILE CONTROLS
 ---------------
   Swipe: move
-  Board tap: pause
+  Swipe + hold: move continuously
+  Board tap: wait
 
 KEYBOARD CONTROLS
 -----------------
   WASD / Arrows: move
-  Space: pause
+  Space: wait
   Q: pick / interact
   E: [more] (if available)
   1234: change weapon slot

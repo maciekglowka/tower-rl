@@ -6,7 +6,7 @@ Info_Wait:
   components:
     Fixture:
     Info:
-      text: You can always wait for an enemy to come to you (check the "?" menu for the controls)
+      text: You can always wait for an enemy to come to you (check menu for the controls)
   spawn_chance: 0
 
 Info_Weapon:
@@ -17,7 +17,7 @@ Info_Weapon:
   components:
     Fixture:
     Info:
-      text: Beware, picking new weapon permanently replaces the active one!
+      text: Beware, picking new weapon permanently replaces the active one (if no empty slot)!
   spawn_chance: 0
 
 Info_Potion:

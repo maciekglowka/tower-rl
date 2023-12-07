@@ -10,9 +10,9 @@ use hike_data::GameData;
 use hike_game::{
     GameEvent,
     Board,
-    components::{Actor, Discoverable, Fixture, Item, Name, Stunned, Position, Projectile, Tile},
+    components::{Actor, Discoverable, Fixture, Item, Name, Stunned, Player, Position, Projectile, Tile},
     globals::BOARD_SIZE,
-    get_entities_at_position
+    get_entities_at_position, get_player_entity
 };
 
 use super::super::{
@@ -128,6 +128,17 @@ pub fn handle_action_events(
     }
 }
 
+fn update_player_sprite(world: &World, state: &mut GraphicsState) {
+    let Some(entity) = get_player_entity(world) else { return };
+    let Some(game_data) = world.get_resource::<GameData>() else { return };
+    let Some(player) = world.get_component::<Player>(entity) else { return };
+    let wields = player.weapons[player.active_weapon].is_some();
+    let offset = if wields { 2 } else { 0 };
+    if let Some(sprite) = get_entity_sprite_mut(entity, state) {
+        sprite.index = game_data.entities["Player"].sprite.index + offset;
+    }
+}
+
 pub fn update_wall_sprites(world: &World, state: &mut GraphicsState) {
     let Some(board) = world.get_resource::<Board>() else { return };
     for (v, _) in board.tiles.iter() {
@@ -156,6 +167,8 @@ fn get_wall_at(v: Vector2i, world: &World) -> Option<Entity> {
 }
 
 pub fn update_sprites(world: &World, state: &mut GraphicsState, tick: bool, delta: f32) -> bool {
+    // update player might be optimized not to run every frame ;)
+    update_player_sprite(world, state);
     update_added_sprites(state, delta);
     update_removed_sprites(state, delta);
     if tick { update_sprite_frames(state) };

@@ -1,7 +1,7 @@
 Rat:
   sprite:
     atlas_name: units
-    index: 2
+    index: 14
     color: [255, 126, 102, 255]
     frames: 2
   components:
