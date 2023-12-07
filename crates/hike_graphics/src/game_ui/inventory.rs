@@ -122,7 +122,6 @@ fn handle_inventory_buttons(
     
             button = button.with_span(span);
         }
-
         button.draw(context);
         if button.clicked(state) {
             clicked = Some(i)

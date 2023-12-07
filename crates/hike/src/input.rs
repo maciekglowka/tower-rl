@@ -51,6 +51,8 @@ pub fn get_input_state(
     let pause = key_state(context, VirtualKeyCode::Space);
 
     let mut direction = handle_touches(context, touch_state, settings);
+    let touch = direction != InputDirection::None;
+
     if context.input.is_key_pressed(VirtualKeyCode::W) 
         || context.input.is_key_pressed(VirtualKeyCode::Up) { direction = InputDirection::Up }
     if context.input.is_key_pressed(VirtualKeyCode::S)
@@ -81,7 +83,7 @@ pub fn get_input_state(
         key_state(context, VirtualKeyCode::V),
     ];
 
-    let mut m = context.input.get_mouse_physical_position();
+    let m = context.input.get_mouse_physical_position();
     let mut w = Vector2f::ZERO;
     if let Some(camera) = context.graphics.get_camera(camera) {
         w = camera.camera_to_world(m);
@@ -91,6 +93,7 @@ pub fn get_input_state(
         mouse_screen_position: m,
         mouse_world_position: w,
         mouse_button_left: left,
+        touch,
         direction,
         action_left,
         action_right,

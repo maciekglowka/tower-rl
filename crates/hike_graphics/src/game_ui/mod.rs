@@ -30,6 +30,7 @@ pub struct InputState {
     pub mouse_world_position: Vector2f,
     pub mouse_screen_position: Vector2f,
     pub mouse_button_left: ButtonState,
+    pub touch: bool,
     pub direction: InputDirection,
     pub action_left: ButtonState,
     pub action_right: ButtonState,
@@ -126,11 +127,13 @@ fn update_game_ui(
     ui_state: &mut UiState,
     context: &mut crate::Context_,
 ) {
+    handle_action_events(world, ui_state);
     status::draw_status(world, context);
     let mut ui_click = false;
 
     inventory::handle_inventory(world, context, input_state);
     messages::update_messages(world, context, ui_state);
+    bubbles::handle_bubbles(world, ui_state, context);
 
     if context_menu::handle_menu(world, context, input_state) {
         ui_click = true
@@ -140,7 +143,6 @@ fn update_game_ui(
     }
     if ui_click { return };
     input::handle_dir_input(world, input_state, ui_state, context);
-    bubbles::handle_bubbles(world, ui_state, context);
 }
 
 fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
@@ -158,6 +160,7 @@ fn handle_action_events(
     state: &mut UiState
 ) {
     for ev in state.ev_game.read().iter().flatten() {
-        crate::game_ui::bubbles::handle_game_event(ev, world, state);
+        bubbles::handle_game_event(ev, world, state);
+        messages::handle_game_event(ev, world, state);
     }
 }

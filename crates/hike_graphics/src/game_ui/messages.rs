@@ -20,7 +20,6 @@ pub fn update_messages(
     ui_state: &mut UiState
 ) {
     handle_info(world, ui_state);
-    handle_game_event(world, ui_state);
     draw_messages(context, ui_state);
 }
 
@@ -59,39 +58,38 @@ pub fn handle_info(world: &World, ui_state: &mut UiState) {
 }
 
 pub fn handle_game_event(
+    ev: &GameEvent,
     world: &World,
     state: &mut UiState
 ) {
     let mut text = None;
-    for ev in state.ev_game.read().iter().flatten() {
-        match ev {
-            GameEvent::Poison(entity, _) => {
-                if Some(*entity) == get_player_entity(world) {
-                    text = Some("You feel sick!");
-                }
-            },
-            GameEvent::HealPoison(entity) => {
-                if Some(*entity) == get_player_entity(world) {
-                    text = Some("Suddenly your blood seems clear!");
-                }
-            },        
-            GameEvent::Immunity(entity) => {
-                if Some(*entity) == get_player_entity(world) {
-                    text = Some("You feel invincible!");
-                }
-            },
-            GameEvent::Regeneration(entity) => {
-                if Some(*entity) == get_player_entity(world) {
-                    text = Some("Slowly you regain your strength!");
-                }
-            },
-            GameEvent::Travel(entity, _) => {
-                if Some(*entity) == get_player_entity(world) {
-                    state.message = None;
-                }
+    match ev {
+        GameEvent::Poison(entity, _) => {
+            if Some(*entity) == get_player_entity(world) {
+                text = Some("You feel sick!");
             }
-            _ => {}
+        },
+        GameEvent::HealPoison(entity) => {
+            if Some(*entity) == get_player_entity(world) {
+                text = Some("Suddenly your blood seems clear!");
+            }
+        },        
+        GameEvent::Immunity(entity) => {
+            if Some(*entity) == get_player_entity(world) {
+                text = Some("You feel invincible!");
+            }
+        },
+        GameEvent::Regeneration(entity) => {
+            if Some(*entity) == get_player_entity(world) {
+                text = Some("Slowly you regain your strength!");
+            }
+        },
+        GameEvent::Travel(entity, _) => {
+            if Some(*entity) == get_player_entity(world) {
+                state.message = None;
+            }
         }
+        _ => {}
     }
     // replace only if Some
     if let Some(text) = text {
