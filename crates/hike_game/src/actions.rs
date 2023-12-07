@@ -652,6 +652,9 @@ pub struct GiveRegeneration {
 }
 impl Action for GiveRegeneration {
     fn as_any(&self) -> &dyn Any { self }
+    fn event(&self) -> GameEvent {
+        GameEvent::Regeneration(self.entity)
+    }
     fn execute(&self, world: &mut World) -> ActionResult {
         if let Some(mut regeneration) = world.get_component_mut::<Regeneration>(self.entity) {
             regeneration.0 += self.value;

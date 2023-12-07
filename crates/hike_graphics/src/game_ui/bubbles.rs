@@ -8,9 +8,8 @@ use hike_game::{
     components::Position,
 };
 
-use super::super::{
-    GraphicsState, Context_, tile_to_world
-};
+use super::super::{Context_, tile_to_world};
+use super::UiState;
 use crate::globals::{
     UI_BUBBLE_Z, UI_BUBBLE_MAX_AGE, UI_BUBBLE_SPEED, 
     UI_OVERLAY_FONT_SIZE, HEALTH_COLOR, POISON_COLOR, IMMUNITY_COLOR
@@ -25,7 +24,7 @@ pub struct Bubble {
 
 pub fn handle_bubbles(
     world: &World,
-    state: &mut GraphicsState,
+    state: &mut UiState,
     context: &mut Context_,
 ) {
     update_bubbles(state, context.time.get_delta());
@@ -35,7 +34,7 @@ pub fn handle_bubbles(
 pub fn handle_game_event(
     ev: &GameEvent,
     world: &World,
-    state: &mut GraphicsState
+    state: &mut UiState
 ) {
     let mut bubble_value = None;
     match ev {
@@ -46,27 +45,6 @@ pub fn handle_game_event(
                 HEALTH_COLOR
             ));
         },
-        GameEvent::Poison(entity, value) => {
-            bubble_value = Some((
-                entity,
-                format!("{}", value),
-                POISON_COLOR
-            ));
-        },
-        GameEvent::HealPoison(entity) => {
-            bubble_value = Some((
-                entity,
-                "H".to_string(),
-                POISON_COLOR
-            ));
-        },        
-        GameEvent::Immunity(entity) => {
-            bubble_value = Some((
-                entity,
-                "I".to_string(),
-                IMMUNITY_COLOR
-            ));
-        }
         _ => {}
     }
     if let Some(value) = bubble_value {
@@ -83,24 +61,24 @@ pub fn handle_game_event(
                 color: value.2,
                 age: 0.
             };
-            state.ui_state.bubbles.push(bubble);
+            state.bubbles.push(bubble);
         }
     }
 }
 
-fn update_bubbles(state: &mut GraphicsState, delta: f32) {
-    for bubble in state.ui_state.bubbles.iter_mut() {
+fn update_bubbles(state: &mut UiState, delta: f32) {
+    for bubble in state.bubbles.iter_mut() {
         bubble.v.y += UI_BUBBLE_SPEED * delta;
         bubble.age += delta;
     }
-    state.ui_state.bubbles.retain(|b| b.age < UI_BUBBLE_MAX_AGE);
+    state.bubbles.retain(|b| b.age < UI_BUBBLE_MAX_AGE);
 }
 
 fn draw_bubbles(
-    state: &GraphicsState,
+    state: &UiState,
     context: &mut Context_
 ) {
-    for bubble in state.ui_state.bubbles.iter() {
+    for bubble in state.bubbles.iter() {
         let _ = context.graphics.draw_text(
             "default",
             &bubble.text,

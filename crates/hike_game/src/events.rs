@@ -11,6 +11,7 @@ pub enum GameEvent {
     Health(Entity, i32),
     HealPoison(Entity),
     Immunity(Entity),
+    Regeneration(Entity),
     Poison(Entity, i32),
     Attack(Entity, Vector2i),
     HitProjectile(Vector2i),

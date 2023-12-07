@@ -39,7 +39,7 @@ impl GraphicsState {
             ev_world: world.events.subscribe(),
             ev_game: events.subscribe(),
             animation_timer: ResourceId::default(),
-            ui_state: game_ui::UiState::default()
+            ui_state: game_ui::UiState::new(events)
         }
     }
     pub fn sort_sprites(&mut self) {
