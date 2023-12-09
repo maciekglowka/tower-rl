@@ -177,6 +177,7 @@ fn draw_symbols_tab(
         (utils::ICON_SWING, "Swing (hit front and sides)"),
         (utils::ICON_LUNGE, "Lunge (hit 2 tiles in front)"),
         (utils::ICON_PUSH, "Push"),
+        (utils::ICON_SWITCH, "Switch"),
         (utils::ICON_GOLD, "Gold"),
         (utils::ICON_HEAL, "Heal / Health"),
         (utils::ICON_IMMUNITY, "Immunity"),

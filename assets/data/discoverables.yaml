@@ -21,9 +21,9 @@ Potion_of_Regeneration:
     Discoverable:
     Effects:
       effects:
-        - { kind: Regenerate, value: 2-4 }
+        - { kind: Regenerate, value: 3-6 }
     Item:
-  spawn_chance: 0.5
+  spawn_chance: 1.0
   min_level: 4
 
 Potion_of_Immunity:
@@ -35,9 +35,9 @@ Potion_of_Immunity:
     Discoverable:
     Effects:
       effects:
-        - { kind: Immunity, value: 3-5 }
+        - { kind: Immunity, value: 4-6 }
     Item:
-  spawn_chance: 0.25
+  spawn_chance: 1.0
   min_level: 4
 
 Potion_of_Poison:
@@ -79,5 +79,5 @@ Potion_of_Teleport:
       effects:
         - { kind: Teleport, value: 0 }
     Item:
-  spawn_chance: 0.5
+  spawn_chance: 0.25
   min_level: 5

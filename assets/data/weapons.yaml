@@ -34,7 +34,7 @@ Golden_Sword:
     index: 0
     color: [255, 191, 102, 255]
   components:
-    Durability: 5-15
+    Durability: 5-10
     Item:
     Weapon:
     Offensive: 
@@ -102,13 +102,29 @@ Stun_Wand:
   min_level: 5
   spawn_chance: 0.5
 
+Wand_of_Displacement:
+  sprite:
+    atlas_name: items
+    index: 1
+    color: [255, 102, 145, 255]
+  components:
+    Durability: 8-15
+    Item:
+    Weapon:
+    Switch:
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2 }
+  min_level: 5
+  spawn_chance: 0
+
 Warhammer:
   sprite:
     atlas_name: items
     index: 5
     color: [255, 126, 102, 255]
   components:
-    Durability: 5-15
+    Durability: 10-18
     Item:
     Weapon:
     Push:
@@ -117,3 +133,18 @@ Warhammer:
         - { kind: Hit, value: 1 }
   min_level: 5
   spawn_chance: 0.5
+
+Green_Hammer:
+  sprite:
+    atlas_name: items
+    index: 5
+    color: [145, 200, 185, 255]
+  components:
+    Durability: 8-15
+    Item:
+    Weapon:
+    Push:
+    Offensive: 
+      attacks:
+        - { kind: Poison, value: 2-3 }
+  spawn_chance: 0

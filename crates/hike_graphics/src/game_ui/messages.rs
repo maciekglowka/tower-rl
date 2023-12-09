@@ -69,9 +69,14 @@ pub fn handle_game_event(
                 text = Some("You feel sick!");
             }
         },
+        // GameEvent::Heal(entity) => {
+        //     if Some(*entity) == get_player_entity(world) {
+        //         text = Some("You feel stronger!");
+        //     }
+        // },        
         GameEvent::HealPoison(entity) => {
             if Some(*entity) == get_player_entity(world) {
-                text = Some("Suddenly your blood seems clear!");
+                text = Some("Suddenly, your blood seems clear!");
             }
         },        
         GameEvent::Immunity(entity) => {

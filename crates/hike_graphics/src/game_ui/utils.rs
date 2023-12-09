@@ -7,7 +7,7 @@ use hike_data::GameData;
 use hike_game::{
     components::{
         Durability, Discoverable, Effects, Lunge, Name, Interactive,
-        Offensive, Player, Push, Swing
+        Offensive, Player, Push, Swing, Switch
     },
     structs::{Attack, AttackKind, Effect, EffectKind, InteractionKind},
     get_player_entity
@@ -22,6 +22,7 @@ pub const ICON_STUN: u32 = 3;
 pub const ICON_SWING: u32 = 8;
 pub const ICON_LUNGE: u32 = 9;
 pub const ICON_PUSH: u32 = 10;
+pub const ICON_SWITCH: u32 = 11;
 
 pub const ICON_GOLD: u32 = 16;
 pub const ICON_HEAL: u32 = 17;
@@ -120,6 +121,9 @@ fn get_entity_icons(entity: Entity, world: &World) -> Vec<(u32, Option<u32>)> {
     }
     if let Some(_) = world.get_component::<Push>(entity) {
         output.push((ICON_PUSH, None));
+    }
+    if let Some(_) = world.get_component::<Switch>(entity) {
+        output.push((ICON_SWITCH, None));
     }
     output
 }

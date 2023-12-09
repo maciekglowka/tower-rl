@@ -11,7 +11,7 @@ use std::{
 use crate::board::Board;
 use crate::components::{
     Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
-    Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding,
+    Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding, Switch,
     Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration, Immaterial, Summoner
 };
 use crate::GameStats;
@@ -261,6 +261,11 @@ impl AttackAction {
                 ));
             }
         }
+        if world.get_component::<Switch>(entity).is_some() {
+            actions.push(Box::new(
+                SwitchAction { entity: self.entity, target }
+            ));
+        }
         actions
     }
 }
@@ -321,7 +326,6 @@ impl Action for HitAction {
 }
 
 pub struct StunAction {
-    // pub entity: Entity,
     pub target: Vector2i,
     pub value: u32
 }
@@ -396,6 +400,31 @@ impl Action for PushAction {
         } else {
             Vec::new()
         };
+        Ok(actions)
+    }
+}
+
+pub struct SwitchAction {
+    pub entity: Entity,
+    pub target: Vector2i
+}
+impl Action for SwitchAction {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let source = world.get_component::<Position>(self.entity).ok_or(())?.0;
+        let mut actions = {
+            get_entities_at_position(world, self.target).iter()
+                .filter(|&e| world.get_component::<Actor>(*e).is_some())
+                .map(|&e| Box::new(Walk { entity: e, target: source }) as Box<dyn Action>)
+                .collect::<Vec<_>>()
+        };
+        if actions.len() > 0 {
+            actions.push(Box::new(Walk { entity: self.entity, target: self.target }));
+            // stun switched npcs, but not the player (to avoid infinite loop)
+            if world.get_component::<Player>(self.entity).is_some() {
+                actions.push(Box::new(StunAction { target: source, value: 1 }));
+            }
+        }
         Ok(actions)
     }
 }

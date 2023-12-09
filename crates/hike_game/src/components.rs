@@ -165,6 +165,14 @@ impl Component for Push {
 }
 
 #[derive(Deserialize)]
+pub struct Switch;
+impl Component for Switch {
+    fn as_str(&self) -> String {
+        "Switch".to_string()
+    }
+}
+
+#[derive(Deserialize)]
 pub struct ViewBlocker;
 impl Component for ViewBlocker {}
 
@@ -237,6 +245,7 @@ pub fn insert_data_components(
             "Ranged" => insert_single::<Ranged>(entity, world, component_data),
             "Summoner" => insert_single::<Summoner>(entity, world, component_data),
             "Push" => insert_single::<Push>(entity, world, component_data),
+            "Switch" => insert_single::<Switch>(entity, world, component_data),
             "Tile" => insert_single::<Tile>(entity, world, component_data),
             "Transition" => insert_single::<Transition>(entity, world, component_data),
             "Weapon" => insert_single::<Weapon>(entity, world, component_data),

@@ -50,9 +50,8 @@ Viper:
     Health: 4
     Loot:
       items:
-        - Gold
-        - Poisoned_Dagger
-      chance: 0.25
+        - Green_Hammer
+      chance: 0.5
     Obstacle:
     Offensive: 
       attacks:
@@ -135,9 +134,7 @@ Librarian:
     Health: 4
     Loot:
       items:
-        - Axe
-        - Spear
-        - Potion_of_Teleport
+        - Potion_of_Regeneration
       chance: 0.3
     Obstacle:
     Ranged: 
@@ -145,6 +142,27 @@ Librarian:
         - { kind: Hit, value: 2 }
       distance: 4
   min_level: 8
+  score: 6
+
+Pixie:
+  sprite:
+    atlas_name: units
+    index: 16
+    color: [145, 200, 185, 255]
+    frames: 2
+  components:
+    Actor:
+    Health: 5
+    Loot:
+      items:
+        - Wand_of_Displacement
+      chance: 0.75
+    Obstacle:
+    Switch:
+    Offensive: 
+      attacks:
+        - { kind: Poison, value: 2 }
+  min_level: 10
   score: 6
 
 Gargoyle:
@@ -162,6 +180,7 @@ Gargoyle:
         - Axe
         - Spear
         - Potion_of_Teleport
+        - Potion_of_Immunity
       chance: 0.3
     Obstacle:
     Offensive: 
@@ -183,7 +202,7 @@ Stone_Golem:
     Loot:
       items:
         - Golden_Sword
-        - Potion_of_Teleport
+        - Potion_of_Immunity
       chance: 0.35
     Obstacle:
     Offensive: 
