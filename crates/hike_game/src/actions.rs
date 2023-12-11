@@ -420,9 +420,11 @@ impl Action for SwitchAction {
         };
         if actions.len() > 0 {
             actions.push(Box::new(Walk { entity: self.entity, target: self.target }));
-            // stun switched npcs, but not the player (to avoid infinite loop)
-            if world.get_component::<Player>(self.entity).is_some() {
-                actions.push(Box::new(StunAction { target: source, value: 1 }));
+            // stun switched actor so he cannot strike back
+            actions.push(Box::new(StunAction { target: source, value: 1 }));
+            if let Some(mut actor) = world.get_component_mut::<Actor>(self.entity) {
+                // this avoids an infinite switch loop
+                actor.attitude = Attitude::Neutral;
             }
         }
         Ok(actions)

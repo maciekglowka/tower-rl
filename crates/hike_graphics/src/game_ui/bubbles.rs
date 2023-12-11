@@ -41,7 +41,7 @@ pub fn handle_game_event(
         GameEvent::Health(entity, value) => {
             bubble_value = Some((
                 entity,
-                format!("{}", value),
+                format!("{}{}", if *value < 0 { "" } else {"+"}, value),
                 HEALTH_COLOR
             ));
         },
