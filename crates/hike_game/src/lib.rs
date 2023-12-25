@@ -41,8 +41,7 @@ impl GameStats {
         Self {
             start: Instant::init(),
             kills: HashMap::default(),
-            win: false
-        }
+            win: false,        }
     }
 }
 

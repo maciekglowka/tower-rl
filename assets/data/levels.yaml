@@ -2,8 +2,6 @@
   required_items:
     - Info_Wait
     - Info_Weapon
-    - Ghost
-    - Wand_of_Displacement
 
 2:
   required_items:

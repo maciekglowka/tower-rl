@@ -57,8 +57,16 @@ impl Board {
 
         self.player_spawn = get_random_tile(&mut tile_pool, None).unwrap();
 
+        if self.level == 1 {
+            let _ = spawn_with_position(
+                world,
+                "Small_Sword",
+                get_random_tile(&mut tile_pool, Some((self.player_spawn, 1, 3))).unwrap()
+            );
+        }
+
         if self.level == LEVEL_COUNT {
-            let v = get_random_tile(&mut tile_pool, Some((self.player_spawn, 6))).unwrap();
+            let v = get_random_tile(&mut tile_pool, Some((self.player_spawn, 6, i32::MAX))).unwrap();
             let _ = spawn_with_position(world, "Second_Book_of_Poetics", v);
         }
 
@@ -67,7 +75,7 @@ impl Board {
         } else { return };
 
         for name in pieces {
-            let Some(v) = get_random_tile(&mut tile_pool, Some((self.player_spawn, 3))) else { continue };
+            let Some(v) = get_random_tile(&mut tile_pool, Some((self.player_spawn, 3, i32::MAX))) else { continue };
             let _ = spawn_with_position(world, &name, v);
         }
         
@@ -205,13 +213,16 @@ fn tile_range(a: Vector2i, b: Vector2i) -> HashSet<Vector2i> {
         .collect()
 }
 
-fn get_random_tile(pool: &mut HashSet<Vector2i>, dist: Option<(Vector2i, u32)>) -> Option<Vector2i> {
+fn get_random_tile(
+    pool: &mut HashSet<Vector2i>,
+    dist: Option<(Vector2i, i32, i32)>
+) -> Option<Vector2i> {
     let mut rng = thread_rng();
 
     let v = match dist {
-        Some((p, d)) => {
+        Some((p, min_d, max_d)) => {
             *pool.iter()
-                .filter(|a| a.manhattan(p) >= d as i32)
+                .filter(|a| a.manhattan(p) >= min_d && a.manhattan(p) <= max_d)
                 .choose(&mut rng)?
         },
         None => *pool.iter().choose(&mut rng)?
@@ -251,7 +262,7 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     let target_score = get_target_score(level);
     let mut rng = thread_rng();
 
-    let weapon_count: usize = rng.gen_range(0..=1) + level as usize % 2;
+    let weapon_count: usize = rng.gen_range(0..=1) + (level + 1) as usize % 2;
     let item_count: usize = rng.gen_range(1..=2);
 
     let (mut items, mut npcs, mut fixtures) = match data.levels.get(&level) {

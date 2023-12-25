@@ -10,7 +10,7 @@ use std::{
 
 use crate::board::Board;
 use crate::components::{
-    Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot,
+    Actor, Discoverable, Durability, Stunned, Fixture, Health, Interactive, Loot, Defensive,
     Obstacle, Position, Player, Name, Poisoned, Effects, Projectile, Budding, Switch,
     Swing, Immune, Lunge, Push, Offensive, Ranged, Tile, Regeneration, Immaterial, Summoner
 };
@@ -281,6 +281,10 @@ impl Action for AttackAction {
             )
             .flatten()
             .collect::<Vec<_>>();
+
+        if actions.len() > 0 { actions.push(Box::new(
+            Defend { attacker: self.entity, target: self.target }
+        ))};
         
         if world.get_component::<Durability>(offending_entity).is_some() {
             actions.push(Box::new(
@@ -303,6 +307,34 @@ impl Action for AttackAction {
         }
     }
 }
+
+
+pub struct Defend {
+    // base attack action used to dispatch specific attack types
+    pub attacker: Entity,
+    pub target: Vector2i
+}
+impl Defend {
+    fn get_defensive_actions(&self, entity: Entity, world: &World, target: Vector2i) -> Vec<Box<dyn Action>> {
+        let Some(defensive) = world.get_component::<Defensive>(entity) else { return Vec::new() };
+        defensive.attacks.iter()
+            .map(|a| get_attack_action(a, target))
+            .collect()
+    }
+}
+impl Action for Defend {
+    fn as_any(&self) -> &dyn Any { self }
+    fn execute(&self, world: &mut World) -> ActionResult {
+        let offending_position = world.get_component::<Position>(self.attacker).ok_or(())?.0;
+        let actions = get_entities_at_position(world, self.target)
+            .iter()
+            .map(|&e| self.get_defensive_actions(e, world, offending_position))
+            .flatten()
+            .collect::<Vec<_>>();
+        Ok(actions)
+    }
+}
+
 
 pub struct HitAction {
     // pub entity: Entity,

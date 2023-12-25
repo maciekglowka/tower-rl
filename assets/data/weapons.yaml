@@ -34,7 +34,7 @@ Golden_Sword:
     index: 0
     color: [255, 191, 102, 255]
   components:
-    Durability: 5-10
+    Durability: 6-9
     Item:
     Weapon:
     Offensive: 

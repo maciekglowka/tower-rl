@@ -59,6 +59,30 @@ Viper:
   score: 6
   min_level: 7
 
+Basilisk:
+  sprite:
+    atlas_name: units
+    index: 4
+    color: [189, 200, 220, 255]
+    frames: 2
+  components:
+    Actor:
+    Health: 3
+    Loot:
+      items:
+        - Gold
+        - Stun_Wand
+      chance: 0.5
+    Obstacle:
+    Defensive: 
+      attacks:
+        - { kind: Stun, value: 2 }
+    Offensive: 
+      attacks:
+        - { kind: Hit, value: 2 }
+  score: 4
+  min_level: 9
+
 Golden_Snake:
   sprite:
     atlas_name: units
@@ -115,6 +139,7 @@ Monk:
       items:
         - Axe
         - Spear
+        - Gold
       chance: 0.3
     Obstacle:
     Offensive: 
@@ -135,6 +160,7 @@ Librarian:
     Loot:
       items:
         - Potion_of_Regeneration
+        - Gold
       chance: 0.3
     Obstacle:
     Ranged: 
@@ -163,7 +189,7 @@ Pixie:
       attacks:
         - { kind: Poison, value: 2 }
   min_level: 10
-  score: 6
+  score: 4
 
 Gargoyle:
   sprite:
@@ -241,7 +267,7 @@ Exorcist:
     frames: 2
   components:
     Actor:
-    Health: 8
+    Health: 10
     Loot:
       items:
         - Axe

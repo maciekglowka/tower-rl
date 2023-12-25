@@ -4,7 +4,7 @@ use rogalik::{
 };
 
 use hike_game::{
-    components::Info,
+    components::{Info, Stunned},
     GameEvent,
     get_entities_at_position, get_player_position, get_player_entity
 };
@@ -20,6 +20,7 @@ pub fn update_messages(
     ui_state: &mut UiState
 ) {
     handle_info(world, ui_state);
+    handle_stun(world, ui_state);
     draw_messages(context, ui_state);
 }
 
@@ -41,6 +42,13 @@ pub fn draw_messages(
             bounds.1.x - bounds.0.x - 4. * UI_GAP,
             context
         );
+}
+
+pub fn handle_stun(world: &World, ui_state: &mut UiState) {
+    if let Some(player) = get_player_entity(world) {
+        if world.get_component::<Stunned>(player).is_none() { return }
+        ui_state.message = Some("Suddenly, you can't move!".to_string());
+    }
 }
 
 pub fn handle_info(world: &World, ui_state: &mut UiState) {

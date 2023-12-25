@@ -29,6 +29,13 @@ pub struct Collectable;
 impl Component for Collectable {}
 
 #[derive(Deserialize)]
+// side-effect when attacked
+pub struct Defensive {
+    pub attacks: Vec<Attack>
+}
+impl Component for Defensive {}
+
+#[derive(Deserialize)]
 pub struct Durability(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Durability {
     fn as_str(&self) -> String {
@@ -227,6 +234,7 @@ pub fn insert_data_components(
             "Actor" => insert_single::<Actor>(entity, world, component_data),
             "Budding" => insert_single::<Budding>(entity, world, component_data),
             "Collectable" => insert_single::<Collectable>(entity, world, component_data),
+            "Defensive" => insert_single::<Defensive>(entity, world, component_data),
             "Discoverable" => insert_single::<Discoverable>(entity, world, component_data),
             "Durability" => insert_single::<Durability>(entity, world, component_data),
             "Effects" => insert_single::<Effects>(entity, world, component_data),
