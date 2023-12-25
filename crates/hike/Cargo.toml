@@ -18,7 +18,7 @@ resources = "../../android_assets"
 
 [package.metadata.android.sdk]
 min_sdk_version = 30
-target_sdk_version = 31
+target_sdk_version = 33
 
 [package.metadata.android.activity_attributes]
 # "android:exported" =  "true"
