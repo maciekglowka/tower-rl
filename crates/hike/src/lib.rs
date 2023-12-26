@@ -26,6 +26,7 @@ const SETTINGS_NAME: &str = "monk_settings";
 #[derive(Default)]
 enum GamePhase {
     #[default]
+    Title,
     GameStart,
     Game,
     GameEnd,
@@ -83,6 +84,18 @@ impl Game<WgpuContext> for GameState {
     }
     fn update(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
         match self.phase {
+            GamePhase::Title => {
+                let input_state = input::get_input_state(
+                    self.camera_main,
+                    &mut self.touch_state,
+                    &self.settings,
+                    context
+                );
+                if input_state.mouse_button_left == hike_graphics::game_ui::ButtonState::Down {
+                    self.phase = GamePhase::GameStart;
+                }
+                hike_graphics::title_ui::update_title_ui(context);
+            },
             GamePhase::Game => {
                 game_update(self, context);
                 for ev in self.ev_ui.read().iter().flatten() {
@@ -116,6 +129,9 @@ impl Game<WgpuContext> for GameState {
         if let Some(camera) = context.graphics.get_camera_mut(self.camera_main) {
             camera.set_scale(scale);
         }
+    }
+    fn resume(&mut self, context: &mut rogalik::engine::Context<WgpuContext>) {
+        self.audio = hike_audio::get_audio_context(&mut self.events.game_events);
     }
 }
 

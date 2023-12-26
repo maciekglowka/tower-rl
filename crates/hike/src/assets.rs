@@ -79,6 +79,10 @@ fn load_textures(state: &mut GameState, context: &mut Context_) {
         "units", include_bytes!("../../../assets/sprites/units.png"), 8, 8, None
     );
 
+    context.graphics.load_sprite_atlas(
+        "title", include_bytes!("../../../assets/ui/splash.png"), 1, 1, None
+    );
+
     context.graphics.load_font(
         "default", include_bytes!("../../../assets/ui/pico_ascii.png"), 16, 16, Some((12., 0.))
     );

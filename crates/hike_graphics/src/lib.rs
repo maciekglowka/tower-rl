@@ -1,6 +1,7 @@
 pub mod globals;
 mod graphics;
 pub mod game_ui;
+pub mod title_ui;
 
 use rogalik::engine::{Color, Context, ResourceId};
 use rogalik::events::{EventBus, SubscriberHandle};

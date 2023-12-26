@@ -145,7 +145,7 @@ fn update_game_ui(
     input::handle_dir_input(world, input_state, ui_state, context);
 }
 
-fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
+pub fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {
     let scale = context.graphics.get_current_camera().get_scale();
     let half_size = 0.5 * context.get_physical_size() / scale;
     let centre = (hike_game::globals::BOARD_SIZE as f32) * TILE_SIZE / 2.;
