@@ -30,6 +30,7 @@ keystore_password = ""
 
 [package.metadata.android.application]
 icon = "@mipmap/ic_launcher"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
 
 [package.metadata.android.application.activity]
 label = "Monk Tower"

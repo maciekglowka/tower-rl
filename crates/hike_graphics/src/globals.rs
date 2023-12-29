@@ -44,6 +44,6 @@ pub const PANEL_BORDER: f32 = 0.05;
 pub const UI_BOTTOM_SAFE_AREA: f32 = UI_BOTTOM_PANEL_HEIGHT + UI_GAP + UI_BUTTON_HEIGHT;
 
 #[cfg(target_os = "android")]
-pub const UI_TOP_OFFSET: f32 = 1.;
+pub const UI_TOP_OFFSET: f32 = 0.;
 #[cfg(not(target_os = "android"))]
 pub const UI_TOP_OFFSET: f32 = 0.;
