@@ -10,9 +10,9 @@ cd $TEMP
 
 unzip app_proto.apk
 mkdir manifest
-# mkdir dex
+
 mv AndroidManifest.xml manifest/
-# mv classes.dex dex/
+
 rm app_proto.apk
 rm META-INF -rf
 

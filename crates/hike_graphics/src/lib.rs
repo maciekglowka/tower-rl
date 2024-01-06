@@ -35,9 +35,12 @@ pub struct GraphicsState {
 }
 impl GraphicsState {
     pub fn new(world: &mut World, events: &mut EventBus<GameEvent>) -> Self {
+        let ev_world = world.get_resource_mut::<EventBus<WorldEvent>>()
+            .expect("Can't subscribe to world events!")
+            .subscribe();
         GraphicsState {
             sprites: Vec::new(),
-            ev_world: world.events.subscribe(),
+            ev_world,
             ev_game: events.subscribe(),
             animation_timer: ResourceId::default(),
             ui_state: game_ui::UiState::new(events)
