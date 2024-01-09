@@ -1958,6 +1958,7 @@ checksum = "216080ab382b992234dda86873c18d4c48358f5cfcb70fd693d7f6f2131b628b"
 [[package]]
 name = "rogalik"
 version = "0.2.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "rogalik_engine",
  "rogalik_events",
@@ -1970,6 +1971,7 @@ dependencies = [
 [[package]]
 name = "rogalik_engine"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "android_logger",
  "cfg-if",
@@ -1989,10 +1991,12 @@ dependencies = [
 [[package]]
 name = "rogalik_events"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 
 [[package]]
 name = "rogalik_math"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "num-traits",
 ]
@@ -2000,6 +2004,7 @@ dependencies = [
 [[package]]
 name = "rogalik_persist"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2011,6 +2016,7 @@ dependencies = [
 [[package]]
 name = "rogalik_storage"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "rogalik_events",
 ]
@@ -2018,6 +2024,7 @@ dependencies = [
 [[package]]
 name = "rogalik_wgpu"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=fc60856647ef80307564be476ce96f0f70d6409e#fc60856647ef80307564be476ce96f0f70d6409e"
 dependencies = [
  "bytemuck",
  "image",
