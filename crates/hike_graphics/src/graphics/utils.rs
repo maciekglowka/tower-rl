@@ -7,4 +7,4 @@ pub fn move_towards(origin: Vector2f, target: Vector2f, max_delta: f32) -> Vecto
         return target
     }
     origin + a / l * max_delta
-} 
+}

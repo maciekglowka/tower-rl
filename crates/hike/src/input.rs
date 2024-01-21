@@ -123,10 +123,7 @@ fn handle_touches(
                         let dx = touch.position.x - existing.start.x;
                         let dy = touch.position.y - existing.start.y;
                         let d = Vector2f::new(dx, dy);
-                        // let speed = (d.len() / context.get_physical_size().x) / existing.time.elapsed();
-                        // if speed < 1. / settings.swipe_sensitivity.pow(3) as f32 {
-                        //     return InputDirection::None
-                        // }
+
                         let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32) * context.get_physical_size().x;
                         if d.len() < thresh { return InputDirection::None }
                         if dx.abs() / dy.abs() < 1.5 && dy.abs() / dx.abs() < 1.5 {
@@ -154,7 +151,7 @@ fn handle_touches(
         }
         if let Some(existing) = touch_state.get(&id) {
             if let Some(dir) = existing.dir {
-                if existing.time.elapsed() > 0.1 {
+                if existing.time.elapsed() > 0.1 * settings.swipe_repeat_delay as f32 {
                     touch_state.insert(*id, Touch { start: touch.position, time: Instant::init(), dir: Some(dir) });
                     return dir;
                 }

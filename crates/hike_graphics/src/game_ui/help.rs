@@ -11,7 +11,7 @@ use super::super::globals::{
     UI_BG_Z, UI_STATUS_TEXT_SIZE
 };
 use super::{UiState, UiMode, InputState, get_viewport_bounds};
-use super::buttons::Button;
+use super::buttons::{Button, InputNumber};
 use super::context_menu::CONTEXT_VISIBLE;
 use super::span::Span;
 use super::text_box::TextBox;
@@ -149,7 +149,16 @@ fn draw_help_tab(
         2 => draw_text_tab(WEAPON_TEXT, origin, width, context),
         3 => {
             draw_text_tab(CTRL_TEXT, origin, width, context);
-            draw_ctrl_settings(origin, width, height, context, settings, state)
+            draw_ctrl_settings(
+                Vector2f::new(
+                    origin.x,
+                    origin.y - height + 2. * UI_GAP + UI_STATUS_TEXT_SIZE
+                ),
+                width,
+                context,
+                settings,
+                state
+            );
         },
         _ => ()
     }
@@ -201,72 +210,98 @@ fn draw_symbols_tab(
 fn draw_ctrl_settings(
     origin: Vector2f,
     width: f32,
-    height: f32,
     context: &mut crate::Context_,
     settings: &mut Settings,
     state: &InputState
 ) {
-    let y = origin.y - height + 2. * UI_GAP + UI_STATUS_TEXT_SIZE;
-
-    let span = Span::new()
-        .with_text_borrowed("Swipe sensitivity")
-        .with_size(UI_STATUS_TEXT_SIZE);
-    span.draw(Vector2f::new(origin.x, y + 4. * UI_GAP + UI_BUTTON_HEIGHT), context);
-
-    let single_width = width / 4.;
-
-    let value_width = width - 2. * (UI_GAP + single_width);
-
-    let value = Button::new(
-            origin.x + 0.5 * (width - value_width),
-            y,
-            value_width,
-            UI_BUTTON_HEIGHT
-        )
-        .with_sprite("ui", 1)
-        .with_span(
-            Span::new()
-                .with_size(UI_BUTTON_TEXT_SIZE)
-                .with_text_owned("|".repeat(settings.swipe_sensitivity as usize))
-        );
-    value.draw(context);
-
-    let down = Button::new(
+    let old_settings = settings.clone();
+    
+    let sensitivity = InputNumber::new(
             origin.x,
-            y,
-            single_width,
-            UI_BUTTON_HEIGHT
+            origin.y,
+            width,
+            settings.swipe_sensitivity
         )
-        .with_sprite("ui", 0)
-        .with_span(
-            Span::new()
-                .with_size(UI_BUTTON_TEXT_SIZE)
-                .with_text_borrowed("-")
-        );
-    down.draw(context);
+        .with_min_max(1, 10)
+        .with_label("Swipe sensitivity");
+    sensitivity.draw(context);
+    settings.swipe_sensitivity = sensitivity.new_value(state);
 
-    let up = Button::new(
-            origin.x + width - single_width,
-            y,
-            single_width,
-            UI_BUTTON_HEIGHT
+    let repeat = InputNumber::new(
+            origin.x,
+            origin.y + UI_BUTTON_TEXT_SIZE + UI_BUTTON_HEIGHT + 2. * UI_GAP,
+            width,
+            settings.swipe_repeat_delay
         )
-        .with_sprite("ui", 0)
-        .with_span(
-            Span::new()
-                .with_size(UI_BUTTON_TEXT_SIZE)
-                .with_text_borrowed("+")
-        );
-    up.draw(context);
+        .with_min_max(1, 5)
+        .with_label("Swipe repeat delay");
+    repeat.draw(context);
+    settings.swipe_repeat_delay = repeat.new_value(state);
 
-    if down.clicked(state) {
-        settings.swipe_sensitivity = (settings.swipe_sensitivity - 1).max(1);
+    if old_settings != *settings {
         settings.dirty = true;
     }
-    if up.clicked(state) {
-        settings.swipe_sensitivity = (settings.swipe_sensitivity + 1).min(10);
-        settings.dirty = true;
-    }
+    // let y = origin.y - height + 2. * UI_GAP + UI_STATUS_TEXT_SIZE;
+
+    // let span = Span::new()
+    //     .with_text_borrowed("Swipe sensitivity")
+    //     .with_size(UI_STATUS_TEXT_SIZE);
+    // span.draw(Vector2f::new(origin.x, y + 4. * UI_GAP + UI_BUTTON_HEIGHT), context);
+
+    // let single_width = width / 4.;
+
+    // let value_width = width - 2. * (UI_GAP + single_width);
+
+    // let value = Button::new(
+    //         origin.x + 0.5 * (width - value_width),
+    //         y,
+    //         value_width,
+    //         UI_BUTTON_HEIGHT
+    //     )
+    //     .with_sprite("ui", 1)
+    //     .with_span(
+    //         Span::new()
+    //             .with_size(UI_BUTTON_TEXT_SIZE)
+    //             .with_text_owned("|".repeat(settings.swipe_sensitivity as usize))
+    //     );
+    // value.draw(context);
+
+    // let down = Button::new(
+    //         origin.x,
+    //         y,
+    //         single_width,
+    //         UI_BUTTON_HEIGHT
+    //     )
+    //     .with_sprite("ui", 0)
+    //     .with_span(
+    //         Span::new()
+    //             .with_size(UI_BUTTON_TEXT_SIZE)
+    //             .with_text_borrowed("-")
+    //     );
+    // down.draw(context);
+
+    // let up = Button::new(
+    //         origin.x + width - single_width,
+    //         y,
+    //         single_width,
+    //         UI_BUTTON_HEIGHT
+    //     )
+    //     .with_sprite("ui", 0)
+    //     .with_span(
+    //         Span::new()
+    //             .with_size(UI_BUTTON_TEXT_SIZE)
+    //             .with_text_borrowed("+")
+    //     );
+    // up.draw(context);
+
+    // if down.clicked(state) {
+    //     settings.swipe_sensitivity = (settings.swipe_sensitivity - 1).max(1);
+    //     settings.dirty = true;
+    // }
+    // if up.clicked(state) {
+    //     settings.swipe_sensitivity = (settings.swipe_sensitivity + 1).min(10);
+    //     settings.dirty = true;
+    // }
 }
 
 fn draw_text_tab(

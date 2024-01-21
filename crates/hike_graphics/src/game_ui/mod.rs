@@ -1,4 +1,4 @@
-use rogalik::engine::{Color, GraphicsContext};
+use rogalik::engine::{Color, GraphicsContext, Instant};
 use rogalik::events::{EventBus, SubscriberHandle};
 use rogalik::math::vectors::{Vector2i, Vector2f};
 use rogalik::storage::{ComponentSet, Entity, World, WorldEvent};
@@ -36,7 +36,7 @@ pub struct InputState {
     pub action_right: ButtonState,
     pub pause: ButtonState,
     pub digits: [ButtonState; 10],
-    pub item_action: [ButtonState; 4] // ZXCV
+    pub item_action: [ButtonState; 4], // ZXCV
 }
 
 pub struct UiState {
@@ -46,7 +46,8 @@ pub struct UiState {
     game_duration: f32,
     pub build_version: String,
     pub message: Option<String>,
-    ev_game: SubscriberHandle<GameEvent>
+    ev_game: SubscriberHandle<GameEvent>,
+    pub last_action: Option<Instant>
 }
 impl UiState {
     pub fn new(events: &mut EventBus<GameEvent>) -> Self {
@@ -57,7 +58,8 @@ impl UiState {
             game_duration: 0.,
             build_version: String::new(),
             message: None,
-            ev_game: events.subscribe()
+            ev_game: events.subscribe(),
+            last_action: None
         }
     }
 }
