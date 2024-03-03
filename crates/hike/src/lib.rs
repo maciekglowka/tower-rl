@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 use rogalik::{
     engine::{Context, Game, GraphicsContext, EngineBuilder, ResourceId},
     events::{EventBus, SubscriberHandle},
@@ -7,9 +7,7 @@ use rogalik::{
     storage::World,
     wgpu::WgpuContext
 };
-use std::{
-    collections::HashMap,
-};
+use std::collections::HashMap;
 
 #[cfg(target_os = "android")]
 use rogalik::engine::AndroidApp;
@@ -19,9 +17,11 @@ use wasm_bindgen::prelude::*;
 
 mod assets;
 mod input;
+mod serialize;
 
 pub type Context_ = Context<WgpuContext>;
 const SETTINGS_NAME: &str = "monk_settings";
+const SAVE_NAME: &str = "monk_save";
 
 #[derive(Default)]
 enum GamePhase {
@@ -51,6 +51,7 @@ pub struct GameState {
     data: hike_data::GameData,
     camera_main: ResourceId,
     events: Events,
+    ev_game: SubscriberHandle<hike_game::GameEvent>,
     ev_ui: SubscriberHandle<hike_graphics::UiEvent>,
     graphics_ready: bool,
     graphics_state: hike_graphics::GraphicsState,
@@ -103,9 +104,25 @@ impl Game<WgpuContext> for GameState {
                         hike_graphics::UiEvent::Restart => self.phase = GamePhase::GameEnd
                     }
                 }
+                for ev in self.ev_game.read().iter().flatten() {
+                    if let hike_game::GameEvent::TurnEnd = *ev {
+                        if let Ok(save) = self.world.serialize() {
+                            let _ = persist::store_raw(SAVE_NAME, &save, context.os_path.as_deref());
+                        }
+                    }
+                }
             },
             GamePhase::GameStart => {
-                hike_game::init(&mut self.world, &mut self.events.game_events, self.data.clone());
+                // TODO another phase for restore
+                if let Ok(saved_state) = persist::load_raw(SAVE_NAME, context.os_path.as_deref()) {
+                    println!("Found saved data!");
+                    hike_game::restore(&mut self.world, self.data.clone(), saved_state);
+                    println!("Restored world!");
+                    self.graphics_state.restore(&self.world);
+                    println!("Restored graphics!");
+                } else {
+                    hike_game::init(&mut self.world, &mut self.events.game_events, self.data.clone());
+                }
                 self.phase = GamePhase::Game;
             },
             GamePhase::GameEnd => {
@@ -144,6 +161,13 @@ fn android_main(app: AndroidApp) {
 }
 
 fn main() {
+    // let v = hike_game::structs::ValueMax { current: 2, max: 5 };
+    // let s = serde_yaml::to_string(&v).unwrap();
+    // println!("{}", s);
+    // let w: hike_game::structs::ValueMax = serde_yaml::from_str(&s).unwrap();
+    // println!("{} {}", w.current, w.max);
+    // let w: hike_game::structs::ValueMax = serde_yaml::from_str("2").unwrap();
+    
     std::env::set_var("WINIT_UNIX_BACKEND", "x11");
     let engine = EngineBuilder::new()
         .with_title("Tower RL".to_string())
@@ -163,6 +187,7 @@ pub fn wasm_main() {
 fn game_state() -> GameState {
     let (world, mut events, graphics_state, audio) = get_initial_elements();
     let ev_ui = events.ui_events.subscribe();
+    let ev_game = events.game_events.subscribe();
 
     GameState {
         audio,
@@ -171,6 +196,7 @@ fn game_state() -> GameState {
         data: assets::load_game_data(),
         events,
         ev_ui,
+        ev_game,
         graphics_ready: false,
         graphics_state,
         input_state: hike_graphics::game_ui::InputState::default(),
@@ -182,6 +208,7 @@ fn game_state() -> GameState {
 
 fn get_initial_elements() -> (World, Events, hike_graphics::GraphicsState, hike_audio::AudioContext) {
     let mut world = World::new();
+    serialize::register_serialized(&mut world);
     let mut events = Events::new();
     let mut graphics_state = hike_graphics::GraphicsState::new(
         &mut world,

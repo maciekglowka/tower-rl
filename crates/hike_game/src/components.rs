@@ -1,41 +1,41 @@
 use rogalik::storage::{Component, Entity, World};
 use rogalik::math::vectors::Vector2i;
-use serde::{Deserialize, Deserializer};
+use serde::{Serialize, Deserialize, Deserializer};
 use std::collections::{HashSet, HashMap};
 
 use crate::actions::Action;
 use crate::globals::MAX_WEAPONS;
 use crate::structs::{Attack, Attitude, Effect, InteractionKind, ValueMax};
-use crate::utils::deserialize_random_u32;
+use crate::utils::{deserialize_random_u32, deserialize_as_none, serialize_as_none};
 
 
 // deserialized components
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Actor {
-    #[serde(skip)]
+    #[serde(default)]
     pub target: Option<Vector2i>,
     #[serde(default)]
     pub attitude: Attitude
 }
 impl Component for Actor {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Budding;
 impl Component for Budding {}
 
 // marker for non-weapon items that can be put into inventory for later use
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Collectable;
 impl Component for Collectable {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 // side-effect when attacked
 pub struct Defensive {
     pub attacks: Vec<Attack>
 }
 impl Component for Defensive {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Durability(#[serde(deserialize_with="deserialize_random_u32")] pub u32);
 impl Component for Durability {
     fn as_str(&self) -> String {
@@ -43,31 +43,31 @@ impl Component for Durability {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Discoverable;
 impl Component for Discoverable {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Effects {
     pub effects: Vec<Effect>
 }
 impl Component for Effects {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 // fixed tile furnishings
 pub struct Fixture;
 impl Component for Fixture {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Health(pub ValueMax);
 impl Component for Health {}
 
 // marker component for items used automatically upon walking on them
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Instant;
 impl Component for Instant {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Interactive{
     pub kind: InteractionKind,
     // transforms into another entity after use
@@ -85,69 +85,69 @@ impl Component for Interactive {
 }
 
 // marker component for all item kinds (Weapon, Collectable, Instant)
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Item;
 impl Component for Item {}
 
 // shows an in-game info message
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Info {
     pub text: String
 }
 impl Component for Info {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Loot {
     pub items: Vec<String>,
     pub chance: f32
 }
 impl Component for Loot {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 // actor cannot travel to a blocked tile
 pub struct Obstacle;
 impl Component for Obstacle {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 // close distance: melee / traps
 pub struct Offensive {
     pub attacks: Vec<Attack>
 }
 impl Component for Offensive {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Ranged {
     pub attacks: Vec<Attack>,
     pub distance: u32
 }
 impl Component for Ranged {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Summoner {
     pub creature: String,
     pub cooldown: ValueMax
 }
 impl Component for Summoner {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Tile;
 impl Component for Tile {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Transition {
     pub next: String
 }
 impl Component for Transition {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Weapon;
 impl Component for Weapon {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Immaterial;
 impl Component for Immaterial {}
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Lunge;
 impl Component for Lunge {
     fn as_str(&self) -> String {
@@ -155,7 +155,7 @@ impl Component for Lunge {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Swing;
 impl Component for Swing {
     fn as_str(&self) -> String {
@@ -163,7 +163,7 @@ impl Component for Swing {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Push;
 impl Component for Push {
     fn as_str(&self) -> String {
@@ -171,7 +171,7 @@ impl Component for Push {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Switch;
 impl Component for Switch {
     fn as_str(&self) -> String {
@@ -179,18 +179,20 @@ impl Component for Switch {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ViewBlocker;
 impl Component for ViewBlocker {}
 
-// context-dependet components
+// context-dependent components
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Name (pub String);
 impl Component for Name {}
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Player {
+    #[serde(deserialize_with="deserialize_as_none")]
+    #[serde(serialize_with="serialize_as_none")]
     pub action: Option<Box<dyn Action>>,
     pub discovered: HashSet<String>,
     pub collectables: Vec<Entity>,
@@ -200,15 +202,19 @@ pub struct Player {
 }
 impl Component for Player {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Immune(pub u32);
 impl Component for Immune {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Stunned(pub u32);
 impl Component for Stunned {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Poisoned(pub u32);
 impl Component for Poisoned {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Projectile {
     pub attacks: Vec<Attack>,
     pub source: Vector2i,
@@ -216,9 +222,11 @@ pub struct Projectile {
 }
 impl Component for Projectile {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Position(pub Vector2i);
 impl Component for Position {}
 
+#[derive(Serialize, Deserialize)]
 pub struct Regeneration(pub u32);
 impl Component for Regeneration {}
 
@@ -270,12 +278,4 @@ fn insert_single<T>(
 ) where for<'de> T: 'static + Component + Deserialize<'de> {
     let component = serde_yaml::from_value::<T>(data.clone()).expect(&format!("Could not parse {:?}", data));
     let _ =world.insert_component(entity, component);
-}
-
-impl<'de> Deserialize<'de> for ValueMax {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
-        let n = u32::deserialize(deserializer)?;
-        Ok(ValueMax { current: n, max: n })
-    }
 }

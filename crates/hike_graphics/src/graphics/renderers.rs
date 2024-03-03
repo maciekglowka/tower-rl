@@ -92,9 +92,21 @@ pub fn handle_world_events(
             _ => continue
         }
     }
-    // if sprites_updated {
-    //     state.sort_sprites();
-    // }
+}
+
+pub fn restore_sprites(world: &World, state: &mut GraphicsState) {
+    let position_query = world.query::<Position>().build();
+    for entity in position_query.entities() {
+        state.sprites.push(
+            get_sprite_renderer(*entity, world)
+        );
+        println!("Restored {:?} sprite", entity);
+    }
+
+    let stun_query = world.query::<Stunned>().build();
+    for entity in stun_query.entities() {
+        fade_sprite(*entity, state, INACTIVE_FADE)
+    }
 }
 
 pub fn handle_action_events(

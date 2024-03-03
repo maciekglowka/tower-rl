@@ -6,6 +6,7 @@ use rogalik::{
 #[derive(Clone, Copy, Debug)]
 pub enum GameEvent {
     Other,
+    TurnEnd,
     BoardReady,
     Bump(Entity, Vector2i),
     Health(Entity, i32),

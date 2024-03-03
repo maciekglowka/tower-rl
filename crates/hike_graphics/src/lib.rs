@@ -49,6 +49,9 @@ impl GraphicsState {
     pub fn sort_sprites(&mut self) {
         self.sprites.sort_by(|a, b| a.z_index.cmp(&b.z_index));
     }
+    pub fn restore(&mut self, world: &World) {
+        graphics::renderers::restore_sprites(world, self);
+    }
 }
 
 // #[derive(Clone, Copy)]

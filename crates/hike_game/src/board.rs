@@ -1,4 +1,5 @@
 use rand::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 use rogalik::math::vectors::{Vector2i, ORTHO_DIRECTIONS, visible_tiles};
@@ -10,7 +11,7 @@ use crate::components::{Position, Player, ViewBlocker, Tile};
 use crate::globals::{BOARD_SIZE, VIEW_RANGE, LEVEL_COUNT};
 use crate::utils::{get_entities_at_position, spawn_with_position};
 
-#[derive(Default)]
+#[derive(Default, Deserialize, Serialize)]
 pub struct Board {
     pub level: u32,
     pub tiles: HashMap<Vector2i, Entity>,
