@@ -100,13 +100,15 @@ pub fn restore_sprites(world: &World, state: &mut GraphicsState) {
         state.sprites.push(
             get_sprite_renderer(*entity, world)
         );
-        println!("Restored {:?} sprite", entity);
     }
 
     let stun_query = world.query::<Stunned>().build();
     for entity in stun_query.entities() {
         fade_sprite(*entity, state, INACTIVE_FADE)
     }
+
+    update_player_sprite(world, state);
+    update_wall_sprites(world, state);
 }
 
 pub fn handle_action_events(

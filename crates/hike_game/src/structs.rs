@@ -103,7 +103,6 @@ impl<'de> Visitor<'de> for ValueMaxVisitor {
     fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
     where A: serde::de::SeqAccess<'de>
     {
-        println!("SEQ");
         let current = seq.next_element()?
             .ok_or_else(|| serde::de::Error::invalid_length(0, &self))?;
         if let Some(max) = seq.next_element()? {
@@ -115,7 +114,6 @@ impl<'de> Visitor<'de> for ValueMaxVisitor {
     fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
     where A: serde::de::MapAccess<'de>
     {
-        println!("MAP");
         let mut current = None;
         let mut max = None;
 

@@ -27,9 +27,12 @@ const SAVE_NAME: &str = "monk_save";
 enum GamePhase {
     #[default]
     Title,
+    Crash,
     GameStart,
+    GameResume,
     Game,
-    GameEnd,
+    GameRestart,
+    GameEnd
 }
 
 struct Events {
@@ -48,6 +51,7 @@ impl Events {
 pub struct GameState {
     audio: hike_audio::AudioContext,
     phase: GamePhase,
+    can_resume: bool,
     data: hike_data::GameData,
     camera_main: ResourceId,
     events: Events,
@@ -65,6 +69,8 @@ impl Game<WgpuContext> for GameState {
         if let Ok(settings) = persist::load(SETTINGS_NAME, context.os_path.as_deref()) {
             self.settings = settings;
         }
+        self.can_resume = persist::load_raw(SAVE_NAME, context.os_path.as_deref()).is_ok();
+
         assets::load_assets(self, context);
         context.graphics.set_clear_color(hike_graphics::globals::BACKGROUND_COLOR);
 
@@ -92,42 +98,68 @@ impl Game<WgpuContext> for GameState {
                     &self.settings,
                     context
                 );
-                if input_state.mouse_button_left == hike_graphics::game_ui::ButtonState::Down {
-                    self.phase = GamePhase::GameStart;
+
+                match hike_graphics::title_ui::update_title_ui(context, &input_state, self.can_resume) {
+                    hike_graphics::title_ui::TitleMenuAction::Resume => self.phase = GamePhase::GameResume,
+                    hike_graphics::title_ui::TitleMenuAction::Start => self.phase = GamePhase::GameStart,
+                    hike_graphics::title_ui::TitleMenuAction::None => ()
                 }
-                hike_graphics::title_ui::update_title_ui(context);
+            },
+            GamePhase::Crash => {
+                let input_state = input::get_input_state(
+                    self.camera_main,
+                    &mut self.touch_state,
+                    &self.settings,
+                    context
+                );
+
+                if hike_graphics::crash_ui::update_crash_ui(context, &input_state) {
+                    self.phase = GamePhase::Title;
+                }
             },
             GamePhase::Game => {
                 game_update(self, context);
-                for ev in self.ev_ui.read().iter().flatten() {
-                    match ev {
-                        hike_graphics::UiEvent::Restart => self.phase = GamePhase::GameEnd
+                for ev in self.ev_game.read().iter().flatten() {
+                    match *ev {
+                        hike_game::GameEvent::TurnEnd => {
+                            if let Ok(save) = self.world.serialize() {
+                                let _ = persist::store_raw(SAVE_NAME, &save, context.os_path.as_deref());
+                            }
+                        },
+                        hike_game::GameEvent::Defeat | hike_game::GameEvent::Win => {
+                            let _ = persist::remove(SAVE_NAME, context.os_path.as_deref());
+                            self.phase = GamePhase::GameEnd
+                        },
+                        _ => ()
                     }
                 }
-                for ev in self.ev_game.read().iter().flatten() {
-                    if let hike_game::GameEvent::TurnEnd = *ev {
-                        if let Ok(save) = self.world.serialize() {
-                            let _ = persist::store_raw(SAVE_NAME, &save, context.os_path.as_deref());
-                        }
+            },
+            GamePhase::GameEnd => {
+                game_ui_update(self, context);
+                for ev in self.ev_ui.read().iter().flatten() {
+                    match ev {
+                        hike_graphics::UiEvent::Restart => self.phase = GamePhase::GameRestart
                     }
                 }
             },
             GamePhase::GameStart => {
-                // TODO another phase for restore
-                if let Ok(saved_state) = persist::load_raw(SAVE_NAME, context.os_path.as_deref()) {
-                    println!("Found saved data!");
-                    hike_game::restore(&mut self.world, self.data.clone(), saved_state);
-                    println!("Restored world!");
-                    self.graphics_state.restore(&self.world);
-                    println!("Restored graphics!");
-                } else {
-                    hike_game::init(&mut self.world, &mut self.events.game_events, self.data.clone());
-                }
+                hike_game::init(&mut self.world, &mut self.events.game_events, self.data.clone());
                 self.phase = GamePhase::Game;
             },
-            GamePhase::GameEnd => {
+            GamePhase::GameResume => {
+                self.can_resume = false;
+                if let Ok(saved_state) = persist::load_raw(SAVE_NAME, context.os_path.as_deref()) {
+                    hike_game::restore(&mut self.world, self.data.clone(), saved_state);
+                    self.graphics_state.restore(&self.world);
+                    self.phase = GamePhase::Game;
+                } else {
+                    self.phase = GamePhase::Crash
+                }
+            },
+            GamePhase::GameRestart => {
                 (self.world, self.events, self.graphics_state, self.audio) = get_initial_elements();
                 self.ev_ui = self.events.ui_events.subscribe();
+                self.ev_game = self.events.game_events.subscribe();
                 self.phase = GamePhase::GameStart;
             }
         }
@@ -160,14 +192,7 @@ fn android_main(app: AndroidApp) {
     engine.run();
 }
 
-fn main() {
-    // let v = hike_game::structs::ValueMax { current: 2, max: 5 };
-    // let s = serde_yaml::to_string(&v).unwrap();
-    // println!("{}", s);
-    // let w: hike_game::structs::ValueMax = serde_yaml::from_str(&s).unwrap();
-    // println!("{} {}", w.current, w.max);
-    // let w: hike_game::structs::ValueMax = serde_yaml::from_str("2").unwrap();
-    
+fn main() {  
     std::env::set_var("WINIT_UNIX_BACKEND", "x11");
     let engine = EngineBuilder::new()
         .with_title("Tower RL".to_string())
@@ -193,6 +218,7 @@ fn game_state() -> GameState {
         audio,
         phase: GamePhase::default(),
         camera_main: ResourceId::default(),
+        can_resume: false,
         data: assets::load_game_data(),
         events,
         ev_ui,
@@ -225,8 +251,26 @@ fn game_update(state: &mut GameState, context: &mut Context_) {
     }
 
     state.graphics_ready = hike_graphics::graphics_update(&state.world, &mut state.graphics_state, context);
-    state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, &state.settings, context);
+    // state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, &state.settings, context);
     hike_graphics::game_ui::draw_world_ui(&state.world, context, &mut state.graphics_state);
+    // hike_graphics::game_ui::ui_update(
+    //     &mut state.world,
+    //     &mut state.input_state,
+    //     &mut state.graphics_state.ui_state,
+    //     &mut state.events.ui_events,
+    //     context,
+    //     &mut state.settings
+    // );
+    game_ui_update(state, context);
+    hike_audio::handle_game_audio(&mut state.audio, &state.world);
+    if state.settings.dirty {
+        state.settings.dirty = false;
+        let _ = persist::store(SETTINGS_NAME, &state.settings, context.os_path.as_deref());
+    }
+}
+
+fn game_ui_update(state: &mut GameState, context: &mut Context_) {
+    state.input_state = input::get_input_state(state.camera_main, &mut state.touch_state, &state.settings, context);
     hike_graphics::game_ui::ui_update(
         &mut state.world,
         &mut state.input_state,
@@ -235,9 +279,4 @@ fn game_update(state: &mut GameState, context: &mut Context_) {
         context,
         &mut state.settings
     );
-    hike_audio::handle_game_audio(&mut state.audio, &state.world);
-    if state.settings.dirty {
-        state.settings.dirty = false;
-        let _ = persist::store(SETTINGS_NAME, &state.settings, context.os_path.as_deref());
-    }
 }

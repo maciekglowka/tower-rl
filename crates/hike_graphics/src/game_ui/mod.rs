@@ -11,7 +11,7 @@ use super::GraphicsState;
 use super::globals::{TILE_SIZE, BOARD_V_OFFSET, UI_TOP_OFFSET};
 
 pub mod bubbles;
-mod buttons;
+pub(crate) mod buttons;
 mod context_menu;
 mod game_end;
 mod help;
@@ -20,7 +20,7 @@ mod inventory;
 mod messages;
 mod modal;
 mod overlays;
-mod span;
+pub(crate) mod span;
 mod status;
 mod text_box;
 mod utils;

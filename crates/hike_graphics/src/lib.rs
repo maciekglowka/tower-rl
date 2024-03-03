@@ -1,3 +1,4 @@
+pub mod crash_ui;
 pub mod globals;
 mod graphics;
 pub mod game_ui;

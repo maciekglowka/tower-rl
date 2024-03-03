@@ -6,7 +6,7 @@ use std::collections::{HashSet, HashMap};
 use crate::actions::Action;
 use crate::globals::MAX_WEAPONS;
 use crate::structs::{Attack, Attitude, Effect, InteractionKind, ValueMax};
-use crate::utils::{deserialize_random_u32, deserialize_as_none, serialize_as_none};
+use crate::utils::{deserialize_random_u32, deserialize_none, serialize_as_none};
 
 
 // deserialized components
@@ -191,14 +191,14 @@ impl Component for Name {}
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Player {
-    #[serde(deserialize_with="deserialize_as_none")]
+    #[serde(deserialize_with="deserialize_none")]
     #[serde(serialize_with="serialize_as_none")]
     pub action: Option<Box<dyn Action>>,
+    pub weapons: [Option<Entity>; MAX_WEAPONS],
     pub discovered: HashSet<String>,
     pub collectables: Vec<Entity>,
-    pub weapons: [Option<Entity>; MAX_WEAPONS],
     pub active_weapon: usize,
-    pub gold: u32
+    pub gold: u32,
 }
 impl Component for Player {}
 

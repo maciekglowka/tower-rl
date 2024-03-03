@@ -81,42 +81,10 @@ where D: Deserializer<'de> {
     }
 }
 
-// struct RandomU32Visitor;
-// impl<'de> Visitor<'de> for RandomU32Visitor {
-//     type Value = u32;
-
-//     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-//         formatter.write_str("number or {}-{} string")
-//     }
-//     // fn visit_u32<E>(self, v: u32) -> Result<Self::Value, E>
-//     // where E: serde::de::Error
-//     // {
-//     //     println!("U32");
-//     //     Ok(v)
-//     // }
-//     // fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-//     // where E: serde::de::Error
-//     // {
-//     //     println!("U64");
-//     //     Ok(v as u32)
-//     // }
-//     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-//     where E: serde::de::Error
-//     {
-//         println!("String");
-//         let parts = v.split('-').collect::<Vec<_>>();
-//         if parts.len() != 2 { Err(serde::de::Error::custom("Wrong value!")) }
-//         else {
-//             let mut rng = thread_rng();
-//             let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
-//             let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
-//             Ok(rng.gen_range(a..=b))
-//         }
-//     }
-// }
-
-pub fn deserialize_as_none<'de, D, T>(d: D) -> Result<Option<T>, D::Error>
+pub fn deserialize_none<'de, D, T>(d: D) -> Result<Option<T>, D::Error>
 where D: Deserializer<'de> {
+    // WARN: expects a 0 (u8 None) in the input
+    let _ = u8::deserialize(d);
     Ok(None)
 }
 
@@ -124,40 +92,3 @@ pub fn serialize_as_none<S, T>(_: &T, s:S) -> Result<S::Ok, S::Error>
 where S: Serializer {
     s.serialize_none()
 }
-
-// pub mod random_u32 {
-//     use rand::prelude::*;
-//     use serde::{Serializer, Deserializer, Deserialize};
-
-//     pub fn serialize<S>(value: &u32, s:S) -> Result<S::Ok, S::Error>
-//     where S: Serializer {
-//         s.collect_str(value)
-//     }
-//     pub fn deserialize<'de, D>(d: D) -> Result<u32, D::Error>
-//     where D: Deserializer<'de> {
-//         println!("RANDOM u32");
-//         print!("{:?}", d.is_human_readable());
-//         let s = String::deserialize(d)?;
-//         let parts = s.split('-').collect::<Vec<_>>();
-//         match parts.len() {
-//             1 => {
-//                 parts[0].parse::<u32>().map_err(serde::de::Error::custom)
-//             },
-//             2 => {
-//                 let mut rng = thread_rng();
-//                 let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
-//                 let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
-//                 Ok(rng.gen_range(a..=b))
-//             },
-//             _ => Err(serde::de::Error::custom("Wrong random u32 value!"))
-//         }
-//         // } != 2 { Err(serde::de::Error::custom("Wrong value!")) }
-//         // else {
-//         //     let mut rng = thread_rng();
-//         //     let a = parts[0].parse::<u32>().map_err(serde::de::Error::custom)?;
-//         //     let b = parts[1].parse::<u32>().map_err(serde::de::Error::custom)?;
-//         //     Ok(rng.gen_range(a..=b))
-//         // }
-//         // Err(serde::de::Error::custom("Wrong random u32 value!"))
-//     }
-// }
