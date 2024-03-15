@@ -41,7 +41,7 @@ pub const UI_STATUS_TEXT_SIZE: f32 = 0.5;
 pub const BUTTON_COLOR: super::Color = super::Color(98, 81, 81, 255);
 pub const BUTTON_COLOR_SELECTED: super::Color = super::Color(150, 128, 128, 255);
 pub const PANEL_BORDER: f32 = 0.05;
-pub const UI_BOTTOM_SAFE_AREA: f32 = UI_BOTTOM_PANEL_HEIGHT + UI_GAP + UI_BUTTON_HEIGHT;
+pub const UI_BOTTOM_SAFE_AREA: f32 = UI_BOTTOM_PANEL_HEIGHT + UI_GAP; // + UI_BUTTON_HEIGHT;
 
 #[cfg(target_os = "android")]
 pub const UI_TOP_OFFSET: f32 = 0.;

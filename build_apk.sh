@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 rm ./output/android/ -rf
 mkdir ./output/android/
 mkdir ./output/android/apk
