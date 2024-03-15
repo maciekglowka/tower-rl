@@ -119,9 +119,9 @@ fn handle_touches(
                         let d = Vector2f::new(dx, dy);
 
                         let screen_x = context.get_physical_size().x;
-                        // let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
-                        //     * context.get_physical_size().x;
-                        let thresh = screen_x / (0.005 * settings.swipe_sensitivity.pow(2) as f32 * screen_x);
+                        let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
+                            * context.get_physical_size().x;
+                        // let thresh = screen_x / (0.005 * settings.swipe_sensitivity.pow(2) as f32 * screen_x);
                         if d.len() < thresh { return InputDirection::None }
                         if dx.abs() / dy.abs() < 2.5 && dy.abs() / dx.abs() < 2.5 {
                             return InputDirection::None
