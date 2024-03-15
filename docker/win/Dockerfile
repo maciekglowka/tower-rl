@@ -1,4 +1,4 @@
-FROM rust:1.72
+FROM rust:1.76
 
 RUN rustup update
 RUN rustup target add x86_64-pc-windows-msvc

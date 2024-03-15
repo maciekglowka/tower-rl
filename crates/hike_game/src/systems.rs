@@ -62,7 +62,7 @@ pub fn turn_step(world: &mut World, events: &mut EventBus<GameEvent>) {
         return
     }
     let Some(actor) = get_current_actor(world) else {
-        turn_end(world);
+        turn_end(world, events);
         return
     };
     if process_actor(actor, world, events) {
@@ -351,7 +351,7 @@ fn update_npc_target(world: &mut World, entity: Entity) {
     }
 }
 
-fn turn_end(world: &mut World) {
+fn turn_end(world: &mut World, events: &mut EventBus<GameEvent>) {
     collect_actor_queue(world);
     player::turn_end(world);
     process_regeneration(world);
@@ -360,5 +360,6 @@ fn turn_end(world: &mut World) {
     process_transition(world);
     process_summoner_cooldown(world);
     process_offensive_fixtures(world);
+    events.publish(GameEvent::TurnEnd);
 }
 

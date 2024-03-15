@@ -1,7 +1,7 @@
 use rogalik::{
     engine::{
         GraphicsContext, ResourceId,
-        input::{MouseButton, VirtualKeyCode, TouchPhase},
+        input::{MouseButton, KeyCode, TouchPhase},
         Instant
     },
     math::vectors::Vector2f
@@ -46,41 +46,41 @@ pub fn get_input_state(
         left = ButtonState::Pressed
     }
 
-    let action_right = key_state(context, VirtualKeyCode::E);
-    let action_left = key_state(context, VirtualKeyCode::Q);
-    let pause = key_state(context, VirtualKeyCode::Space);
+    let action_right = key_state(context, KeyCode::KeyE);
+    let action_left = key_state(context, KeyCode::KeyQ);
+    let pause = key_state(context, KeyCode::Space);
 
     let mut direction = handle_touches(context, touch_state, settings);
     let touch = direction != InputDirection::None;
 
-    if context.input.is_key_pressed(VirtualKeyCode::W) 
-        || context.input.is_key_pressed(VirtualKeyCode::Up) { direction = InputDirection::Up }
-    if context.input.is_key_pressed(VirtualKeyCode::S)
-        || context.input.is_key_pressed(VirtualKeyCode::Down){ direction = InputDirection::Down }
-    if context.input.is_key_pressed(VirtualKeyCode::A)
-        || context.input.is_key_pressed(VirtualKeyCode::Left){ direction = InputDirection::Left }
-    if context.input.is_key_pressed(VirtualKeyCode::D)
-        || context.input.is_key_pressed(VirtualKeyCode::Right){ direction = InputDirection::Right }
+    if context.input.is_key_pressed(KeyCode::KeyW) 
+        || context.input.is_key_pressed(KeyCode::ArrowUp) { direction = InputDirection::Up }
+    if context.input.is_key_pressed(KeyCode::KeyS)
+        || context.input.is_key_pressed(KeyCode::ArrowDown){ direction = InputDirection::Down }
+    if context.input.is_key_pressed(KeyCode::KeyA)
+        || context.input.is_key_pressed(KeyCode::ArrowLeft){ direction = InputDirection::Left }
+    if context.input.is_key_pressed(KeyCode::KeyD)
+        || context.input.is_key_pressed(KeyCode::ArrowRight){ direction = InputDirection::Right }
 
-    if context.input.is_key_pressed(VirtualKeyCode::Space) { direction = InputDirection::Still }
+    if context.input.is_key_pressed(KeyCode::Space) { direction = InputDirection::Still }
 
     let digits = [
-        key_state(context, VirtualKeyCode::Key0),
-        key_state(context, VirtualKeyCode::Key1),
-        key_state(context, VirtualKeyCode::Key2),
-        key_state(context, VirtualKeyCode::Key3),
-        key_state(context, VirtualKeyCode::Key4),
-        key_state(context, VirtualKeyCode::Key5),
-        key_state(context, VirtualKeyCode::Key6),
-        key_state(context, VirtualKeyCode::Key7),
-        key_state(context, VirtualKeyCode::Key8),
-        key_state(context, VirtualKeyCode::Key9),
+        key_state(context, KeyCode::Digit0),
+        key_state(context, KeyCode::Digit1),
+        key_state(context, KeyCode::Digit2),
+        key_state(context, KeyCode::Digit3),
+        key_state(context, KeyCode::Digit4),
+        key_state(context, KeyCode::Digit5),
+        key_state(context, KeyCode::Digit6),
+        key_state(context, KeyCode::Digit7),
+        key_state(context, KeyCode::Digit8),
+        key_state(context, KeyCode::Digit9),
     ];
     let item_action = [
-        key_state(context, VirtualKeyCode::Z),
-        key_state(context, VirtualKeyCode::X),
-        key_state(context, VirtualKeyCode::C),
-        key_state(context, VirtualKeyCode::V),
+        key_state(context, KeyCode::KeyZ),
+        key_state(context, KeyCode::KeyX),
+        key_state(context, KeyCode::KeyC),
+        key_state(context, KeyCode::KeyV),
     ];
 
     let m = context.input.get_mouse_physical_position();
@@ -103,7 +103,7 @@ pub fn get_input_state(
     }
 }
 
-fn key_state(context: &Context_, code: VirtualKeyCode) -> ButtonState {
+fn key_state(context: &Context_, code: KeyCode) -> ButtonState {
     if context.input.is_key_pressed(code) { ButtonState::Pressed } else { ButtonState::Up }
 }
 

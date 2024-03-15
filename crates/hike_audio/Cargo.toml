@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-fyrox-sound = "0.32"
+fyrox-sound = "0.34"
 rand = { workspace = true }
 rogalik = { workspace = true }
 

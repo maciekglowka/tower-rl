@@ -3,7 +3,8 @@ use rogalik::{
     math::vectors::{Vector2i, get_line},
     storage::{Entity, World}
 };
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serializer};
+use serde::de::Visitor;
 
 use hike_data::GameData;
 
@@ -58,6 +59,11 @@ pub fn spawn_with_position(
 
 pub fn deserialize_random_u32<'de, D>(d: D) -> Result<u32, D::Error>
 where D: Deserializer<'de> {
+    if !d.is_human_readable() {
+        return u32::deserialize(d)
+    }
+
+    // Ok(d.deserialize_any(RandomU32Visitsor).unwrap())
     match serde_yaml::Value::deserialize(d)? {
         serde_yaml::Value::Number(n) => 
             Ok(n.as_u64().ok_or(serde::de::Error::custom("Wrong value!"))? as u32),
@@ -73,4 +79,16 @@ where D: Deserializer<'de> {
         }
         _ => Err(serde::de::Error::custom("Wrong value!"))
     }
+}
+
+pub fn deserialize_none<'de, D, T>(d: D) -> Result<Option<T>, D::Error>
+where D: Deserializer<'de> {
+    // WARN: expects a 0 (u8 None) in the input
+    let _ = u8::deserialize(d);
+    Ok(None)
+}
+
+pub fn serialize_as_none<S, T>(_: &T, s:S) -> Result<S::Ok, S::Error>
+where S: Serializer {
+    s.serialize_none()
 }

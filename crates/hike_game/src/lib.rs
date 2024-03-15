@@ -5,6 +5,7 @@ use rogalik::{
     math::vectors::Vector2i,
     storage::World
 };
+use serde::{Serialize, Deserialize};
 use std::{
     any::TypeId,
     collections::{HashMap, VecDeque}
@@ -31,6 +32,14 @@ pub fn init(world: &mut World, events: &mut EventBus<GameEvent>, data: hike_data
     systems::board_start(world, events);
 }
 
+pub fn restore(world: &mut World, data: hike_data::GameData, saved_state: Vec<u8>) {
+    world.deserialize(&saved_state).unwrap();
+    world.insert_resource(data);
+    world.insert_resource(actions::PendingActions(VecDeque::new()));
+    world.insert_resource(actions::ActorQueue(VecDeque::new()));
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct GameStats {
     pub kills: HashMap<String, u32>,
     pub start: Instant,

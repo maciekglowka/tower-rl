@@ -1,4 +1,4 @@
-FROM rust:1.74
+FROM rust:1.76
 
 RUN apt-get update && apt-get install android-sdk -yy
 RUN mkdir /usr/lib/android-sdk/cmdline-tools/

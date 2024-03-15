@@ -102,6 +102,7 @@ pub fn get_audio_context(events: &mut EventBus<GameEvent>) -> AudioContext {
             .expect(&format!("Can't build audio buffer for {}!", k));
         let source = SoundSourceBuilder::new()
             .with_buffer(buffer)
+            .with_spatial_blend_factor(0.0)
             .build()
             .expect(&format!("Can't build audio source for {}!", k));
         let handle = context.state().add_source(source);
