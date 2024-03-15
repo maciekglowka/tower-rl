@@ -246,7 +246,7 @@ fn process_poisoned(world: &mut World) {
     let query = world.query::<Poisoned>().with::<Health>().build();
     for (mut poisoned, &entity) in query.iter_mut::<Poisoned>().zip(query.entities()) {
         poisoned.0 = poisoned.0.saturating_sub(1);
-        if poisoned.0 <= 0 {
+        if poisoned.0 == 0 {
             to_remove.push(entity);
         }
         pending.0.push_back(Box::new(Damage { entity: entity, value: 1 }))
@@ -262,7 +262,7 @@ fn process_immune(world: &mut World) {
     let query = world.query::<Immune>().build();
     for (mut immune, &entity) in query.iter_mut::<Immune>().zip(query.entities()) {
         immune.0 = immune.0.saturating_sub(1);
-        if immune.0 <= 0 {
+        if immune.0 == 0 {
             to_remove.push(entity);
         }
     }
@@ -277,7 +277,7 @@ fn process_regeneration(world: &mut World) {
     let Some(mut pending) = world.get_resource_mut::<PendingActions>() else { return };
     for (mut regeneration, &entity) in query.iter_mut::<Regeneration>().zip(query.entities()) {
         regeneration.0 = regeneration.0.saturating_sub(1);
-        if regeneration.0 <= 0 {
+        if regeneration.0 == 0 {
             to_remove.push(entity);
         }
         pending.0.push_back(Box::new(Heal { entity: entity, value: 1 }))
