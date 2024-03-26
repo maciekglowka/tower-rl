@@ -118,7 +118,7 @@ fn handle_touches(
                         let dy = touch.position.y - existing.start.y;
                         let d = Vector2f::new(dx, dy);
 
-                        let screen_x = context.get_physical_size().x;
+                        // let screen_x = context.get_physical_size().x;
                         let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
                             * context.get_physical_size().x;
                         // let thresh = screen_x / (0.005 * settings.swipe_sensitivity.pow(2) as f32 * screen_x);

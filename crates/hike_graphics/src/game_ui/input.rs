@@ -24,12 +24,9 @@ pub fn handle_dir_input(
         // }
         
     let bounds = get_viewport_bounds(context);
-    let mut safe_area = UI_BOTTOM_SAFE_AREA;
-    if CONTEXT_VISIBLE.load(core::sync::atomic::Ordering::Relaxed) {
-        safe_area += UI_BUTTON_HEIGHT;
-    }
+
     let world_input = !input_state.touch
-        || input_state.mouse_world_position.y > bounds.0.y + safe_area;
+        || input_state.mouse_world_position.y > bounds.0.y + UI_BOTTOM_SAFE_AREA + UI_BUTTON_HEIGHT;
 
     if input_state.direction != InputDirection::None {
         ui_state.direction_buffer = Some((input_state.direction, world_input));
