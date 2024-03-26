@@ -73,7 +73,7 @@ pub enum UiMode {
     GameEnd,
 }
 
-#[derive(Clone, Copy, Default, PartialEq)]
+#[derive(Clone, Copy, Default, Debug, PartialEq)]
 pub enum InputDirection {
     #[default]
     None,
