@@ -17,12 +17,7 @@ pub fn handle_dir_input(
     input_state: &mut InputState,
     ui_state: &mut UiState,
     context: &mut crate::Context_,
-) {
-    // if input_state.pause == ButtonState::Pressed && set_player_action(world, Box::new(Pause)) {
-        //     ui_state.direction_buffer = None;
-        //     return;
-        // }
-        
+) {       
     let bounds = get_viewport_bounds(context);
 
     let world_input = !input_state.touch
@@ -31,10 +26,6 @@ pub fn handle_dir_input(
     if input_state.direction != InputDirection::None {
         ui_state.direction_buffer = Some((input_state.direction, world_input));
     }
-
-    // if input_state.direction != InputDirection::None && (world_input || !input_state.touch) {
-    //     ui_state.direction_buffer = Some(input_state.direction);
-    // }
 
     if let Some((buffer, is_world)) = ui_state.direction_buffer {
         if !is_world { return };
@@ -55,7 +46,4 @@ pub fn handle_dir_input(
             ui_state.direction_buffer = None;
         }
     }
-    // if input_state.mouse_button_left == ButtonState::Released && world_input {
-    //     set_player_action(world, Box::new(Pause));
-    // }
 }
