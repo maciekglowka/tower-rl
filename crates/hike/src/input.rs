@@ -170,36 +170,6 @@ fn handle_touches(
                         _ => ()
                     }
                     existing.prev = touch.position;
-
-                    // log::info!("Existing");
-                    // existing.move_attempt = true;
-
-                    // let dx = touch.position.x - existing.start.x;
-                    // let dy = touch.position.y - existing.start.y;
-                    // let d = Vector2f::new(dx, dy);
-
-                    // // let screen_x = context.get_physical_size().x;
-                    // let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
-                    //     * context.get_physical_size().x;
-                    // log::info!("Thresh: {}", thresh);
-                    // // let thresh = screen_x / (0.005 * settings.swipe_sensitivity.pow(2) as f32 * screen_x);
-                    // if d.len() < thresh { return InputDirection::None }
-                    // if dx.abs() / dy.abs() < 1.5 && dy.abs() / dx.abs() < 1.5 {
-                    //     existing.dir = Some(InputDirection::None);
-                    //     return InputDirection::None
-                    // }
-
-                    // let dir = if dx.abs() > dy.abs() {
-                    //     if dx < 0. { InputDirection::Left } else { InputDirection::Right }
-                    // } else {
-                    //     if dy < 0. { InputDirection::Down } else { InputDirection::Up }
-                    // };
-
-                    // existing.time = Instant::init();
-                    // existing.dir = Some(dir);
-                    // log::info!("Dir: {:?}", dir);
-                    // return dir;
-
                 }
             },
             TouchPhase::Ended => {
@@ -210,29 +180,10 @@ fn handle_touches(
                         TouchState::MoveStarted => output = existing.dir,
                         _ => ()
                     }
-                    // if !existing.move_attempt { return InputDirection::Still }
-                    // if existing.dir.is_some() { return InputDirection::None }
                 }
-                    // match existing.dir {
-                    //     Some(InputDirection::None) => return InputDirection::Still,
-                    //     // Some(a) => return a,
-                    // }
-                // return InputDirection::Still
-                // return InputDirection::None;
             },
             _ => ()
         }
-        // if let Some(existing) = touch_state.get_mut(id) {
-        //     if let Some(dir) = existing.dir {
-        //         if existing.time.elapsed() > 0.1 * settings.swipe_repeat_delay as f32 {
-        //             // touch_state.insert(*id, Touch { 
-        //             //     start: touch.position, time: Instant::init(), dir: Some(dir) 
-        //             // });
-        //             existing.time = Instant::init();
-        //             return dir;
-        //         }
-        //     }
-        // }
     }
 
     if output == InputDirection::None {
