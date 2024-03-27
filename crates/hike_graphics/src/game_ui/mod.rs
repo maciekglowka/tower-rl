@@ -34,13 +34,14 @@ pub struct InputState {
     pub direction: InputDirection,
     pub action_left: ButtonState,
     pub action_right: ButtonState,
-    pub pause: ButtonState,
+    // pub pause: ButtonState,
     pub digits: [ButtonState; 10],
     pub item_action: [ButtonState; 4], // ZXCV
 }
 
 pub struct UiState {
-    pub direction_buffer: Option<InputDirection>,
+    // dir, is_world_input
+    pub direction_buffer: Option<(InputDirection, bool)>,
     mode: UiMode,
     bubbles: Vec<bubbles::Bubble>,
     game_duration: f32,
@@ -72,7 +73,7 @@ pub enum UiMode {
     GameEnd,
 }
 
-#[derive(Clone, Copy, Default, PartialEq)]
+#[derive(Clone, Copy, Default, Debug, PartialEq)]
 pub enum InputDirection {
     #[default]
     None,

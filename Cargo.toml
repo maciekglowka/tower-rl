@@ -3,5 +3,5 @@ members = ["crates/*"]
 # workspace.resolver = "2"`
 
 [workspace.dependencies]
-rogalik = { git = "https://github.com/maciekglowka/rogalik/", rev = "7069c7b84ef553861804c3af26a85e0258a6f4fd", features = ["serialize"] }
+rogalik = { git = "https://github.com/maciekglowka/rogalik/", rev = "7fd8501cad7f1da115a93595947b4b36ad54bc90", features = ["serialize"] }
 rand = "0.8"
