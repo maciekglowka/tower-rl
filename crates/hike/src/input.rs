@@ -144,6 +144,8 @@ fn handle_touches(
                 if let Some(existing) = touch_state.get_mut(id) {
                     let thresh = (0.5 / settings.swipe_sensitivity.pow(2) as f32)
                         * context.get_physical_size().x;
+                    // let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
+                    //         * context.get_physical_size().x;
 
                     match existing.state {
                         TouchState::Started | TouchState::MoveAttempted => {
@@ -152,7 +154,7 @@ fn handle_touches(
                                 existing.dir = get_touch_dir(d);
                                 existing.state = TouchState::MoveStarted;
                                 existing.time = Instant::init();
-                            } else {
+                            } else if d.len() > 0.5 * thresh {
                                 existing.state = TouchState::MoveAttempted;
                             }
                         },
