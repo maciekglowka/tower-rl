@@ -1,4 +1,4 @@
-// #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 use rogalik::{
     engine::{Context, Game, GraphicsContext, EngineBuilder, ResourceId},
     events::{EventBus, SubscriberHandle},
