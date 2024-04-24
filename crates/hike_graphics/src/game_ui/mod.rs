@@ -83,6 +83,18 @@ pub enum InputDirection {
     Right,
     Still
 }
+impl InputDirection {
+    pub fn from_vector2i(v: Vector2i) -> Self {
+        match v {
+            Vector2i::DOWN => Self::Down,
+            Vector2i::UP => Self::Up,
+            Vector2i::LEFT => Self::Left,
+            Vector2i::RIGHT => Self::Right,
+            Vector2i::ZERO => Self::Still,
+            _ => Self::None
+        }
+    }
+}
 
 #[derive(Clone, Copy, Default, PartialEq)]
 pub enum ButtonState {

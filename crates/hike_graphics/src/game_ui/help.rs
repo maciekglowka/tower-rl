@@ -124,7 +124,7 @@ fn draw_help_button(context: &mut crate::Context_, state: &InputState) -> bool {
     };
 
     let button = Button::new(
-        bounds.1.x - UI_GAP - UI_BUTTON_HEIGHT,
+        bounds.0.x + UI_GAP, // - UI_BUTTON_HEIGHT,
         y,
         UI_BUTTON_HEIGHT,
         UI_BUTTON_HEIGHT

@@ -144,8 +144,6 @@ fn handle_touches(
                 if let Some(existing) = touch_state.get_mut(id) {
                     let thresh = (0.5 / settings.swipe_sensitivity.pow(2) as f32)
                         * context.get_physical_size().x;
-                    // let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
-                    //         * context.get_physical_size().x;
 
                     match existing.state {
                         TouchState::Started | TouchState::MoveAttempted => {
