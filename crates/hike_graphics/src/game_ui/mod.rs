@@ -123,7 +123,7 @@ pub fn ui_update(
 ) {
     match ui_state.mode {
         UiMode::Game => {
-            update_game_ui(world, input_state, ui_state, context);
+            update_game_ui(world, input_state, ui_state, context, settings);
             if let Some(stats) = world.get_resource::<hike_game::GameStats>() {
                 if get_player_entity(world).is_none() || stats.win {
                     ui_state.mode = UiMode::GameEnd;
@@ -141,6 +141,7 @@ fn update_game_ui(
     input_state: &mut InputState,
     ui_state: &mut UiState,
     context: &mut crate::Context_,
+    settings: &Settings,
 ) {
     handle_action_events(world, ui_state);
     status::draw_status(world, context);
@@ -150,14 +151,14 @@ fn update_game_ui(
     messages::update_messages(world, context, ui_state);
     bubbles::handle_bubbles(world, ui_state, context);
 
-    if context_menu::handle_menu(world, context, input_state) {
+    if context_menu::handle_menu(world, context, input_state, settings) {
         ui_click = true
     }
     if help::handle_help_button(context, input_state, ui_state) {
         ui_click = true
     }
     if ui_click { return };
-    input::handle_dir_input(world, input_state, ui_state, context);
+    input::handle_dir_input(world, input_state, ui_state, context, settings);
 }
 
 pub fn get_viewport_bounds(context: &crate::Context_) -> (Vector2f, Vector2f) {

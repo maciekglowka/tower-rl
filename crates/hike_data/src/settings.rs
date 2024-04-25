@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 pub struct Settings {
     pub swipe_sensitivity: u32,
     pub swipe_repeat_delay: u32,
+    pub dpad: bool,
     pub dirty: bool
 }
 impl Default for Settings {
@@ -11,6 +12,7 @@ impl Default for Settings {
         Self {
             swipe_sensitivity: 5,
             swipe_repeat_delay: 2,
+            dpad: false,
             dirty: false
         }
     }

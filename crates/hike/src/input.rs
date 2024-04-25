@@ -50,7 +50,11 @@ pub fn get_input_state(
     let action_right = key_state(context, KeyCode::KeyE);
     let action_left = key_state(context, KeyCode::KeyQ);
 
-    let mut direction = handle_touches(context, touch_state, settings);
+    let mut direction = if !settings.dpad {
+        handle_touches(context, touch_state, settings)
+    } else {
+        InputDirection::None
+    };
     let touch = direction != InputDirection::None;
 
     if context.input.is_key_pressed(KeyCode::KeyW) 

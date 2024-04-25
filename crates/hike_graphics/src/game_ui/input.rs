@@ -1,5 +1,6 @@
 use rogalik::math::vectors::{Vector2i, Vector2f, ORTHO_DIRECTIONS};
 
+use hike_data::Settings;
 use hike_game::{
     actions::Pause,
     set_player_action,
@@ -18,6 +19,7 @@ pub fn handle_dir_input(
     input_state: &mut InputState,
     ui_state: &mut UiState,
     context: &mut crate::Context_,
+    settings: &Settings
 ) {       
     let bounds = get_viewport_bounds(context);
 
@@ -28,9 +30,11 @@ pub fn handle_dir_input(
         ui_state.direction_buffer = Some((input_state.direction, world_input));
     }
 
-    let dpad = handle_dpad(context, bounds, input_state);
-    if dpad != InputDirection::None {
-        ui_state.direction_buffer = Some((dpad, true));
+    if settings.dpad {
+        let dpad = handle_dpad(context, bounds, input_state);
+        if dpad != InputDirection::None {
+            ui_state.direction_buffer = Some((dpad, true));
+        }
     }
 
     if let Some((buffer, is_world)) = ui_state.direction_buffer {
