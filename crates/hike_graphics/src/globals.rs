@@ -1,4 +1,5 @@
 pub const TILE_SIZE: f32 = 1.;
+pub const PIXEL: f32 = TILE_SIZE / 16.;
 pub const PERSP_RATIO: f32 = 1.0;
 pub const BOARD_V_OFFSET: f32 = -2.;
 

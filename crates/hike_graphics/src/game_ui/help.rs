@@ -8,7 +8,7 @@ use hike_data::Settings;
 
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, UI_BOTTOM_PANEL_HEIGHT,
-    UI_BG_Z, UI_STATUS_TEXT_SIZE
+    UI_BG_Z, UI_STATUS_TEXT_SIZE, PIXEL
 };
 use super::{UiState, UiMode, InputState, get_viewport_bounds};
 use super::buttons::{Button, InputNumber};
@@ -126,7 +126,7 @@ fn draw_help_button(context: &mut crate::Context_, state: &InputState) -> bool {
         UI_BUTTON_HEIGHT
     )
         .with_sprite("ui", 0)
-        .with_span(Span::new().with_text_borrowed("\u{0098}").with_size(UI_BUTTON_TEXT_SIZE));
+        .with_span(Span::new().with_sprite("ui", 2).with_size(UI_BUTTON_TEXT_SIZE));
     button.draw(context);
     button.clicked(state)
 }
