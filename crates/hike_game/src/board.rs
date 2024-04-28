@@ -283,6 +283,7 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     let mut npc_score: i32 = npcs.iter()
         .map(|n| data.entities[n].score)
         .sum();
+
     let npc_pool = get_entity_pool(&data, &data.npcs, level);
     while npc_score < target_score {
         let npc = npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone();

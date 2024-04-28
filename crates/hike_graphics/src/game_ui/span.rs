@@ -85,26 +85,26 @@ impl<'a> Span<'a> {
                     let _ = context.graphics.draw_text(
                         "default", 
                         text,
-                        origin + Vector2f::new(offset, -(self.size as f32)), 
+                        origin + Vector2f::new(offset, -self.size), 
                         UI_TEXT_Z,
-                        self.size as f32, 
+                        self.size, 
                         Params2d { color: self.text_color, ..Default::default() }
                     );
-                    offset += context.graphics.text_dimensions("default", text, self.size as f32).x;
+                    offset += context.graphics.text_dimensions("default", text, self.size).x;
                 },
                 &SpanItem::Sprite(atlas, index) => {
                     let _ = context.graphics.draw_atlas_sprite(
                         atlas,
                         index as usize,
-                        origin + Vector2f::new(offset, -(self.size as f32)),
+                        origin + Vector2f::new(offset, -self.size),
                         UI_TEXT_Z,
-                        Vector2f::new(self.size as f32, self.size as f32),
+                        Vector2f::new(self.size, self.size),
                         Params2d { color: self.sprite_color, ..Default::default() }
                     );
-                    offset += self.size as f32;
+                    offset += self.size;
                 },
                 SpanItem::Spacer(w) => {
-                    offset += self.size as f32 * w
+                    offset += self.size * w
                 }
             }
         }

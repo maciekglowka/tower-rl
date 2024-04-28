@@ -35,7 +35,7 @@ pub const FADE_SPEED: f32 = 5.;
 // ui
 pub const UI_BOTTOM_PANEL_HEIGHT: f32 = 4.25;
 pub const UI_BUTTON_HEIGHT: f32 = 1.25;
-pub const UI_GAP: f32 = 0.2;
+pub const UI_GAP: f32 = 3. * PIXEL;
 pub const UI_TEXT_GAP: f32 = 0.1;
 pub const UI_BUTTON_TEXT_SIZE: f32 = 0.5;
 pub const UI_STATUS_TEXT_SIZE: f32 = 0.5;
