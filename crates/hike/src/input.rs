@@ -50,7 +50,11 @@ pub fn get_input_state(
     let action_right = key_state(context, KeyCode::KeyE);
     let action_left = key_state(context, KeyCode::KeyQ);
 
-    let mut direction = handle_touches(context, touch_state, settings);
+    let mut direction = if !settings.dpad {
+        handle_touches(context, touch_state, settings)
+    } else {
+        InputDirection::None
+    };
     let touch = direction != InputDirection::None;
 
     if context.input.is_key_pressed(KeyCode::KeyW) 
@@ -144,8 +148,6 @@ fn handle_touches(
                 if let Some(existing) = touch_state.get_mut(id) {
                     let thresh = (0.5 / settings.swipe_sensitivity.pow(2) as f32)
                         * context.get_physical_size().x;
-                    // let thresh = (0.1 / settings.swipe_sensitivity.pow(2) as f32)
-                    //         * context.get_physical_size().x;
 
                     match existing.state {
                         TouchState::Started | TouchState::MoveAttempted => {

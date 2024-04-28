@@ -6,7 +6,7 @@ use rogalik::{
 use super::{ButtonState, InputState};
 use super::span::Span;
 // use super::panels::Panel;
-use super::super::globals::{UI_BUTTON_Z, UI_GAP, UI_BUTTON_HEIGHT, UI_BUTTON_TEXT_SIZE};
+use super::super::globals::{UI_BUTTON_Z, UI_GAP, UI_BUTTON_HEIGHT, UI_BUTTON_TEXT_SIZE, PIXEL};
 
 pub struct Button<'a> {
     origin: Vector2f,
@@ -138,8 +138,8 @@ impl<'a> InputNumber<'a> {
                 .with_size(UI_BUTTON_TEXT_SIZE);
             span.draw(
                 Vector2f::new(
-                    self.origin.x,
-                    self.origin.y + 3. * UI_GAP + UI_BUTTON_HEIGHT
+                    self.origin.x + PIXEL,
+                    self.origin.y + 3. * UI_GAP + UI_BUTTON_HEIGHT + PIXEL
                 ),
                 context
             );

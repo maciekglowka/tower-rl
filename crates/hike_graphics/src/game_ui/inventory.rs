@@ -13,7 +13,7 @@ use super::{InputState, ButtonState, get_viewport_bounds};
 use super::buttons::Button;
 use super::super::globals::{
     UI_BUTTON_HEIGHT, UI_GAP, UI_BUTTON_TEXT_SIZE, BUTTON_COLOR,
-    UI_BOTTOM_PANEL_HEIGHT, UI_BG_Z, UI_TEXT_Z
+    UI_BOTTOM_PANEL_HEIGHT, UI_BG_Z, UI_TEXT_Z, PIXEL
 };
 use super::utils::get_item_span;
 
@@ -29,7 +29,7 @@ pub fn handle_inventory(
     let _ = context.graphics.draw_text(
         "default",
         "Weapon slots",
-        bounds.0 + Vector2f::new(UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
+        bounds.0 + Vector2f::new(PIXEL + UI_GAP, 1.5 * UI_GAP + UI_BUTTON_HEIGHT),
         UI_TEXT_Z,
         UI_BUTTON_TEXT_SIZE,
         Params2d { color: BUTTON_COLOR, ..Default::default() }
@@ -37,7 +37,7 @@ pub fn handle_inventory(
     let _ = context.graphics.draw_text(
         "default",
         "Inventory",
-        bounds.0 + Vector2f::new(UI_GAP, 2.5 * UI_GAP + 2. * UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE),
+        bounds.0 + Vector2f::new(PIXEL + UI_GAP, 2.5 * UI_GAP + 2. * UI_BUTTON_HEIGHT + UI_BUTTON_TEXT_SIZE),
         UI_TEXT_Z,
         UI_BUTTON_TEXT_SIZE,
         Params2d { color: BUTTON_COLOR, ..Default::default() }
@@ -102,11 +102,13 @@ fn handle_inventory_buttons(
 ) -> Option<usize> {
     // return item index if clicked
     let mut clicked = None;
-    let single_width = (width - UI_GAP) / (entities.len() as f32) - UI_GAP;
+    let button_gap = UI_GAP - 2. * PIXEL;
+    // let single_width = (width - button_gap) / (entities.len() as f32) - UI_GAP;
+    let single_width = (width - 2. * UI_GAP - (entities.len() - 1) as f32 * button_gap) / (entities.len() as f32);
 
     for (i, entity) in entities.iter().enumerate() {
         let idx = if Some(i) == active { 1 } else { 0 };
-        let offset = UI_GAP + i as f32 * (UI_GAP + single_width);
+        let offset = UI_GAP + i as f32 * (button_gap + single_width);
 
         let mut button = Button::new(
                 v.x + offset,

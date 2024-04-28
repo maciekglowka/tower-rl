@@ -5,6 +5,7 @@ use rogalik::{
 };
 use core::sync::atomic::{AtomicUsize, AtomicBool, Ordering::Relaxed};
 
+use hike_data::Settings;
 use hike_game::{
     actions::{Action, Interact, WieldWeapon, PickCollectable},
     components::{Interactive, Collectable, Item, Name, Weapon},
@@ -29,6 +30,7 @@ pub fn handle_menu(
     world: &mut World,
     context: &mut crate::Context_,
     state: &InputState,
+    settings: &Settings
 ) -> bool {
     // true if clicked
     let Some(position) = get_player_position(world) else { return false };
@@ -55,10 +57,15 @@ pub fn handle_menu(
     
     let bounds = get_viewport_bounds(context);
     let y = bounds.0.y + UI_BOTTOM_PANEL_HEIGHT + UI_GAP;
+    let max_x = if settings.dpad {
+        bounds.1.x - 2. * (UI_BUTTON_HEIGHT + UI_GAP)
+    } else {
+        bounds.1.x - UI_BUTTON_HEIGHT - UI_GAP
+    };
     let width = match entities.len() {
         0 => return false,
-        1 => bounds.1.x - bounds.0.x - 2.0 * UI_GAP,
-        _ => (bounds.1.x - bounds.0.x - 3.0 * UI_GAP) / 2.0
+        1 => max_x - bounds.0.x - 2.0 * UI_GAP,
+        _ => (max_x - bounds.0.x - 3.0 * UI_GAP) / 2.0
     };
 
     if entities.len() > 1 {
