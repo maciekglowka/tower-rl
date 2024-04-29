@@ -4,3 +4,4 @@ env/
 wasm-out/
 tower.keystore
 .apk_env
+*.bin

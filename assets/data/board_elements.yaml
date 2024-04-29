@@ -20,6 +20,18 @@ Wall:
     Obstacle:
     ViewBlocker:
 
+Pillar:
+  sprite:
+    atlas_name: tiles
+    index: 13
+    frames: 2
+    color: [255, 255, 255, 255]
+    # color: [31, 15, 28, 255]
+  components:
+    Fixture:
+    Obstacle:
+    ViewBlocker:
+
 Stair:
   sprite:
     atlas_name: tiles

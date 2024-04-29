@@ -139,7 +139,7 @@ fn draw_kill_spans(
                         .with_sprite(&entry.sprite.atlas_name, entry.sprite.index)
                         .with_sprite_color(entry.sprite.color)
                         .with_spacer(0.25 * UI_BUTTON_TEXT_SIZE)
-                        .with_text_owned(format!("{} x{}", k.replace("_", " "), v))
+                        .with_text_owned(format!("{} *{}", k.replace("_", " "), v))
                         .with_size(UI_BUTTON_TEXT_SIZE);
                     draw_centered_span(context, bounds, y, span);
                     y -= 1.25 * UI_BUTTON_TEXT_SIZE;

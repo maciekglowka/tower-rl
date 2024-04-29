@@ -38,36 +38,49 @@ impl Board {
         }
 
         let layout = get_bsp_layout();
-        for v in layout.0.iter() {
+        for v in layout.walls.iter() {
             let _ = spawn_with_position(world, "Wall", *v);
         }
         let mut rng = thread_rng();
-        for v in layout.1.iter() {
+        for v in layout.doors.iter() {
             if !rng.gen_bool(0.5) { continue };
             let _ = spawn_with_position(world, "Closed_Door", *v);
         }
 
         // remove walls
-        tile_pool.retain(|v| !layout.0.contains(v));
+        tile_pool.retain(|v| !layout.walls.contains(v));
         // remvove doors and adjacent
-        tile_pool.retain(|v| !layout.1.iter().any(|d| d.manhattan(*v) <= 1));
+        tile_pool.retain(|v| !layout.doors.iter().any(|d| d.manhattan(*v) <= 1));
 
-        if self.level < LEVEL_COUNT {
-            let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool, None).unwrap());
+        if self.level > 8 {
+            for v in get_columns(layout.rooms.last().unwrap()) {
+                tile_pool.remove(&v);
+                let _ = spawn_with_position(world, "Pillar", v);
+            }
         }
 
-        self.player_spawn = get_random_tile(&mut tile_pool, None).unwrap();
+        if self.level < LEVEL_COUNT {
+            let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool, None, None).unwrap());
+        }
+
+        let player_room = &layout.rooms[0].tiles();
+
+        self.player_spawn = get_random_tile(
+            &mut tile_pool,
+            Some(player_room),
+            None
+        ).unwrap();
 
         if self.level == 1 {
             let _ = spawn_with_position(
                 world,
                 "Small_Sword",
-                get_random_tile(&mut tile_pool, Some((self.player_spawn, 1, 3))).unwrap()
+                get_random_tile(&mut tile_pool, Some(player_room), None).unwrap()
             );
         }
 
         if self.level == LEVEL_COUNT {
-            let v = get_random_tile(&mut tile_pool, Some((self.player_spawn, 6, i32::MAX))).unwrap();
+            let v = get_random_tile(&mut tile_pool, None, Some(player_room)).unwrap();
             let _ = spawn_with_position(world, "Second_Book_of_Poetics", v);
         }
 
@@ -75,8 +88,16 @@ impl Board {
             get_board_pieces(self.level, &data) 
         } else { return };
 
-        for name in pieces {
-            let Some(v) = get_random_tile(&mut tile_pool, Some((self.player_spawn, 3, i32::MAX))) else { continue };
+        for (name, kind) in pieces {
+            let exclude = match kind {
+                PieceKind::Npc => Some(player_room),
+                _ => None
+            };
+            let Some(v) = get_random_tile(
+                &mut tile_pool,
+                None,
+                exclude
+            ) else { continue };
             let _ = spawn_with_position(world, &name, v);
         }
         
@@ -86,6 +107,29 @@ impl Board {
     pub fn is_exit(&self) -> bool {
         self.exit
     }
+}
+
+fn get_columns(room: &Room) -> HashSet<Vector2i> {
+    if room.area() <= 20 { return HashSet::new () }
+    let (w, h) = room.dim();
+
+    let xs = match w {
+        a if a >= 6 => vec![
+            room.a.x + w as i32 / 2 - 2, room.a.x + w as i32 / 2 + 1
+        ],
+        _ => vec![room.a.x + w as i32 / 2]
+    };
+    let ys = match h {
+        a if a >= 6 => vec![
+            room.a.y + h as i32 / 2 - 2, room.a.y + h as i32 / 2 + 1
+        ],
+        _ => vec![room.a.y + h as i32 / 2]
+    };
+
+    xs.iter().flat_map(|x|
+            ys.iter().map(move |y| Vector2i::new(*x, *y))
+        )
+        .collect()
 }
 
 fn create_bounds(world: &mut World) -> HashMap<Vector2i, Entity> {
@@ -119,6 +163,18 @@ pub fn update_visibility(world: &mut World) {
     }
 }
 
+enum PieceKind {
+    Npc,
+    Item,
+    Fixture
+}
+
+struct Layout {
+    doors: HashSet<Vector2i>,
+    walls: HashSet<Vector2i>,
+    rooms: Vec<Room>
+}
+
 struct Room {
     pub a: Vector2i,
     pub b: Vector2i,
@@ -128,10 +184,17 @@ impl Room {
     pub fn tiles(&self) -> HashSet<Vector2i> {
         tile_range(self.a, self.b)
     }
+    pub fn area(&self) -> u32 {
+        let (w, h) = self.dim();
+        w * h
+    }
+    pub fn dim(&self) -> (u32, u32) {
+        // ((self.b.x - self.a.x).abs() as u32, (self.b.y - self.a.y).abs() as u32)
+        ((self.b.x - self.a.x) as u32 + 1, (self.b.y - self.a.y) as u32 + 1)
+    }
 }
 
-fn get_bsp_layout() -> (HashSet<Vector2i>, HashSet<Vector2i>) {
-    // return (walls, doors)
+fn get_bsp_layout() -> Layout {
     'outer: loop {
         let base = Room {
             a: Vector2i::ZERO,
@@ -139,7 +202,7 @@ fn get_bsp_layout() -> (HashSet<Vector2i>, HashSet<Vector2i>) {
             doors: Vec::new()
         };
         let mut wall_tiles = base.tiles();
-        let rooms = divide_room(base);
+        let mut rooms = divide_room(base);
         if rooms.len() < 3 { continue; }
         let mut doors = HashSet::new();
         for r in rooms.iter() {
@@ -160,7 +223,13 @@ fn get_bsp_layout() -> (HashSet<Vector2i>, HashSet<Vector2i>) {
             if n > 2 { continue 'outer }
         }
 
-        return (wall_tiles, doors);
+        rooms.sort_by(|a, b| a.area().cmp(&b.area()));
+
+        return Layout {
+            walls: wall_tiles,
+            doors,
+            rooms
+        };
     }
 }
 
@@ -216,33 +285,22 @@ fn tile_range(a: Vector2i, b: Vector2i) -> HashSet<Vector2i> {
 
 fn get_random_tile(
     pool: &mut HashSet<Vector2i>,
-    dist: Option<(Vector2i, i32, i32)>
+    limit: Option<&HashSet<Vector2i>>,
+    exclude: Option<&HashSet<Vector2i>>,
 ) -> Option<Vector2i> {
     let mut rng = thread_rng();
+    let mut target_pool = pool.clone();
+    if let Some(limit) = limit {
+        target_pool.retain(|v| limit.contains(v));
+    }
+    if let Some(exclude) = exclude {
+        target_pool.retain(|v| !exclude.contains(v));
+    }
 
-    let v = match dist {
-        Some((p, min_d, max_d)) => {
-            *pool.iter()
-                .filter(|a| a.manhattan(p) >= min_d && a.manhattan(p) <= max_d)
-                .choose(&mut rng)?
-        },
-        None => *pool.iter().choose(&mut rng)?
-    };
-    // let v = *pool.iter().choose(&mut rng)?;
+    let v = *target_pool.iter().choose(&mut rng)?;
     pool.remove(&v);
     Some(v)
 }
-
-// pub fn get_free_tile(world: &World) -> Option<Vector2i> {
-//     let mut rng = thread_rng();
-//     let board = world.get_resource::<Board>()?;
-//     let tiles = board.tiles.keys()
-//         .filter(|&&v| !get_entities_at_position(world, v)
-//             .iter()
-//             .any(|&e| world.get_component::<Tile>(e).is_none())
-//         );
-//     tiles.choose(&mut rng).map(|&v| v)
-// }
 
 fn get_target_score(level: u32) -> i32 {
     (level as f32 * 2.0) as i32
@@ -259,7 +317,7 @@ fn get_entity_pool<'a>(data: &'a GameData, base: &'a Vec<String>, level: u32) ->
         .collect()
 }
 
-fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
+fn get_board_pieces(level: u32, data: &GameData) -> Vec<(String, PieceKind)> {
     let target_score = get_target_score(level);
     let mut rng = thread_rng();
 
@@ -270,12 +328,12 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
         Some(l) => (l.required_items.clone(), l.required_npcs.clone(), l.required_fixtures.clone()),
         None => (Vec::new(), Vec::new(), Vec::new())
     };
-    let item_pool = get_entity_pool(&data, &data.items, level);
+    let item_pool = get_entity_pool(data, &data.items, level);
     for _ in 0..item_count.saturating_sub(items.len()) {
         items.push(item_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
     }
 
-    let weapon_pool = get_entity_pool(&data, &data.weapons, level);
+    let weapon_pool = get_entity_pool(data, &data.weapons, level);
     for _ in 0..weapon_count {
         items.push(weapon_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
     }
@@ -284,16 +342,21 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
         .map(|n| data.entities[n].score)
         .sum();
 
-    let npc_pool = get_entity_pool(&data, &data.npcs, level);
+    let npc_pool = get_entity_pool(data, &data.npcs, level);
     while npc_score < target_score {
-        let npc = npc_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone();
+        let npc = npc_pool.choose_weighted(&mut rng, |a|
+                // take already added npcs into account
+                a.0 / ((5 * npcs.iter().filter(|&n| n == &a.1).count()) as f32 + 1.)
+            ).unwrap().1.clone();
         npc_score += data.entities[&npc].score;
         npcs.push(npc);
     };
 
     // unneccessary clone / alloc
-    let mut output = items.clone();
-    output.extend(npcs);
+    let mut output: Vec<_> = items.iter().map(|a| (a.clone(), PieceKind::Item)).collect();
+    output.extend(
+        npcs.iter().map(|a| (a.clone(), PieceKind::Npc))
+    );
 
     // TODO redo
     if fixtures.len() == 0 && level % 2 == 0 && level > 2 {
@@ -308,6 +371,8 @@ fn get_board_pieces(level: u32, data: &GameData) -> Vec<String> {
     //     output.push(trap_pool.choose_weighted(&mut rng, |a| a.0).unwrap().1.clone());
     // }
 
-    output.extend(fixtures);
+    output.extend(
+        fixtures.iter().map(|a| (a.clone(), PieceKind::Fixture))
+    );
     output
 }
