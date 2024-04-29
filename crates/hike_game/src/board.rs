@@ -52,6 +52,13 @@ impl Board {
         // remvove doors and adjacent
         tile_pool.retain(|v| !layout.doors.iter().any(|d| d.manhattan(*v) <= 1));
 
+        if self.level > 8 {
+            for v in get_columns(layout.rooms.last().unwrap()) {
+                tile_pool.remove(&v);
+                let _ = spawn_with_position(world, "Pillar", v);
+            }
+        }
+
         if self.level < LEVEL_COUNT {
             let _ = spawn_with_position(world, "Stair", get_random_tile(&mut tile_pool, None, None).unwrap());
         }
@@ -100,6 +107,29 @@ impl Board {
     pub fn is_exit(&self) -> bool {
         self.exit
     }
+}
+
+fn get_columns(room: &Room) -> HashSet<Vector2i> {
+    if room.area() <= 20 { return HashSet::new () }
+    let (w, h) = room.dim();
+
+    let xs = match w {
+        a if a >= 6 => vec![
+            room.a.x + w as i32 / 2 - 2, room.a.x + w as i32 / 2 + 1
+        ],
+        _ => vec![room.a.x + w as i32 / 2]
+    };
+    let ys = match h {
+        a if a >= 6 => vec![
+            room.a.y + h as i32 / 2 - 2, room.a.y + h as i32 / 2 + 1
+        ],
+        _ => vec![room.a.y + h as i32 / 2]
+    };
+
+    xs.iter().flat_map(|x|
+            ys.iter().map(move |y| Vector2i::new(*x, *y))
+        )
+        .collect()
 }
 
 fn create_bounds(world: &mut World) -> HashMap<Vector2i, Entity> {
@@ -155,7 +185,12 @@ impl Room {
         tile_range(self.a, self.b)
     }
     pub fn area(&self) -> u32 {
-        ((self.b.x - self.a.x).abs() * (self.b.y - self.a.y).abs()) as u32
+        let (w, h) = self.dim();
+        w * h
+    }
+    pub fn dim(&self) -> (u32, u32) {
+        // ((self.b.x - self.a.x).abs() as u32, (self.b.y - self.a.y).abs() as u32)
+        ((self.b.x - self.a.x) as u32 + 1, (self.b.y - self.a.y) as u32 + 1)
     }
 }
 

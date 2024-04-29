@@ -595,7 +595,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e16e44ab292b1dddfdaf7be62cfd8877df52f2f3fde5858d95bab606be259f20"
 dependencies = [
  "bitflags 2.4.2",
- "libloading 0.7.4",
+ "libloading 0.8.1",
  "winapi",
 ]
 
@@ -646,7 +646,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330c60081dcc4c72131f8eb70510f1ac07223e5d4163db481a04a0befcffa412"
 dependencies = [
- "libloading 0.7.4",
+ "libloading 0.8.1",
 ]
 
 [[package]]
@@ -1678,9 +1678,9 @@ dependencies = [
 
 [[package]]
 name = "objc-sys"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7c71324e4180d0899963fc83d9d241ac39e699609fc1025a850aadac8257459"
+checksum = "da284c198fb9b7b0603f8635185e85fbd5b64ee154b1ed406d489077de2d6d60"
 
 [[package]]
 name = "objc2"
@@ -2031,7 +2031,6 @@ checksum = "216080ab382b992234dda86873c18d4c48358f5cfcb70fd693d7f6f2131b628b"
 [[package]]
 name = "rogalik"
 version = "0.2.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "rogalik_engine",
  "rogalik_events",
@@ -2044,7 +2043,6 @@ dependencies = [
 [[package]]
 name = "rogalik_engine"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "android_logger",
  "cfg-if",
@@ -2065,12 +2063,10 @@ dependencies = [
 [[package]]
 name = "rogalik_events"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 
 [[package]]
 name = "rogalik_math"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "num-traits",
  "serde",
@@ -2079,7 +2075,6 @@ dependencies = [
 [[package]]
 name = "rogalik_persist"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "anyhow",
  "base64 0.22.0",
@@ -2092,7 +2087,6 @@ dependencies = [
 [[package]]
 name = "rogalik_storage"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "bincode",
  "rogalik_events",
@@ -2102,7 +2096,6 @@ dependencies = [
 [[package]]
 name = "rogalik_wgpu"
 version = "0.1.0"
-source = "git+https://github.com/maciekglowka/rogalik/?rev=7fd8501cad7f1da115a93595947b4b36ad54bc90#7fd8501cad7f1da115a93595947b4b36ad54bc90"
 dependencies = [
  "bytemuck",
  "image",
@@ -2914,7 +2907,7 @@ dependencies = [
  "js-sys",
  "khronos-egl",
  "libc",
- "libloading 0.7.4",
+ "libloading 0.8.1",
  "log",
  "metal",
  "naga",
@@ -3200,9 +3193,9 @@ checksum = "32b752e52a2da0ddfbdbcc6fceadfeede4c939ed16d13e648833a61dfb611ed8"
 
 [[package]]
 name = "winit"
-version = "0.29.11"
+version = "0.29.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "272be407f804517512fdf408f0fe6c067bf24659a913c61af97af176bfd5aa92"
+checksum = "0d59ad965a635657faf09c8f062badd885748428933dad8e8bdd64064d92e5ca"
 dependencies = [
  "ahash",
  "android-activity",
