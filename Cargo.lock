@@ -2031,6 +2031,7 @@ checksum = "216080ab382b992234dda86873c18d4c48358f5cfcb70fd693d7f6f2131b628b"
 [[package]]
 name = "rogalik"
 version = "0.2.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "rogalik_engine",
  "rogalik_events",
@@ -2043,6 +2044,7 @@ dependencies = [
 [[package]]
 name = "rogalik_engine"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "android_logger",
  "cfg-if",
@@ -2063,10 +2065,12 @@ dependencies = [
 [[package]]
 name = "rogalik_events"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 
 [[package]]
 name = "rogalik_math"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "num-traits",
  "serde",
@@ -2075,6 +2079,7 @@ dependencies = [
 [[package]]
 name = "rogalik_persist"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "anyhow",
  "base64 0.22.0",
@@ -2087,6 +2092,7 @@ dependencies = [
 [[package]]
 name = "rogalik_storage"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "bincode",
  "rogalik_events",
@@ -2096,6 +2102,7 @@ dependencies = [
 [[package]]
 name = "rogalik_wgpu"
 version = "0.1.0"
+source = "git+https://github.com/maciekglowka/rogalik/?rev=757321605b1a6ba152056bd8024e75bd555e272c#757321605b1a6ba152056bd8024e75bd555e272c"
 dependencies = [
  "bytemuck",
  "image",
@@ -2533,7 +2540,7 @@ dependencies = [
 
 [[package]]
 name = "tower"
-version = "0.1.7"
+version = "0.1.9"
 dependencies = [
  "hike_audio",
  "hike_data",

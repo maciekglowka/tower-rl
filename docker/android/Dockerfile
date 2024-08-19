@@ -7,8 +7,8 @@ RUN wget https://dl.google.com/android/repository/commandlinetools-linux-9477386
 RUN unzip commandlinetools-linux-9477386_latest.zip
 RUN mv /usr/lib/android-sdk/cmdline-tools/cmdline-tools/ /usr/lib/android-sdk/cmdline-tools/latest/
 RUN yes | /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-RUN /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.9519653" --channel=0
-RUN /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33"
+RUN /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.0.12077973" --channel=0
+RUN /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34"
 
 RUN rustup update
 RUN rustup target add aarch64-linux-android
@@ -30,7 +30,7 @@ COPY run.sh /usr/lib/run.sh
 RUN chmod +x /usr/lib/run.sh
 
 ENV ANDROID_HOME=/usr/lib/android-sdk
-ENV ANDROID_NDK_ROOT=/usr/lib/android-sdk/ndk/25.2.9519653
+ENV ANDROID_NDK_ROOT=/usr/lib/android-sdk/ndk/27.0.12077973
 
 WORKDIR /app/crates/hike
 

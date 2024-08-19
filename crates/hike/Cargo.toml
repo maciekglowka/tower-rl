@@ -1,6 +1,6 @@
 [package]
 name = "tower"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 
 [lib]
@@ -17,7 +17,7 @@ resources = "../../android_assets"
 
 [package.metadata.android.sdk]
 min_sdk_version = 30
-target_sdk_version = 33
+target_sdk_version = 34
 
 [package.metadata.android.activity_attributes]
 # "android:exported" =  "true"
