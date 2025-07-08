@@ -13,11 +13,11 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace 'com.maciejglowka.monktower'
+    namespace 'com.maciejglowka.monk_tower'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.maciejglowka.monktower"
+        applicationId "com.maciejglowka.monk_tower"
         minSdk 30
         targetSdk 36
         versionCode 1
