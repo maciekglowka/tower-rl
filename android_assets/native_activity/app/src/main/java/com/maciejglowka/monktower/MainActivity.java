@@ -1,12 +1,12 @@
-package com.maciejglowka.monk_tower;
+package com.maciejglowka.monktower;
 
-import androidx.appcompat.app.AppCompatActivity;
+// import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.NativeActivity;
 import android.os.Bundle;
-import android.widget.TextView;
+// import android.widget.TextView;
 
-import com.maciejglowka.monk_tower.databinding.ActivityMainBinding;
+// import com.maciejglowka.monk_tower.databinding.ActivityMainBinding;
 
 public class MainActivity extends NativeActivity {
 

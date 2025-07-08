@@ -13,14 +13,14 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace 'com.maciejglowka.monk_tower'
+    namespace 'com.maciejglowka.monktower'
     compileSdk 36
 
     defaultConfig {
         applicationId "com.maciejglowka.monk_tower"
         minSdk 30
         targetSdk 36
-        versionCode 16777482 
+        versionCode 16777483 
         versionName "0.1.10"
         ndk.abiFilters "armeabi-v7a","arm64-v8a","x86","x86_64"
 
