@@ -1,4 +1,4 @@
-package com.example.monktower;
+package com.maciejglowka.monktower;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,7 +6,7 @@ import android.app.NativeActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.example.monktower.databinding.ActivityMainBinding;
+import com.maciejglowka.monktower.databinding.ActivityMainBinding;
 
 public class MainActivity extends NativeActivity {
 

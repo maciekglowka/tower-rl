@@ -2556,7 +2556,7 @@ dependencies = [
 
 [[package]]
 name = "tower"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "hike_audio",
  "hike_data",

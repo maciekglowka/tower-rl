@@ -14,28 +14,32 @@ mv app/src/main/jniLibs/x86/libtower.so app/src/main/jniLibs/x86/libmain.so
 mv app/src/main/jniLibs/x86_64/libtower.so app/src/main/jniLibs/x86_64/libmain.so
 
 rm app/build/outputs/apk/* -rf
+
 ./gradlew build
+cp app/build/outputs/apk/release/app-release.apk /app/output/android/apk/monk_tower.apk
 
+./gradlew bundleRelease
+cp app/build/outputs/bundle/release/app-release.aab /app/output/android/apk/monk_tower.aab
 
-TEMP=$(mktemp -d)
+# TEMP=$(mktemp -d)
 
-/usr/lib/extra/aapt2/aapt2 convert app/build/outputs/apk/release/app-release-unsigned.apk --output-format proto -o $TEMP/app_proto.apk
+# /usr/lib/extra/aapt2/aapt2 convert app/build/outputs/apk/release/app-release-unsigned.apk --output-format proto -o $TEMP/app_proto.apk
 
-cd $TEMP
+# cd $TEMP
 
-unzip app_proto.apk
-mkdir manifest
+# unzip app_proto.apk
+# mkdir manifest
 
-mv AndroidManifest.xml manifest/
+# mv AndroidManifest.xml manifest/
 
-rm app_proto.apk
-rm META-INF -rf
-rm DebugProbesKt.bin 
-rm kotlin/ -rf
+# rm app_proto.apk
+# rm META-INF -rf
+# rm DebugProbesKt.bin 
+# rm kotlin/ -rf
 
-zip -r base.zip *
+# zip -r base.zip *
 
-cd -
+# cd -
 
-java -jar /usr/lib/extra/bundletool-all-1.15.6.jar build-bundle --modules=$TEMP/base.zip --output=bundle.aab
-jarsigner -keystore $CARGO_APK_RELEASE_KEYSTORE -storepass $CARGO_APK_RELEASE_KEYSTORE_PASSWORD bundle.aab tower
+# java -jar /usr/lib/extra/bundletool-all-1.15.6.jar build-bundle --modules=$TEMP/base.zip --output=bundle.aab
+# jarsigner -keystore $CARGO_APK_RELEASE_KEYSTORE -storepass $CARGO_APK_RELEASE_KEYSTORE_PASSWORD bundle.aab tower
